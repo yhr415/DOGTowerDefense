@@ -8,6 +8,8 @@ function setup() {
     fill(255, 0, 0);
     noStroke();
     circle(mouseX, mouseY, 100); // 그냥 mouseX!
+
+    rect(10, 100, 20, 30)
   }
   
   // 화면 크기 바꿀 때 캔버스도 같이 조절해주는 센스
