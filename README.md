@@ -100,3 +100,7 @@ Cursor 화면 왼쪽 맨 아래 구석 main (또는 master)이라고 적힌 작�
 git config --global user.name "내영어이름"
 
 git config --global user.email "내이메일주소"
+
+## 파일 실행하는 법
+npx vite로 실행 -> 주소창에 local:5173 입력해서 확인
+
