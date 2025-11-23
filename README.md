@@ -39,7 +39,7 @@ Cursor에서 키보드로 Ctrl + Shift + P (맥은 Cmd + Shift + P) 를 눌러.
 
 입력창에 아래 주소를 복사해서 붙여넣고 엔터!
 
-👉 주소: [진호야, 여기에 네 깃허브 레포지토리 주소(https://...)를 넣어서 줘]
+👉 주소: [https://github.com/yhr415/DOGTowerDefense.git]
 
 저장할 폴더를 선택하면 다운로드가 시작돼.
 
