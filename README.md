@@ -1,14 +1,13 @@
 🚀 우리 팀을 위한 [Cursor + GitHub] 시작 가이드
 다들 안녕! 우리 프로젝트 개발을 위해 **'Cursor(커서)'**라는 AI 에디터랑 **'GitHub(깃허브)'**를 사용할 거야. 처음엔 낯설 수 있는데, 이 가이드대로 딱 5분만 투자하면 바로 시작할 수 있어! 천천히 따라와 줘.
 
-1️⃣ 준비물 챙기기 (설치)
-가장 먼저 우리들의 작업실(프로그램)을 깔아야 해.
-
+1️⃣ Cursor 설치
 Cursor 설치 (필수)
 
 https://cursor.com/ 여기 들어가서 Download 버튼 누르고 설치해 줘.
 
 (VS Code랑 똑같은데 AI 기능이 내장된 엄청 좋은 툴이야!)
+(VS Code가 깔려있고, 더 익숙하다면 VS Code 사용해도 됨)
 
 Git 설치 (필수)
 
@@ -17,10 +16,6 @@ Cursor만 깔면 안 되고, 'Git'이라는 배달부도 깔아야 해.
 윈도우: https://git-scm.com/download/win (그냥 계속 Next 눌러서 설치)
 
 맥(Mac): 터미널 열고 git 이라고 치면 설치하라고 뜰 거야. (혹은 이미 깔려있음)
-
-GitHub 회원가입
-
-아직 아이디 없으면 https://github.com/ 가서 가입하고 아이디 알려줘! (초대해줘야 하니까)
 
 2️⃣ Cursor랑 깃허브 연결하기
 Cursor한테 "나 깃허브 아이디 있어!"라고 알려주는 과정이야.
@@ -59,7 +54,7 @@ Cursor 화면 왼쪽 맨 아래 구석을 봐봐. main (또는 master)이라고 
 
 브랜치 이름을 적고 엔터.
 
-규칙: 이름/작업내용 (예: jinho/login-page, haeri/design-fix)
+규칙: feat/작업내용 (예: feat/dog-feature-fix, feat/tower-attack)
 
 왼쪽 아래 글씨가 내가 만든 이름으로 바뀌었으면 성공!
 
