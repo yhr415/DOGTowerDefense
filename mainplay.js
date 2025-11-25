@@ -2,7 +2,7 @@ let enemies = [];
 let towers = [];
 let bullets = [];
 
-let money = 100;
+let money = 1000;
 let lives = 10;
 let score = 0;
 let gameOver = false;
