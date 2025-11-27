@@ -1,7 +1,7 @@
 let dog
 let velocity = [1, 2, 3.5, 5]
 
-// let dogImages = {};  // 객체로 정리
+let dogImages = {};  // 객체로 정리
 
 // function preload() {
 //   dogImages = {
