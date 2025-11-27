@@ -1,45 +1,34 @@
 class Tower {
-    constructor(x, y) {
-      this.x = x;
-      this.y = y;
-      this.range = towerRange;
-      this.cooldown = 0;
-      this.fireRate = 30; // 공격 속도 (낮을수록 빠름)
-    }
-  
-    show() {
-      fill(50, 100, 255); // 파란색
-      rectMode(CENTER);
-      rect(this.x, this.y, 40, 40);
+  // 타워가 자신의 격자 위치를 알 수 있도록 col, row를 받음
+  constructor(x, y, col, row) { 
+    this.x = x; // 픽셀 중앙 X
+    this.y = y; // 픽셀 중앙 Y
+    this.col = col;
+    this.row = row;
+    this.range = towerRange;
+    this.fireRate = 30; // 30 프레임마다 발사
+    this.lastShot = 0;
+    this.w = GRID_SIZE * 0.8; // 격자 크기의 80%
+    this.h = GRID_SIZE * 0.8;
+  }
+
+  show() {
+    fill(0, 200, 255); // 파란색 타워
+    rect(this.x - this.w / 2, this.y - this.h / 2, this.w, this.h);
+    noFill();
+    stroke(0, 200, 255, 50); // 범위 표시
+    ellipse(this.x, this.y, this.range * 2);
+  }
+
+  shoot(targetEnemies) {
+    if (frameCount - this.lastShot >= this.fireRate) {
+      // 범위 내의 적 찾기
+      let target = targetEnemies.find(e => dist(this.x, this.y, e.x, e.y) < this.range);
       
-      // 사거리 표시 (마우스 올렸을 때만 보이게 하려면 조건 추가 가능)
-      noFill();
-      stroke(255, 50);
-      strokeWeight(1);
-      ellipse(this.x, this.y, this.range * 2);
-    }
-  
-    shoot(enemies) {
-      if (this.cooldown > 0) {
-        this.cooldown--;
-        return;
-      }
-  
-      // 사거리 내의 가장 가까운 적 찾기
-      let closestDist = Infinity;
-      let target = null;
-  
-      for (let e of enemies) {
-        let d = dist(this.x, this.y, e.x, e.y);
-        if (d < this.range && d < closestDist) {
-          closestDist = d;
-          target = e;
-        }
-      }
-  
       if (target) {
         bullets.push(new Bullet(this.x, this.y, target));
-        this.cooldown = this.fireRate;
+        this.lastShot = frameCount;
       }
     }
   }
+}
