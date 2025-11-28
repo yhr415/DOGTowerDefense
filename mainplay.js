@@ -1,7 +1,12 @@
+/*
+이차원 배열 towers를 레벨 0 타워로 초기화하고,
+클릭한 셀에 해당되는 타워의 레벨을 1증가시켜주었습니다. (레벨업 비용은 설치비용과 동일하게)
+각 레벨에 해당되는 타워의 범위, 발사속도는 아래의 게임설정변수에 임의 값으로 설정하였습니다. -> 이후 모든 능력치 저장된 json파일 불러오기?
+*/
+
 let enemies = [];
 let towers = [];
 let bullets = [];
-let grid=[];
 
 let money = 1000;
 let lives = 10;
@@ -11,7 +16,9 @@ let gameOver = false;
 // 게임 설정 변수
 const spawnRate = 60; // 적 생성 주기 (프레임 단위)
 const towerCost = 50;
-const towerRange = 150;
+const towerRange = [null, 100, 150, 200, 250, 300];
+const towerFireRate = [null, 30, 25, 20, 15, 10];
+const maxTowerLevel = 5;
 
 // 타워 배치 격자 관련 변수 : 수정 필요
 const GRID_SIZE = 40; // 한 칸의 크기 (픽셀)
@@ -37,12 +44,12 @@ function setup() {
   createCanvas(NUM_COLS * GRID_SIZE, NUM_ROWS * GRID_SIZE); 
   textAlign(CENTER, CENTER);
   textSize(20);
-  
-  // 격자 배열 초기화 (모든 칸을 0으로)
+
+  // 타워 배열 초기화 (모든 값을 레벨 0 타워로)
   for (let r = 0; r < NUM_ROWS; r++) {
-    grid[r] = [];
+    towers[r] = [];
     for (let c = 0; c < NUM_COLS; c++) {
-      grid[r][c] = 0;
+      towers[r][c] = new Tower(c * GRID_SIZE + GRID_SIZE / 2, r * GRID_SIZE + GRID_SIZE / 2, c, r, 0);
     }
   }
 
@@ -90,9 +97,13 @@ function draw() {
   }
 
   // 4. 타워 관리
-  for (let t of towers) {
-    t.show();
-    t.shoot(enemies);
+  for (let r = 0; r < NUM_ROWS; r++) {
+    for (let c = 0; c < NUM_COLS; c++) {
+      if (towers[r][c].level > 0) {
+        towers[r][c].show()
+        towers[r][c].shoot(enemies);
+      }
+    }
   }
 
   // 5. 총알 관리
@@ -179,14 +190,12 @@ function mousePressed() {
   // 3. 타워 설치 가능 여부 및 재화 확인
   if (money >= towerCost) {
     if (col >= 0 && col < NUM_COLS && row >= 0 && row < NUM_ROWS) {
-      if (grid[row][col] === 0) { // 비어 있는 칸인지 확인
-        
-        // 타워 설치
-        towers.push(new Tower(centerX, centerY, col, row));
-        grid[row][col] = 1; // 격자 상태 업데이트
+      if (towers[row][col].level < maxTowerLevel) { // 타워가 최대레벨이 아닌 경우
+        levelUpTower(row, col)
         money -= towerCost;
-      } else {
-        console.log("이미 타워가 설치된 칸입니다.");
+      }
+      else {
+        console.log("이미 타워가 최대레벨입니다.");
       }
     }
   } else {
@@ -225,4 +234,10 @@ function drawUI() {
     fill(255, 200, 50); // 강조색
     text(`NEXT DOG: ${nextDog.name}`, width - 20, 50);
   }
+}
+
+function levelUpTower(row, col) {
+  towers[row][col].level++;
+  towers[row][col].range = towerRange[towers[row][col].level];
+  towers[row][col].fireRate = towerFireRate[towers[row][col].level];
 }
