@@ -48,10 +48,10 @@ class Dog {
     }
     
     if (currentImage) {
-        image(currentImage, this.x, this.y, 70, 70); 
+        image(currentImage, this.x, this.y, 100, 100); 
     } else {
         fill(255, 0, 0); 
-        image(jindoImg,this.x, this.y, 32, 32);
+        image(jindoImg,this.x, this.y, 100, 100);
     }
 
     // HP바 design//
