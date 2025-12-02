@@ -22,17 +22,18 @@ class HexTile {
     const isHover = dist(mouseX, mouseY, this.x, this.y) <= this.r;
 
     if (isHover) {
-      stroke(255);
+      stroke(255,255,255,100);
       strokeWeight(2);
 
       if (this.isPath || (this.tower && !this.justPlaced)) {
-        fill(255, 0, 0);
+        fill(255, 0, 0,100);
       } else if (!this.isPath && !this.tower) {
-        fill(0, 255, 0);
+        fill(0, 40);
       }
     } else {
       noStroke();
-      fill(this.isPath ? 120 : 50);
+      let colorPath = color(78,68,46,100); // #B9A989 in RGB
+      fill(this.isPath ? colorPath : color(0, 0, 0, 0));
     }
 
     polygon(this.x, this.y, this.r, 6);

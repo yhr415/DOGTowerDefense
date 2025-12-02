@@ -46,15 +46,18 @@ let shibaImg;
 let PomeImg;
 let BeagleImg;
 let DobermanImg;
+let backgrnd;
 
-// 🖼️ P5.js의 이미지 사전 로딩 함수
+// 강아지 이미지 로딩
 function preload() {
   jindoImg = loadImage('data/jindo.png'); 
 
-  shibaImg = loadImage('https://placehold.co/32x32/ff7800/white?text=SHB');
-  PomeImg = loadImage('https://placehold.co/32x32/e8f7ff/333?text=POM');
-  BeagleImg = loadImage('https://placehold.co/32x32/8b4513/white?text=BEA');
-  DobermanImg = loadImage('https://placehold.co/32x32/333333/ff0000?text=DOB');
+  shibaImg = loadImage('data/jindo.png');
+  PomeImg = loadImage('data/jindo.png');
+  BeagleImg = loadImage('data/jindo.png');
+  DobermanImg = loadImage('data/jindo.png');
+//배경 이미지 로딩
+  backgrnd= loadImage('data/dtdBackgrnd.png');
 }
 
 function setup() {
@@ -85,7 +88,7 @@ function setup() {
 }
 
 function draw() {
-  background(48);
+  image(backgrnd,width/2,height/2,width,height);
 
   if (gameOver) {
     drawGameOver();
@@ -305,8 +308,11 @@ function resetGame() {
 
   hexGrid.generate(); // 그리드 초기화 (타워 제거됨)
 
-  // 경로 재설정 (setup에 있던 로직)
+  // 💡 수정됨: 경로를 다시 설정해주는 로직 추가! (setup과 동일하게)
   const centerRow = floor(HEX_ROWS / 2);
+  for (let c = 0; c < HEX_COLS; c++) hexGrid.setPathTile(centerRow, c, true);
+
+  // 경로 재설정 (setup에 있던 로직)
   const pathWaypoints = [];
   for (let c = 0; c < HEX_COLS; c++) {
     pathWaypoints.push({
