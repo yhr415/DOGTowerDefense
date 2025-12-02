@@ -25,7 +25,7 @@ class StageManager {
       if (this.enemiesSpawned < this.totalEnemiesToSpawn && frameCount % spawnRate === 0) {
         // 적 생성 조건 (총 생성 수 제한)
         let initialHp = 3 * this.currentHpMultiplier; // HP에 스테이지 배율 적용
-        enemies.push(new Enemy(initialHp));
+        enemies.push(new Dog(initialHp));
         this.enemiesSpawned++;
       }
     }
