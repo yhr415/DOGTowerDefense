@@ -5,6 +5,8 @@
 */
 
 let dogs = [];
+let shop;
+let draggingItem = null; // 상점에서 drag and drop 기능 : 현재 drag 중인 타워 정보 저장
 let bullets = [];
 let money = 1000, lives = 10, score = 0, gameOver = false;
 
@@ -37,7 +39,7 @@ let DobermanImg;
 // 🖼️ P5.js의 이미지 사전 로딩 함수
 function preload() {
   jindoImg = loadImage('data/jindo.png'); // 네가 요청한 파일 로드!
-  
+
   // 나머지 강아지 이미지도 Enemy.show()에서 사용되므로 임시로 로드
   shibaImg = loadImage('https://placehold.co/32x32/ff7800/white?text=SHB');
   PomeImg = loadImage('https://placehold.co/32x32/e8f7ff/333?text=POM');
@@ -52,6 +54,8 @@ function setup() {
   textAlign(CENTER, CENTER);
   textSize(14);
   imageMode(CENTER); // Enemy 클래스에서 이미지를 중앙 정렬하기 위해 추가
+  // 캔버스 하단에 상점 배치
+  shop = new Shop(MARGIN, height - 120, width - MARGIN * 2, 110);
 
   // 중앙 행을 경로로 지정
   const centerRow = floor(HEX_ROWS / 2);
@@ -60,16 +64,16 @@ function setup() {
   // StageManager 생성 시 필요한 경로 웨이포인트를 HexGridManager가 제공한다고 가정
   const pathWaypoints = [];
   for (let c = 0; c < HEX_COLS; c++) {
-    pathWaypoints.push({ 
-      x: hexGrid.tiles[centerRow][c].x, 
-      y: hexGrid.tiles[centerRow][c].y 
+    pathWaypoints.push({
+      x: hexGrid.tiles[centerRow][c].x,
+      y: hexGrid.tiles[centerRow][c].y
     });
   }
   const pathY = hexGrid.tiles[centerRow][0].y;
   pathWaypoints.unshift({ x: -HEX_R, y: pathY });
   pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: pathY });
-  
-  stageManager = new StageManager(dogData, pathWaypoints); 
+
+  stageManager = new StageManager(dogData, pathWaypoints);
 }
 
 function draw() {
@@ -122,7 +126,7 @@ function draw() {
     b.show();
     if (b.hasHit()) {
       // b.target이 유효한지 체크 및 데미지 적용
-      if (b.target && b.target.takeDamage) b.target.takeDamage(b.damage); 
+      if (b.target && b.target.takeDamage) b.target.takeDamage(b.damage);
       bullets.splice(i, 1);
     } else if (b.isOffScreen()) bullets.splice(i, 1);
   }
@@ -134,11 +138,43 @@ function draw() {
     currentStage++;
     if (currentStage >= dogData.length) gameOver = true;
   }
+  //상점과 관련된 draw logic
+  shop.draw(); //상점 UI 그리기
+
+  //drag 중인 상점 draggingItem에 넣고, drag and drop으로 설치
+  if (draggingItem) {
+    push();
+    translate(mouseX, mouseY);
+    
+    // 사거리 표시 (설치 전 미리보기)
+    noFill();
+    stroke(255, 255, 255, 100);
+    ellipse(0, 0, towerRange[1] * 2); // 1레벨 사거리
+  
+    // 타워 아이콘 (마우스 커서 위치)
+    noStroke();
+    fill(draggingItem.color);
+    ellipse(0, 0, 40); // 타워 모양
+    pop();
+  }
+
 }
 
 // 📐 마우스 클릭 처리 (업그레이드 오류 수정 완료)
 function mousePressed() {
   if (gameOver) return;
+
+  // 1. 상점 아이템 클릭 체크
+  let shopItem = shop.getItemAt(mouseX, mouseY);
+  if (shopItem) {
+    if (money >= shopItem.cost) {
+      draggingItem = shopItem; // 드래그 시작!
+      console.log(`${shopItem.name} 구매 드래그 시작`);
+    } else {
+      console.log("돈이 부족합니다!");
+    }
+    return; // 상점을 눌렀으면 맵 클릭은 무시
+  }
 
   if (!isStageActive) {
     stageManager.startStage(currentStage);
@@ -149,7 +185,7 @@ function mousePressed() {
   const tile = hexGrid.getTileAt(mouseX, mouseY);
   if (!tile) return;
   if (tile.isPath) { console.log("경로 타일에는 설치 불가"); return; }
-  
+
   // 🚨 타워 업그레이드/설치 로직 🚨
   const tower = tile.tower;
 
@@ -159,36 +195,71 @@ function mousePressed() {
       if (money >= towerCost) {
         tower.level++;
         const lvl = tower.level;
-        
+
         // 능력치 업데이트
         tower.range = towerRange[lvl] || tower.range;
         tower.fireRate = towerFireRate[lvl] || tower.fireRate;
         tower.damage = towerDamage[lvl] || tower.damage; // 데미지 업데이트
-        
+
         money -= towerCost;
         console.log(`타워 레벨 ${lvl}로 업그레이드!`);
       } else console.log("돈 부족");
     } else console.log("최대 레벨");
-    
+
   } else {
     // 2. 타워가 없다면 -> 새 타워 설치 시도
     if (money >= towerCost) {
       // Tower 클래스는 외부 파일에 정의되어 있다고 가정
-      const {x, y, col, row} = tile; // 타일 정보
-      
+      const { x, y, col, row } = tile; // 타일 정보
+
       const newTower = new Tower(x, y, col, row, 1);
-      
+
       // 타워 초기 능력치 설정 (레벨 1)
       newTower.range = towerRange[1];
       newTower.fireRate = towerFireRate[1];
       newTower.damage = towerDamage[1]; // 데미지 초기 설정
-      
+
       tile.tower = newTower; // HexTile에 타워 객체 할당
       tile.placeTower(newTower); // HexTile의 placeTower 메서드 호출 
-      
+
       money -= towerCost;
       console.log("레벨 1 타워 설치 완료.");
     } else console.log("돈 부족");
+  }
+}
+
+function mouseReleased() {
+  // 드래그 중인 아이템이 있을 때만 실행
+  if (draggingItem) {
+    // 마우스 위치의 타일 찾기
+    const tile = hexGrid.getTileAt(mouseX, mouseY);
+
+    // 설치 조건 확인: 타일이 존재함 && 경로 아님 && 타워 없음
+    if (tile && !tile.isPath && !tile.tower) {
+      if (money >= draggingItem.cost) {
+        // 돈 차감
+        money -= draggingItem.cost;
+
+        // 타워 생성 (새로운 Tower 객체)
+        const newTower = new Tower(tile.x, tile.y, tile.col, tile.row, 1);
+        
+        // 능력치 설정 (이전에 만든 로직 활용)
+        newTower.range = towerRange[1];
+        newTower.fireRate = towerFireRate[1];
+        newTower.damage = towerDamage[1];
+
+        // 타일과 연결
+        tile.tower = newTower;
+        tile.placeTower(newTower);
+
+        console.log(`${draggingItem.name} 설치 완료!`);
+      }
+    } else {
+      console.log("여기엔 설치할 수 없어!");
+    }
+
+    // 드래그 종료 (초기화)
+    draggingItem = null;
   }
 }
 
@@ -208,7 +279,7 @@ function drawUI() {
   let nextDog = dogData[currentStage];
   if (nextDog) {
     textAlign(RIGHT, TOP);
-    fill(255,200,50);
+    fill(255, 200, 50);
     text(`NEXT: ${nextDog.name}`, width - 10, 30);
     fill(255);
   }
@@ -257,15 +328,15 @@ function keyPressed() {
     const centerRow = floor(HEX_ROWS / 2);
     const pathWaypoints = [];
     for (let c = 0; c < HEX_COLS; c++) {
-      pathWaypoints.push({ 
-        x: hexGrid.tiles[centerRow][c].x, 
-        y: hexGrid.tiles[centerRow][c].y 
+      pathWaypoints.push({
+        x: hexGrid.tiles[centerRow][c].x,
+        y: hexGrid.tiles[centerRow][c].y
       });
     }
     const pathY = hexGrid.tiles[centerRow][0].y;
     pathWaypoints.unshift({ x: -HEX_R, y: pathY });
     pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: pathY });
-    
+
     stageManager = new StageManager(dogData, pathWaypoints);
   }
 }
