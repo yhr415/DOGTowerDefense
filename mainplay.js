@@ -14,22 +14,33 @@ const spawnRate = 60;
 const towerCost = 50;
 const towerRange = [null, 100, 150, 200, 250, 300];
 const towerFireRate = [null, 30, 25, 20, 15, 10];
-const towerDamage = [null, 1, 1.5, 2, 3, 4]; // 데미지 변수 추가 (Tower 클래스와 Bullet 클래스에서 사용된다고 가정)
+const towerDamage = [null, 1, 1.5, 2, 3, 4]; // 데미지 변수 추가
 const maxTowerLevel = 5;
 
 let HEX_COLS = 15, HEX_ROWS = 7, HEX_R = 32, MARGIN = 24;
 let hexGrid;
-const dogData = [
-  { name: "시바견 (Shiba Inu)", hpMultiplier: 1.0, fact: "충성심이 강하고 용감해!", stageReward: 100 },
-  { name: "골든 리트리버 (Golden Retriever)", hpMultiplier: 1.5, fact: "가장 인기 있는 반려견 중 하나야.", stageReward: 150 },
-  { name: "푸들 (Poodle)", hpMultiplier: 2.0, fact: "털이 곱슬곱슬하고 매우 똑똑해!", stageReward: 200 },
-  { name: "비글 (Beagle)", hpMultiplier: 2.5, fact: "호기심이 많고 냄새 맡기를 좋아해.", stageReward: 250 },
-  { name: "도베르만 (Doberman)", hpMultiplier: 3.0, fact: "경비견으로 많이 활약하는 듬직한 강아지야!", stageReward: 300 },
+
+// 💡 스테이지 디자인 (네가 원하는 대로 수정해!)
+const stageDesign = [
+  // Stage 1: 시바견 5마리가 60프레임(1초) 간격으로 등장
+  { stage: 1, type: "shiba", count: 5, interval: 60, hp: 10, stageReward: 100, fact: "시바견 군단이 몰려온다!" },
+  
+  // Stage 2: 비글 10마리가 빠르게(30프레임) 등장 (물량전)
+  { stage: 2, type: "beagle", count: 10, interval: 30, hp: 8, stageReward: 150, fact: "비글들이 뛰어놀고 싶어해!" },
+  
+  // Stage 3: 튼튼한 진돗개 3마리
+  { stage: 3, type: "jindo", count: 3, interval: 90, hp: 50, stageReward: 200, fact: "진돗개는 꽤 튼튼해." },
+  
+  // Stage 4: 엄청 튼튼한 도베르만 보스 1마리
+  { stage: 4, type: "doberman", count: 1, interval: 0, hp: 200, stageReward: 300, fact: "보스 등장! 긴장해!" },
+  
+  // Stage 5: 푸들 떼거리
+  { stage: 5, type: "pome", count: 20, interval: 20, hp: 5, stageReward: 500, fact: "너무 많아!" }
 ];
 
 let currentStage = 0, stageManager, isStageActive = false;
 
-// 💡 이미지 변수 선언 (Enemy 클래스에서 사용)
+// 💡 이미지 변수 선언
 let jindoImg;
 let shibaImg;
 let PomeImg;
@@ -38,9 +49,8 @@ let DobermanImg;
 
 // 🖼️ P5.js의 이미지 사전 로딩 함수
 function preload() {
-  jindoImg = loadImage('data/jindo.png'); // 네가 요청한 파일 로드!
+  jindoImg = loadImage('data/jindo.png'); 
 
-  // 나머지 강아지 이미지도 Enemy.show()에서 사용되므로 임시로 로드
   shibaImg = loadImage('https://placehold.co/32x32/ff7800/white?text=SHB');
   PomeImg = loadImage('https://placehold.co/32x32/e8f7ff/333?text=POM');
   BeagleImg = loadImage('https://placehold.co/32x32/8b4513/white?text=BEA');
@@ -48,20 +58,17 @@ function preload() {
 }
 
 function setup() {
-  // HexGridManager 클래스가 외부 파일에 있다고 가정하고 사용
   hexGrid = new HexGridManager(HEX_COLS, HEX_ROWS, HEX_R, MARGIN);
-  createCanvas(hexGrid.totalW, hexGrid.totalH); // HexGridManager의 totalW, totalH 사용
+  createCanvas(hexGrid.totalW, hexGrid.totalH); 
   textAlign(CENTER, CENTER);
   textSize(14);
-  imageMode(CENTER); // Enemy 클래스에서 이미지를 중앙 정렬하기 위해 추가
-  // 캔버스 하단에 상점 배치
+  imageMode(CENTER);
+  
   shop = new Shop(MARGIN, height - 120, width - MARGIN * 2, 110);
 
-  // 중앙 행을 경로로 지정
   const centerRow = floor(HEX_ROWS / 2);
   for (let c = 0; c < HEX_COLS; c++) hexGrid.setPathTile(centerRow, c, true);
 
-  // StageManager 생성 시 필요한 경로 웨이포인트를 HexGridManager가 제공한다고 가정
   const pathWaypoints = [];
   for (let c = 0; c < HEX_COLS; c++) {
     pathWaypoints.push({
@@ -73,7 +80,8 @@ function setup() {
   pathWaypoints.unshift({ x: -HEX_R, y: pathY });
   pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: pathY });
 
-  stageManager = new StageManager(dogData, pathWaypoints);
+  // 💡 수정: stageDesign 데이터를 전달
+  stageManager = new StageManager(stageDesign, pathWaypoints);
 }
 
 function draw() {
@@ -84,8 +92,8 @@ function draw() {
     return;
   }
 
-  hexGrid.draw();       // 육각형 타일 렌더링
-  drawUI();             // UI
+  hexGrid.draw();       
+  drawUI();             
 
   if (isStageActive) stageManager.update();
   else drawStageInfo();
@@ -107,7 +115,7 @@ function draw() {
     }
   }
 
-  // 타워 업데이트/발사 (HexTile.tower만 사용)
+  // 타워 업데이트/발사
   for (let row = 0; row < hexGrid.rows; row++) {
     for (let col = 0; col < hexGrid.cols; col++) {
       const tile = hexGrid.tiles[row][col];
@@ -125,55 +133,55 @@ function draw() {
     b.update();
     b.show();
     if (b.hasHit()) {
-      // b.target이 유효한지 체크 및 데미지 적용
       if (b.target && b.target.takeDamage) b.target.takeDamage(b.damage);
       bullets.splice(i, 1);
     } else if (b.isOffScreen()) bullets.splice(i, 1);
   }
 
   // 스테이지 완료 확인
-  if (isStageActive && dogs.length === 0 && stageManager.isStageOver()) {
+  if (isStageActive && stageManager.isStageOver()) {
     isStageActive = false;
-    money += dogData[currentStage].stageReward;
+    // stageDesign을 사용하도록 수정
+    money += stageDesign[currentStage].stageReward;
     currentStage++;
-    if (currentStage >= dogData.length) gameOver = true;
+    if (currentStage >= stageDesign.length) gameOver = true;
   }
-  //상점과 관련된 draw logic
-  shop.draw(); //상점 UI 그리기
+  
+  shop.draw();
 
-  //drag 중인 상점 draggingItem에 넣고, drag and drop으로 설치
   if (draggingItem) {
     push();
     translate(mouseX, mouseY);
-    
-    // 사거리 표시 (설치 전 미리보기)
     noFill();
     stroke(255, 255, 255, 100);
-    ellipse(0, 0, towerRange[1] * 2); // 1레벨 사거리
-  
-    // 타워 아이콘 (마우스 커서 위치)
+    ellipse(0, 0, towerRange[1] * 2); 
     noStroke();
     fill(draggingItem.color);
-    ellipse(0, 0, 40); // 타워 모양
+    ellipse(0, 0, 40); 
     pop();
   }
-
 }
 
-// 📐 마우스 클릭 처리 (업그레이드 오류 수정 완료)
 function mousePressed() {
-  if (gameOver) return;
+  // 💡 게임 오버 상태일 때 '다시 하기' 버튼 클릭 체크
+  if (gameOver) {
+    // 버튼 영역: 중앙(width/2), y위치(height/2 + 80), 크기(200x50)
+    if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 &&
+        mouseY > height / 2 + 80 && mouseY < height / 2 + 130) {
+      resetGame();
+    }
+    return;
+  }
 
   // 1. 상점 아이템 클릭 체크
   let shopItem = shop.getItemAt(mouseX, mouseY);
   if (shopItem) {
     if (money >= shopItem.cost) {
       draggingItem = shopItem; // 드래그 시작!
-      console.log(`${shopItem.name} 구매 드래그 시작`);
     } else {
       console.log("돈이 부족합니다!");
     }
-    return; // 상점을 눌렀으면 맵 클릭은 무시
+    return;
   }
 
   if (!isStageActive) {
@@ -184,85 +192,43 @@ function mousePressed() {
 
   const tile = hexGrid.getTileAt(mouseX, mouseY);
   if (!tile) return;
-  if (tile.isPath) { console.log("경로 타일에는 설치 불가"); return; }
+  if (tile.isPath) return;
 
-  // 🚨 타워 업그레이드/설치 로직 🚨
+  // 🚨 수정됨: 단순 터치 타워 설치 기능 제거 (업그레이드만 유지)
   const tower = tile.tower;
 
   if (tower) {
-    // 1. 타워가 이미 있다면 -> 업그레이드 시도
     if (tower.level < maxTowerLevel) {
       if (money >= towerCost) {
         tower.level++;
         const lvl = tower.level;
-
-        // 능력치 업데이트
         tower.range = towerRange[lvl] || tower.range;
         tower.fireRate = towerFireRate[lvl] || tower.fireRate;
-        tower.damage = towerDamage[lvl] || tower.damage; // 데미지 업데이트
-
+        tower.damage = towerDamage[lvl] || tower.damage;
         money -= towerCost;
-        console.log(`타워 레벨 ${lvl}로 업그레이드!`);
-      } else console.log("돈 부족");
-    } else console.log("최대 레벨");
-
-  } else {
-    // 2. 타워가 없다면 -> 새 타워 설치 시도
-    if (money >= towerCost) {
-      // Tower 클래스는 외부 파일에 정의되어 있다고 가정
-      const { x, y, col, row } = tile; // 타일 정보
-
-      const newTower = new Tower(x, y, col, row, 1);
-
-      // 타워 초기 능력치 설정 (레벨 1)
-      newTower.range = towerRange[1];
-      newTower.fireRate = towerFireRate[1];
-      newTower.damage = towerDamage[1]; // 데미지 초기 설정
-
-      tile.tower = newTower; // HexTile에 타워 객체 할당
-      tile.placeTower(newTower); // HexTile의 placeTower 메서드 호출 
-
-      money -= towerCost;
-      console.log("레벨 1 타워 설치 완료.");
-    } else console.log("돈 부족");
-  }
+      }
+    }
+  } 
+  // else { ... } 블록을 제거하여 빈 타일 클릭 시 설치되지 않도록 함
 }
 
 function mouseReleased() {
-  // 드래그 중인 아이템이 있을 때만 실행
   if (draggingItem) {
-    // 마우스 위치의 타일 찾기
     const tile = hexGrid.getTileAt(mouseX, mouseY);
-
-    // 설치 조건 확인: 타일이 존재함 && 경로 아님 && 타워 없음
     if (tile && !tile.isPath && !tile.tower) {
       if (money >= draggingItem.cost) {
-        // 돈 차감
         money -= draggingItem.cost;
-
-        // 타워 생성 (새로운 Tower 객체)
         const newTower = new Tower(tile.x, tile.y, tile.col, tile.row, 1);
-        
-        // 능력치 설정 (이전에 만든 로직 활용)
         newTower.range = towerRange[1];
         newTower.fireRate = towerFireRate[1];
         newTower.damage = towerDamage[1];
-
-        // 타일과 연결
         tile.tower = newTower;
         tile.placeTower(newTower);
-
-        console.log(`${draggingItem.name} 설치 완료!`);
       }
-    } else {
-      console.log("여기엔 설치할 수 없어!");
     }
-
-    // 드래그 종료 (초기화)
     draggingItem = null;
   }
 }
-
 
 function drawUI() {
   noStroke();
@@ -272,15 +238,19 @@ function drawUI() {
   text(`Money: $${money}`, 10, 10);
   text(`Lives: ${lives}`, 10, 30);
   text(`Score: ${score}`, 10, 50);
-  text(`Stage: ${min(currentStage + 1, dogData.length)}`, 10, 70);
+  // stageDesign 사용
+  text(`Stage: ${min(currentStage + 1, stageDesign.length)}`, 10, 70);
 
   textAlign(RIGHT, TOP);
   text(`Tower Cost: $${towerCost}`, width - 10, 10);
-  let nextDog = dogData[currentStage];
+  
+  // stageDesign 사용
+  let nextDog = stageDesign[currentStage];
   if (nextDog) {
     textAlign(RIGHT, TOP);
     fill(255, 200, 50);
-    text(`NEXT: ${nextDog.name}`, width - 10, 30);
+    // type 대신 name이 없으므로 type을 표시하거나 이름을 추가해야 함
+    text(`NEXT: ${nextDog.type}`, width - 10, 30);
     fill(255);
   }
 }
@@ -294,49 +264,66 @@ function drawStageInfo() {
   text(`STAGE ${currentStage + 1}`, width / 2, height / 4 + 16);
 
   textSize(16);
-  let dog = dogData[currentStage];
-  if (dog) {
-    text(`강아지: ${dog.name}`, width / 2, height / 4 + 60);
-    text(`보상: $${dog.stageReward}`, width / 2, height / 4 + 90);
-    text(`정보: ${dog.fact}`, width / 2, height / 4 + 120);
+  // stageDesign 사용
+  let design = stageDesign[currentStage];
+  if (design) {
+    text(`강아지: ${design.type} x ${design.count}`, width / 2, height / 4 + 60);
+    text(`보상: $${design.stageReward}`, width / 2, height / 4 + 90);
+    text(`정보: ${design.fact}`, width / 2, height / 4 + 120);
   }
 
   textSize(14);
   text("클릭해서 시작", width / 2, height / 4 + 160);
 }
 
+// 💡 게임 오버 화면 그리기 + 버튼 추가
 function drawGameOver() {
   fill(255);
   textSize(40);
-  text("GAME OVER", width / 2, height / 2);
+  text("GAME OVER", width / 2, height / 2 - 20);
   textSize(20);
-  text(`Final Score: ${score}`, width / 2, height / 2 + 40);
+  text(`Final Score: ${score}`, width / 2, height / 2 + 20);
+
+  // '다시 하기' 버튼 그리기
+  fill(200);
+  rect(width / 2 - 100, height / 2 + 80, 200, 50, 10); // x, y, w, h, radius
+  fill(0);
+  textSize(20);
+  text("다시 하기", width / 2, height / 2 + 105);
+}
+
+// 💡 게임 리셋 함수 (재사용을 위해 분리함)
+function resetGame() {
+  dogs = [];
+  bullets = [];
+  money = 1000;
+  lives = 10;
+  score = 0;
+  gameOver = false;
+  currentStage = 0;
+  isStageActive = false;
+
+  hexGrid.generate(); // 그리드 초기화 (타워 제거됨)
+
+  // 경로 재설정 (setup에 있던 로직)
+  const centerRow = floor(HEX_ROWS / 2);
+  const pathWaypoints = [];
+  for (let c = 0; c < HEX_COLS; c++) {
+    pathWaypoints.push({
+      x: hexGrid.tiles[centerRow][c].x,
+      y: hexGrid.tiles[centerRow][c].y
+    });
+  }
+  const pathY = hexGrid.tiles[centerRow][0].y;
+  pathWaypoints.unshift({ x: -HEX_R, y: pathY });
+  pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: pathY });
+
+  // stageDesign 전달
+  stageManager = new StageManager(stageDesign, pathWaypoints);
 }
 
 function keyPressed() {
   if (key === 'r' || key === 'R') {
-    dogs = []; bullets = [];
-    money = 1000; lives = 10; score = 0;
-    gameOver = false; currentStage = 0; isStageActive = false;
-
-    hexGrid.generate();
-    for (let r = 0; r < HEX_ROWS; r++)
-      for (let c = 0; c < HEX_COLS; c++)
-        hexGrid.tiles[r][c].tower = null;
-
-    // StageManager 생성 시 필요한 경로 웨이포인트를 직접 생성하여 전달
-    const centerRow = floor(HEX_ROWS / 2);
-    const pathWaypoints = [];
-    for (let c = 0; c < HEX_COLS; c++) {
-      pathWaypoints.push({
-        x: hexGrid.tiles[centerRow][c].x,
-        y: hexGrid.tiles[centerRow][c].y
-      });
-    }
-    const pathY = hexGrid.tiles[centerRow][0].y;
-    pathWaypoints.unshift({ x: -HEX_R, y: pathY });
-    pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: pathY });
-
-    stageManager = new StageManager(dogData, pathWaypoints);
+    resetGame();
   }
 }
