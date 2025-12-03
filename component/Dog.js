@@ -61,7 +61,7 @@ class Dog {
     rect(this.x - 16, this.y - 50, 32, 4); 
     fill(0, 255, 0); 
     let hpWidth = map(this.hp, 0, this.maxHp, 0, 32);
-    rect(this.x - 16, this.y - 25, hpWidth, 4);
+    rect(this.x - 16, this.y - 50, hpWidth, 4);
   }
   
   reachedEnd() { return this.current >= this.path.length-1; }
