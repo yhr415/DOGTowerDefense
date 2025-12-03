@@ -1,13 +1,13 @@
 class Dog {
   // stage manager에서 이름 등의 속성을 받아옴 //
-  constructor(path, initialHp = 5, name = 'jindo') { 
+  constructor(path, initialHp, speed, name = 'jindo') { 
     this.path = path;
     this.current = 0;
     this.x = path[0].x;
     this.y = path[0].y;
     this.maxHp = initialHp; // 최대 HP (목표치)
     this.hp = 0;          // 💡 수정: HP를 0에서 시작하도록 초기화!
-    this.speed = 1.1;
+    this.speed = speed;
     this.name = name;
     this.w = 32;
     this.h = 32;

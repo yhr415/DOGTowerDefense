@@ -25,13 +25,14 @@ class StageManager {
     const count = design.count || 1; // 마리 수 (기본 1)
     const type = design.type || 'jindo';
     const hp = design.hp || 10;
+    const speed = design.speed || 1.2;
     this.currentInterval = design.interval || 60; // 등장 간격 (프레임)
 
     console.log(`Stage ${stageIndex + 1} 시작! ${type} ${count}마리 출격 대기!`);
 
     for (let i = 0; i < count; i++) {
       // 큐에는 생성할 적의 정보만 담아둠
-      this.spawnQueue.push({ type: type, hp: hp });
+      this.spawnQueue.push({ type: type, hp: hp, speed: speed });
     }
   }
 
@@ -53,7 +54,7 @@ class StageManager {
 
     // 큐에서 하나 꺼내서 진짜 적(Dog) 생성
     const enemyInfo = this.spawnQueue.shift(); 
-    let e = new Dog(this.path, enemyInfo.hp, enemyInfo.type);
+    let e = new Dog(this.path, enemyInfo.hp, enemyInfo.speed, enemyInfo.type);
     
     // 메인 게임 루프와 매니저 관리 목록에 추가
     dogs.push(e); 
