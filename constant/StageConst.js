@@ -15,4 +15,3 @@ const stageDesign = [
     // Stage 5: 푸들 떼거리
     { stage: 5, type: "pome", count: 20, interval: 20, hp: 5, stageReward: 500, fact: "너무 많아!" }
   ];
-  

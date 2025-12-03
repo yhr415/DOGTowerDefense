@@ -1,9 +1,3 @@
-/*
-이차원 배열 towers를 레벨 0 타워로 초기화하고,
-클릭한 셀에 해당되는 타워의 레벨을 1증가시켜주었습니다. (레벨업 비용은 설치비용과 동일하게)
-각 레벨에 해당되는 타워의 범위, 발사속도는 아래의 게임설정변수에 임의 값으로 설정하였습니다. -> 이후 모든 능력치 저장된 json파일 불러오기?
-*/
-
 let dogs = [];
 let shop;
 let draggingItem = null; // 상점에서 drag and drop 기능 : 현재 drag 중인 타워 정보 저장
@@ -33,7 +27,6 @@ let backgrnd;
 // 강아지 이미지 로딩
 function preload() {
   jindoImg = loadImage('data/jindo.png'); 
-
   shibaImg = loadImage('data/jindo.png');
   PomeImg = loadImage('data/jindo.png');
   BeagleImg = loadImage('data/jindo.png');
@@ -70,10 +63,10 @@ function setup() {
 }
 
 function draw() {
-  image(backgrnd,width/2,height/2,width,height);
+  image(backgrnd,width/2,height/2,width,height); //background 이미지 불러오기
 
   if (gameOver) {
-    drawGameOver();
+    drawGameOver(); // 게임오버 시 화면
     return;
   }
 
@@ -147,7 +140,7 @@ function draw() {
 }
 
 function mousePressed() {
-  // 💡 게임 오버 상태일 때 '다시 하기' 버튼 클릭 체크
+  //게임 오버 상태일 때 '다시 하기' 버튼 클릭 체크
   if (gameOver) {
     // 버튼 영역: 중앙(width/2), y위치(height/2 + 80), 크기(200x50)
     if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 &&
@@ -212,80 +205,6 @@ function mouseReleased() {
     }
     draggingItem = null;
   }
-}
-
-function drawUI() {
-  noStroke();
-  fill(255);
-  textAlign(LEFT, TOP);
-  textSize(14);
-  text(`Money: $${money}`, 10, 10);
-  text(`Lives: ${lives}`, 10, 30);
-  text(`Score: ${score}`, 10, 50);
-  // stageDesign 사용
-  text(`Stage: ${min(currentStage + 1, stageDesign.length)}`, 10, 70);
-
-  textAlign(RIGHT, TOP);
-  text(`Tower Cost: $${towerCost}`, width - 10, 10);
-  
-  // stageDesign 사용
-  let nextDog = stageDesign[currentStage];
-  if (nextDog) {
-    textAlign(RIGHT, TOP);
-    fill(255, 200, 50);
-    // type 대신 name이 없으므로 type을 표시하거나 이름을 추가해야 함
-    text(`NEXT: ${nextDog.type}`, width - 10, 30);
-    fill(255);
-  }
-}
-
-// 💡 게임 오버 화면 그리기 + 버튼 추가
-function drawGameOver() {
-  fill(255);
-  textSize(40);
-  text("GAME OVER", width / 2, height / 2 - 20);
-  textSize(20);
-  text(`Final Score: ${score}`, width / 2, height / 2 + 20);
-
-  // '다시 하기' 버튼 그리기
-  fill(200);
-  rect(width / 2 - 100, height / 2 + 80, 200, 50, 10); // x, y, w, h, radius
-  fill(0);
-  textSize(20);
-  text("다시 하기", width / 2, height / 2 + 105);
-}
-
-// 💡 게임 리셋 함수 (재사용을 위해 분리함)
-function resetGame() {
-  dogs = [];
-  bullets = [];
-  money = 1000;
-  lives = 10;
-  score = 0;
-  gameOver = false;
-  currentStage = 0;
-  isStageActive = false;
-
-  hexGrid.generate(); // 그리드 초기화 (타워 제거됨)
-
-  // 💡 수정됨: 경로를 다시 설정해주는 로직 추가! (setup과 동일하게)
-  const centerRow = floor(HEX_ROWS / 2);
-  for (let c = 0; c < HEX_COLS; c++) hexGrid.setPathTile(centerRow, c, true);
-
-  // 경로 재설정 (setup에 있던 로직)
-  const pathWaypoints = [];
-  for (let c = 0; c < HEX_COLS; c++) {
-    pathWaypoints.push({
-      x: hexGrid.tiles[centerRow][c].x,
-      y: hexGrid.tiles[centerRow][c].y
-    });
-  }
-  const pathY = hexGrid.tiles[centerRow][0].y;
-  pathWaypoints.unshift({ x: -HEX_R, y: pathY });
-  pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: pathY });
-
-  // stageDesign 전달
-  stageManager = new StageManager(stageDesign, pathWaypoints);
 }
 
 function keyPressed() {
