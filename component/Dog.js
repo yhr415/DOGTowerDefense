@@ -7,7 +7,7 @@ class Dog {
     this.y = path[0].y;
     this.maxHp = initialHp; // 최대 HP (목표치)
     this.hp = 0;          // 💡 수정: HP를 0에서 시작하도록 초기화!
-    this.speed = 1.5;
+    this.speed = 1.1;
     this.name = name;
     this.w = 32;
     this.h = 32;
@@ -57,8 +57,8 @@ class Dog {
     // HP바 design//
     // HP가 0에서 maxHp까지 '채워지도록' 그려집니다.
     noStroke();
-    fill(255, 0, 0, 150); 
-    rect(this.x - 16, this.y - 25, 32, 4); 
+    fill(255, 0, 0); 
+    rect(this.x - 16, this.y - 50, 32, 4); 
     fill(0, 255, 0); 
     let hpWidth = map(this.hp, 0, this.maxHp, 0, 32);
     rect(this.x - 16, this.y - 25, hpWidth, 4);

@@ -20,24 +20,6 @@ const maxTowerLevel = 5;
 let HEX_COLS = 15, HEX_ROWS = 7, HEX_R = 32, MARGIN = 24;
 let hexGrid;
 
-// 💡 스테이지 디자인 (네가 원하는 대로 수정해!)
-const stageDesign = [
-  // Stage 1: 시바견 5마리가 60프레임(1초) 간격으로 등장
-  { stage: 1, type: "shiba", count: 5, interval: 60, hp: 10, stageReward: 100, fact: "시바견 군단이 몰려온다!" },
-  
-  // Stage 2: 비글 10마리가 빠르게(30프레임) 등장 (물량전)
-  { stage: 2, type: "beagle", count: 10, interval: 30, hp: 8, stageReward: 150, fact: "비글들이 뛰어놀고 싶어해!" },
-  
-  // Stage 3: 튼튼한 진돗개 3마리
-  { stage: 3, type: "jindo", count: 3, interval: 90, hp: 50, stageReward: 200, fact: "진돗개는 꽤 튼튼해." },
-  
-  // Stage 4: 엄청 튼튼한 도베르만 보스 1마리
-  { stage: 4, type: "doberman", count: 1, interval: 0, hp: 200, stageReward: 300, fact: "보스 등장! 긴장해!" },
-  
-  // Stage 5: 푸들 떼거리
-  { stage: 5, type: "pome", count: 20, interval: 20, hp: 5, stageReward: 500, fact: "너무 많아!" }
-];
-
 let currentStage = 0, stageManager, isStageActive = false;
 
 // 💡 이미지 변수 선언
@@ -98,9 +80,6 @@ function draw() {
   hexGrid.draw();       
   drawUI();             
 
-  if (isStageActive) stageManager.update();
-  else drawStageInfo();
-
   // 적 업데이트/렌더링
   for (let i = dogs.length - 1; i >= 0; i--) {
     const e = dogs[i];
@@ -118,7 +97,7 @@ function draw() {
     }
   }
 
-  // 타워 업데이트/발사
+  // 타워가 선택된 셀을 클릭했을 때 interaction
   for (let row = 0; row < hexGrid.rows; row++) {
     for (let col = 0; col < hexGrid.cols; col++) {
       const tile = hexGrid.tiles[row][col];
@@ -163,6 +142,8 @@ function draw() {
     ellipse(0, 0, 40); 
     pop();
   }
+  if (isStageActive) stageManager.update();
+  else drawStageInfo();
 }
 
 function mousePressed() {
@@ -197,7 +178,7 @@ function mousePressed() {
   if (!tile) return;
   if (tile.isPath) return;
 
-  // 🚨 수정됨: 단순 터치 타워 설치 기능 제거 (업그레이드만 유지)
+  // 타워 불러오기, 업그레이드 (지금은 단순 터치만 하면 업그레이드)
   const tower = tile.tower;
 
   if (tower) {
@@ -256,27 +237,6 @@ function drawUI() {
     text(`NEXT: ${nextDog.type}`, width - 10, 30);
     fill(255);
   }
-}
-
-function drawStageInfo() {
-  fill(255, 200);
-  rect(width / 4, height / 4, width / 2, height / 2, 10);
-  fill(0);
-  textAlign(CENTER, TOP);
-  textSize(24);
-  text(`STAGE ${currentStage + 1}`, width / 2, height / 4 + 16);
-
-  textSize(16);
-  // stageDesign 사용
-  let design = stageDesign[currentStage];
-  if (design) {
-    text(`강아지: ${design.type} x ${design.count}`, width / 2, height / 4 + 60);
-    text(`보상: $${design.stageReward}`, width / 2, height / 4 + 90);
-    text(`정보: ${design.fact}`, width / 2, height / 4 + 120);
-  }
-
-  textSize(14);
-  text("클릭해서 시작", width / 2, height / 4 + 160);
 }
 
 // 💡 게임 오버 화면 그리기 + 버튼 추가
