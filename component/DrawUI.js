@@ -11,7 +11,7 @@ function drawUI() { //게임 기본 UI 그리기
     text(`Stage: ${min(currentStage + 1, stageDesign.length)}`, 10, 70);
   
     textAlign(RIGHT, TOP);
-    text(`Tower Cost: $${towerCost}`, width - 10, 10);
+    //text(`Tower Cost: $${towerCost}`, width - 10, 10);  //타워 가격 다 달라서 그냥 뺐습니다
     
     // stageDesign 사용
     let nextDog = stageDesign[currentStage];
@@ -19,7 +19,7 @@ function drawUI() { //게임 기본 UI 그리기
       textAlign(RIGHT, TOP);
       fill(255, 200, 50);
       // type 대신 name이 없으므로 type을 표시하거나 이름을 추가해야 함
-      text(`NEXT: ${nextDog.type}`, width - 10, 30);
+      text(`NEXT: ${nextDog.type}`, width - 10, 10);
       fill(255);
     }
   }

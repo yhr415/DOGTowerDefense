@@ -5,11 +5,19 @@ let bullets = [];
 let money = 1000, lives = 10, score = 0, gameOver = false;
 
 const spawnRate = 60;
-const towerCost = 50;
-const towerRange = [null, 100, 150, 200, 250, 300];
-const towerFireRate = [null, 30, 25, 20, 15, 10];
-const towerDamage = [null, 1, 1.5, 2, 3, 4]; // 데미지 변수 추가
+const levelUpCost = {
+  normal:     [null, 50, 50, 50, 50], 
+  splash:     [null, 40, 50, 60, 70], 
+  penetrate:  [null, 50, 60, 70, 80]
+};
+const level1Range = {normal: 100, splash: 150, penetrate: 180}
 const maxTowerLevel = 5;
+
+const bossHp = [10, 50, 50, 50, 200]
+const bossSpeed = [0.7, 0.7, 0.7, 0.7, 0.7]
+const bossName = ["pome", "jindo", "shiba", "jindo", "doberman"]
+let bossActive = false
+let bossDog = null;
 
 let HEX_COLS = 15, HEX_ROWS = 7, HEX_R = 32, MARGIN = 24;
 let hexGrid;
@@ -80,6 +88,10 @@ function draw() {
     e.show();
 
     if (e.reachedEnd()) {
+      if (e === bossDog) {
+        bossActive = false;
+        bossDog = null;
+      }
       lives--;
       dogs.splice(i, 1);
       if (lives <= 0) gameOver = true;
@@ -114,12 +126,21 @@ function draw() {
   }
 
   // 스테이지 완료 확인
-  if (isStageActive && stageManager.isStageOver()) {
-    isStageActive = false;
-    // stageDesign을 사용하도록 수정
-    money += stageDesign[currentStage].stageReward;
-    currentStage++;
-    if (currentStage >= stageDesign.length) gameOver = true;
+  if (isStageActive && stageManager.isStageOver() && !bossActive) {
+    spawnBoss(currentStage)
+  }
+
+  if (bossActive){
+    if (!bossDog || bossDog.isDead()){
+      bossActive = false
+      bossDog = null
+      isStageActive = false;
+
+      money += stageDesign[currentStage].stageReward;
+      currentStage++;
+      
+      if (currentStage >= stageDesign.length) gameOver = true;
+    }
   }
   
   shop.draw();
@@ -129,7 +150,7 @@ function draw() {
     translate(mouseX, mouseY);
     noFill();
     stroke(255, 255, 255, 100);
-    ellipse(0, 0, towerRange[1] * 2); 
+    ellipse(0, 0, level1Range[draggingItem.type] * 2); 
     noStroke();
     fill(draggingItem.color);
     ellipse(0, 0, 40); 
@@ -176,13 +197,9 @@ function mousePressed() {
 
   if (tower) {
     if (tower.level < maxTowerLevel) {
-      if (money >= towerCost) {
-        tower.level++;
-        const lvl = tower.level;
-        tower.range = towerRange[lvl] || tower.range;
-        tower.fireRate = towerFireRate[lvl] || tower.fireRate;
-        tower.damage = towerDamage[lvl] || tower.damage;
-        money -= towerCost;
+      if (money >= levelUpCost[tower.type][tower.level]) {
+        money -= levelUpCost[tower.type][tower.level]
+        tower.levelUp()
       }
     }
   } 
@@ -195,10 +212,7 @@ function mouseReleased() {
     if (tile && !tile.isPath && !tile.tower) {
       if (money >= draggingItem.cost) {
         money -= draggingItem.cost;
-        const newTower = new Tower(tile.x, tile.y, tile.col, tile.row, 1);
-        newTower.range = towerRange[1];
-        newTower.fireRate = towerFireRate[1];
-        newTower.damage = towerDamage[1];
+        const newTower = new Tower(tile.x, tile.y, tile.col, tile.row, 1, draggingItem.type, draggingItem.color);
         tile.tower = newTower;
         tile.placeTower(newTower);
       }
@@ -211,4 +225,11 @@ function keyPressed() {
   if (key === 'r' || key === 'R') {
     resetGame();
   }
+}
+
+function spawnBoss(stageIndex) {
+  let boss = new Dog(stageManager.path, bossHp[stageIndex], bossSpeed[stageIndex], bossName[stageIndex]);
+  bossDog = boss;
+  dogs.push(boss);
+  bossActive = true;
 }
