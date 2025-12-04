@@ -1,17 +1,131 @@
 // 스테이지 디자인
-const stageDesign = [
-    // Stage 1: 시바견 5마리가 60프레임(1초) 간격으로 등장
-    { stage: 1, type: "shiba", speed: 1.1, count: 5, interval: 60, hp: 10, speed:1.1, stageReward: 100, fact: "시바견 군단이 몰려온다!" },
-    
-    // Stage 2: 비글 10마리가 빠르게(30프레임) 등장 (물량전)
-    { stage: 2, type: "beagle", speed: 1.1, count: 10, interval: 30, hp: 8, stageReward: 150, fact: "비글들이 뛰어놀고 싶어해!" },
-    
-    // Stage 3: 튼튼한 진돗개 3마리
-    { stage: 3, type: "jindo", speed: 1.1, count: 3, interval: 90, hp: 50, stageReward: 200, fact: "진돗개는 꽤 튼튼해." },
-    
-    // Stage 4: 엄청 튼튼한 도베르만 보스 1마리
-    { stage: 4, type: "doberman", speed: 1.1, count: 1, interval: 0, hp: 200, stageReward: 300, fact: "보스 등장! 긴장해!" },
-    
-    // Stage 5: 푸들 떼거리
-    { stage: 5, type: "pome", speed: 1.1, count: 20, interval: 20, hp: 5, stageReward: 500, fact: "너무 많아!" }
-  ];
+const stageDesign = {
+  stage1: {
+      // 스테이지에 등장하는 일반 엔티티 목록 (Pet)
+      pets: [
+          {
+              type: "Pet",     // 구분: Pet
+              species: "포메",      // 종: 
+              abilityType: "안정", // 속성: 안정 
+              count: 520,           // 수: 총 50마리 등장
+              hp: 5,               // HP: 각 엔티티의 체력
+              speed: 1.5,          // 속도: 이동 속도
+              reward: 1            // 보상: 처치 시 획득하는 보상 
+          }
+      ],
+      // 스테이지의 보스 엔티티 목록 (Boss)
+      bosses: [
+          {
+              type: "Boss",    // 구분: Boss
+              species: "포메",  // 종: 
+              abilityType: "안정", // 속성: 안정 
+              count: 1,            // 수: 총 1마리 등장
+              hp: 30,              // HP: 보스의 체력
+              speed: 0.7,          // 속도: 이동 속도
+              reward: 50           // 보상: 처치 시 획득하는 보상 
+          }
+      ]
+  },
+
+  stage2: {
+      pets: [
+          {
+              type: "Pet",         // 구분: Pet
+              species: "비글",      // 종: 비글
+              abilityType: "치료", // 속성: 치료 
+              count: 40,           // 수: 총 40마리 등장
+              hp: 8,               // HP: 각 엔티티의 체력
+              speed: 1.5,          // 속도: 이동 속도
+              reward: 2            // 보상: 처치 시 획득하는 보상 
+          }
+      ],
+      // 스테이지의 보스 엔티티 목록 (Boss)
+      bosses: [
+          {
+              type: "Boss",        // 구분: Boss
+              species: "진도",      // 종: 진도
+              abilityType: "치료", // 속성: 치료 
+              count: 1,            // 수: 총 1마리 등장
+              hp: 50,              // HP: 보스의 체력
+              speed: 0.7,          // 속도: 이동 속도 
+              reward: 80           // 보상: 처치 시 획득하는 보상 
+          }
+      ]
+  },
+
+  stage3: {
+    // 스테이지에 등장하는 일반 엔티티 목록 (Pet)
+    pets: [
+        {
+            type: "Pet",         // 구분: Pet
+            species: "포메",      // 종: 포메
+            abilityType: "안정", // 속성: 안정 
+            count: 60,           // 수: 총 40마리 등장
+            hp: 8,               // HP: 각 엔티티의 체력
+            speed: 1.5,          // 속도: 이동 속도
+            reward: 2            // 보상: 처치 시 획득하는 보상 
+        }
+    ],
+    bosses: [
+        {
+            type: "Boss",        // 구분: Boss
+            species: "시바",      // 종: 시바
+            abilityType: "안정", // 속성: 안정 
+            count: 1,            // 수: 총 1마리 등장
+            hp: 50,              // HP: 보스의 체력
+            speed: 0.7,          // 속도: 이동 속도 
+            reward: 120           // 보상: 처치 시 획득하는 보상 
+        }
+    ]
+},
+
+  stage4: {
+    pets: [
+        {
+            type: "Pet",         // 구분: Pet
+            species: "시바",      // 종: 시바
+            abilityType: "안정", // 속성: 안정 
+            count: 80,           // 수: 총 40마리 등장
+            hp: 8,               // HP: 각 엔티티의 체력
+            speed: 1.5,          // 속도: 이동 속도
+            reward: 3            // 보상: 처치 시 획득하는 보상
+        }
+    ],
+    bosses: [
+        {
+            type: "Boss",        // 구분: Boss
+            species: "진도",      // 종: 진도
+            abilityType: "치료", // 속성: 치료 
+            count: 1,            // 수: 총 1마리 등장
+            hp: 50,              // HP: 보스의 체력
+            speed: 0.7,          // 속도: 이동 속도 
+            reward: 160           // 보상: 처치 시 획득하는 보상 
+        }
+    ]
+  },
+
+  stage5: {
+    pets: [
+        {
+            type: "Pet",         // 구분: Pet
+            species: "비글",      // 종: 비글
+            abilityType: "치료", // 속성: 치료 
+            count: 80,           // 수: 총 40마리 등장
+            hp: 8,               // HP: 각 엔티티의 체력
+            speed: 1.5,          // 속도: 이동 속도
+            reward: 3            // 보상: 처치 시 획득하는 보상 
+        }
+    ],
+    bosses: [
+        {
+            type: "Boss",        // 구분: Boss
+            species: "도베르만",  // 종: 도베르만
+            abilityType: "치료", // 속성: 치료 
+            count: 2,            // 수: 총 1마리 등장
+            hp: 50,              // HP: 보스의 체력
+            speed: 0.7,          // 속도: 이동 속도 
+            reward: 250           // 보상: 처치 시 획득하는 보상 
+        }
+    ]
+  }
+};
