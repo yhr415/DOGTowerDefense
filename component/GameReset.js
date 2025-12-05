@@ -1,6 +1,6 @@
 //게임 리셋 함수 (재사용을 위해 분리함)
 function resetGame() {
-    dogs = [];
+    enemies = [];
     bullets = [];
     money = 1000;
     lives = 10;

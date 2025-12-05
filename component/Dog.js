@@ -6,7 +6,7 @@ class Dog {
     this.x = path[0].x;
     this.y = path[0].y;
     this.maxHp = initialHp; // 최대 HP (목표치)
-    this.hp = 0;          // 💡 수정: HP를 0에서 시작하도록 초기화!
+    this.hp = 0;          // HP를 0에서 시작하도록 초기화
     this.speed = speed;
     this.name = name;
     this.w = 32;
@@ -48,7 +48,7 @@ class Dog {
     }
     
     if (currentImage) {
-        image(currentImage, this.x, this.y, 100, 100); 
+        image(currentImage, this.x, this.y, 170, 170); 
     } else {
         fill(255, 0, 0); 
         image(jindoImg,this.x, this.y, 100, 100);
@@ -57,11 +57,12 @@ class Dog {
     // HP바 design//
     // HP가 0에서 maxHp까지 '채워지도록' 그려집니다.
     noStroke();
-    fill(255, 0, 0); 
-    rect(this.x - 16, this.y - 50, 32, 4); 
-    fill(0, 255, 0); 
-    let hpWidth = map(this.hp, 0, this.maxHp, 0, 32);
-    rect(this.x - 16, this.y - 50, hpWidth, 4);
+    fill("#EE2C73"); 
+    let hpW=25;
+    rect(this.x - hpW, this.y -80, 2*hpW, 6); 
+    fill("#72ECEA"); 
+    let hpWidth = map(this.hp, 0, this.maxHp, 0, 2*hpW);
+    rect(this.x - hpW, this.y-80, hpWidth, 6);
   }
   
   reachedEnd() { return this.current >= this.path.length-1; }
