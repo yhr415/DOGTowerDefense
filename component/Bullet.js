@@ -82,9 +82,7 @@ class Bullet {
     }
     // 사랑(Love) 이펙트: 핑크색 원 (하트로 바꾸고 싶으면 text('❤️', this.x, this.y) 쓰면 됨!)
     else if (this.type === "love") {
-      fill(this.color);
-      noStroke();
-      ellipse(this.x, this.y, 8); 
+      text('❤️', this.x, this.y);
     }
     // 간식(Snack) 이펙트: 작은 알갱이
     else {

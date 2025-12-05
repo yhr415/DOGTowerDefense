@@ -38,9 +38,9 @@ class Tower {
     ellipse(this.x, this.y, 10 + this.level * 5);
   }
 
-  shoot(dogs) {
+  shoot(enemies) {
     if (this.cooldown > 0) return;
-    for (let e of dogs) {
+    for (let e of enemies) {
       if (dist(this.x, this.y, e.x, e.y) <= this.range) {
         bullets.push(new Bullet(e, this));
         this.cooldown = this.fireRate;
