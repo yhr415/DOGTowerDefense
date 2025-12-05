@@ -11,7 +11,7 @@ class Tower {
     this.generate()
   }
 
-  generate(){
+  generate() {
     const stats = towerStats[this.type];
 
     this.range = stats.range[this.level];
@@ -21,7 +21,7 @@ class Tower {
     this.maxRadius = stats.maxRadius[this.level];
     this.maxPenetrate = stats.maxPenetrate[this.level];
   }
-  
+
 
   levelUp() {
     if (this.level < maxTowerLevel) {
@@ -35,7 +35,7 @@ class Tower {
   show() {
     fill(this.color);
     noStroke();
-    ellipse(this.x, this.y, 10 + this.level*5);
+    ellipse(this.x, this.y, 10 + this.level * 5);
   }
 
   shoot(dogs) {
