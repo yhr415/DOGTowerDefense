@@ -1,4 +1,4 @@
-class Dog {
+class Pet {
     // stage manager에서 이름 등의 속성을 받아옴 //
     constructor(path, initialHp, speed, name = 'jindo') { 
       this.path = path;
@@ -36,11 +36,11 @@ class Dog {
     show() {
       let currentImage;
       if(this.name === 'jindo') {
-        currentImage = jindoImg;
+        currentImage = petPome;
       } else if(this.name === 'shiba') {
         currentImage = shibaImg;
       } else if(this.name === 'pome') {
-        currentImage = PomeImg;
+        currentImage = petPome;
       } else if(this.name === 'beagle') {
         currentImage = BeagleImg;
       } else if(this.name === 'doberman') {
@@ -57,9 +57,9 @@ class Dog {
       // HP바 design//
       // HP가 0에서 maxHp까지 '채워지도록' 그려집니다.
       noStroke();
-      fill(255, 0, 0); 
+      fill("#EE2C73"); 
       rect(this.x - 16, this.y - 50, 32, 4); 
-      fill(0, 255, 0); 
+      fill("#72ECEA"); 
       let hpWidth = map(this.hp, 0, this.maxHp, 0, 32);
       rect(this.x - 16, this.y - 50, hpWidth, 4);
     }
