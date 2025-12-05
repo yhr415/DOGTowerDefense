@@ -41,16 +41,18 @@ function preload() {
   DobermanImg = loadImage('data/jindo.png');
 //배경 이미지 로딩
   backgrnd= loadImage('data/dtdBackgrnd.png');
+//icon loading
+  iconCoin=loadImage('data/coin_icon.png');
 }
 
 function setup() {
   hexGrid = new HexGridManager(HEX_COLS, HEX_ROWS, HEX_R, MARGIN);
-  createCanvas(hexGrid.totalW, hexGrid.totalH); 
+  createCanvas(hexGrid.totalW, hexGrid.totalH+100); 
   textAlign(CENTER, CENTER);
   textSize(14);
   imageMode(CENTER);
   
-  shop = new Shop(MARGIN, height - 120, width - MARGIN * 2, 110);
+  shop = new Shop(0, height - 120, width, 120);
 
   const centerRow = floor(HEX_ROWS / 2);
   for (let c = 0; c < HEX_COLS; c++) hexGrid.setPathTile(centerRow, c, true);

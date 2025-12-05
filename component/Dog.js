@@ -6,7 +6,7 @@ class Dog {
     this.x = path[0].x;
     this.y = path[0].y;
     this.maxHp = initialHp; // 최대 HP (목표치)
-    this.hp = 0;          // 💡 수정: HP를 0에서 시작하도록 초기화!
+    this.hp = 0;          // HP를 0에서 시작하도록 초기화
     this.speed = speed;
     this.name = name;
     this.w = 32;
