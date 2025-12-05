@@ -3,9 +3,9 @@ const stageDesign = [
     { 
       stage: 1, 
       // 쫄병
-      petType: "pome", petCount: 20, interval: 30, petHp: 5, petSpeed: 2.0,
+      petType: "pome", petCount: 20, interval: 30, petHp: 5, petSpeed: 1.2,
       // 보스
-      bossType: "pome", bossHp: 100, bossSpeed: 0.6,
+      bossType: "pome", bossHp: 100, bossSpeed: 0.2,
       // 보상 & 정보
       stageReward: 100, fact: "Stage 1: 포메 군단과 대장 포메!" 
     },
