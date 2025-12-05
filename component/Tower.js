@@ -11,7 +11,7 @@ class Tower {
     this.generate()
   }
 
-  generate(){
+  generate() {
     const stats = towerStats[this.type];
 
     this.range = stats.range[this.level];
@@ -21,7 +21,7 @@ class Tower {
     this.maxRadius = stats.maxRadius[this.level];
     this.maxPenetrate = stats.maxPenetrate[this.level];
   }
-  
+
 
   levelUp() {
     if (this.level < maxTowerLevel) {
@@ -35,12 +35,12 @@ class Tower {
   show() {
     fill(this.color);
     noStroke();
-    ellipse(this.x, this.y, 10 + this.level*5);
+    ellipse(this.x, this.y, 10 + this.level * 5);
   }
 
-  shoot(dogs) {
+  shoot(enemies) {
     if (this.cooldown > 0) return;
-    for (let e of dogs) {
+    for (let e of enemies) {
       if (dist(this.x, this.y, e.x, e.y) <= this.range) {
         bullets.push(new Bullet(e, this));
         this.cooldown = this.fireRate;

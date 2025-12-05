@@ -7,50 +7,56 @@ class Bullet {
     this.towerY = tower.y;
     
     this.speed = 6;
-    this.damage = tower.damage || 1; // 타워 데미지 받아오기
-    this.type = tower.type || 'basic'; // 타입 없으면 기본
-    this.color = tower.color || [255, 255, 0];
-    this.hitList = []; // 맞은 적들 목록 (중복 피격 방지)
+    this.damage = tower.damage || 1; 
+    
+    // 💡 타입 매핑: tower.type이 'snack', 'heal', 'love' 중 하나로 들어옴
+    this.type = tower.type || 'snack'; 
+    this.hitList = []; 
 
-    // Splash (스플래시) 설정
+    // 🎨 타입별 색상 자동 지정 (타워 색상 안 따라가고 탄환 고유색 지정)
+    if (this.type === 'snack') this.color = [210, 105, 30]; // 맛있는 갈색 (초콜릿/사료)
+    else if (this.type === 'heal') this.color = [0, 255, 100]; // 치유의 초록색
+    else if (this.type === 'love') this.color = [255, 105, 180]; // 사랑의 핫핑크
+    else this.color = [255, 255, 0];
+
+    // --- [치유 (구 스플래시) 설정] ---
     this.maxRadius = tower.maxRadius || 60;
     this.currentRadius = 0;
     this.expandSpeed = 3;
     this.exploding = false;
 
-    // Penetrate (관통) 설정
-    this.penetrateLimit = tower.penetrateLimit || 3; // 관통 한계
+    // --- [사랑 (구 관통) 설정] ---
+    this.penetrateLimit = tower.penetrateLimit || 3; 
     this.penetrated = 0;
     
-    // 관통탄은 발사되는 순간 방향을 정해야 삑사리가 안 남!
-    if (this.type === "penetrate" && target) {
+    // 사랑(관통)은 방향 고정
+    if (this.type === "love" && target) {
         const vx = target.x - this.x;
         const vy = target.y - this.y;
         const len = sqrt(vx*vx + vy*vy);
-        this.dir = {x: vx/len, y: vy/len}; // 단위 벡터 (방향)
+        this.dir = {x: vx/len, y: vy/len}; 
     } else {
         this.dir = null;
     }
   }
 
   update() {
-    // 1. 스플래시 폭발 중일 때
-    if (this.type === "splash" && this.exploding) {
+    // 1. 치유(Heal) 폭발 중 (향기가 퍼지는 중!)
+    if (this.type === "heal" && this.exploding) {
       this.currentRadius += this.expandSpeed;
       return;
     }
 
-    // 2. 타겟이 사라졌을 때 (관통탄은 예외)
-    if (!this.target && this.type !== "penetrate") return;
+    if (!this.target && this.type !== "love") return;
 
-    // 3. 관통탄 이동 (직선 운동)
-    if (this.type === "penetrate" && this.dir) {
+    // 2. 사랑(Love) 이동 (직진!)
+    if (this.type === "love" && this.dir) {
       this.x += this.dir.x * this.speed;
       this.y += this.dir.y * this.speed;
       return;
     }
 
-    // 4. 일반/스플래시 유도탄 이동
+    // 3. 간식(Snack) 이동 (유도탄)
     if (this.target) {
         const dx = this.target.x - this.x;
         const dy = this.target.y - this.y;
@@ -67,12 +73,18 @@ class Bullet {
   }
 
   show() {
-    if (this.type === "splash" && this.exploding) {
+    // 치유(Heal) 이펙트: 퍼지는 링
+    if (this.type === "heal" && this.exploding) {
       noFill();
       stroke(this.color);
-      strokeWeight(2);
+      strokeWeight(3);
       ellipse(this.x, this.y, this.currentRadius * 2);
     }
+    // 사랑(Love) 이펙트: 핑크색 원 (하트로 바꾸고 싶으면 text('❤️', this.x, this.y) 쓰면 됨!)
+    else if (this.type === "love") {
+      text('❤️', this.x, this.y);
+    }
+    // 간식(Snack) 이펙트: 작은 알갱이
     else {
       fill(this.color);
       noStroke();
@@ -80,53 +92,44 @@ class Bullet {
     }
   }
 
-  // 충돌 판정 및 데미지 처리
   hasHit() {
-    // 🔥 스플래시 타입
-    if (this.type === "splash") {
-      // 1. 목표에 도달했는지 확인 (폭발 시작 전)
+    // 🌿 [치유 (Heal)] = 광역 힐링(배부름)
+    if (this.type === "heal") {
       if (!this.exploding && this.target && dist(this.x, this.y, this.target.x, this.target.y) < 8) {
-        this.exploding = true; // 폭발 시작!
-        return false; // 아직 총알을 삭제하지 않음 (폭발 애니메이션 보여줘야 함)
+        this.exploding = true; 
+        return false; 
       }
 
-      // 2. 폭발 중일 때 범위 데미지
       if (this.exploding) {
-        // 💡 dogs 대신 enemies 배열 전체를 검사!
         for (let e of enemies) {
           if (!this.hitList.includes(e) && dist(this.x, this.y, e.x, e.y) <= this.currentRadius) {
-            e.takeDamage(this.damage / 2); // 스플래시 데미지
+            e.takeDamage(this.damage / 2); 
             this.hitList.push(e);
           }
         }
-
-        // 최대 범위 도달하면 총알 삭제 (true 반환)
         if (this.currentRadius >= this.maxRadius) return true;
       }
       return false;
     }
 
-    // 🔥 관통 타입
-    if (this.type === "penetrate") {
-      // 💡 dogs 대신 enemies 배열 전체를 검사!
+    // 💖 [사랑 (Love)] = 관통하는 사랑
+    if (this.type === "love") {
       for (let e of enemies) {
-        // 이미 맞은 놈은 패스
         if (!this.hitList.includes(e) && dist(this.x, this.y, e.x, e.y) < 15) {
           this.hitList.push(e);
           e.takeDamage(this.damage);
           this.penetrated++;
 
-          // 관통 한계 도달하면 삭제
           if (this.penetrated >= this.penetrateLimit) return true;
         }
       }
-      return false; // 화면 밖으로 나갈 때까지 삭제 안 함 (isOffScreen에서 처리)
+      return false; 
     }
 
-    // 🔥 일반 타입 (단일 타겟)
+    // 🍖 [간식 (Snack)] = 단일 타겟
     if (this.target && dist(this.x, this.y, this.target.x, this.target.y) < 4) {
         this.target.takeDamage(this.damage);
-        return true; // 명중했으니 삭제
+        return true; 
     }
     
     return false;
