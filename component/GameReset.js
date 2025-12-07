@@ -26,6 +26,12 @@ function resetGame() {
     const pathY = hexGrid.tiles[centerRow][0].y;
     pathWaypoints.unshift({ x: -HEX_R, y: pathY });
     pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: pathY });
+
+    for (let r = 0; r < hexGrid.rows; r++) {
+      for (let c = 0; c < hexGrid.cols; c++) {
+        hexGrid.tiles[r][c].setAdjTiles()
+      }
+    }  
   
     // stageDesign 전달
     stageManager = new StageManager(stageDesign, pathWaypoints);

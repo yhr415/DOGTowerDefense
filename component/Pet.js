@@ -11,10 +11,14 @@ class Pet {
       this.name = name;
       this.w = 32;
       this.h = 32;
+      this.slowed = false
+      this.playing = false
+      this.playStartTime = 0
     }
   
     // dog update method //
     update() {
+      if (this.playing) return
       if (this.current >= this.path.length-1) return;
       let target = this.path[this.current+1];
       const dx = target.x - this.x;
@@ -62,6 +66,23 @@ class Pet {
       fill("#72ECEA"); 
       let hpWidth = map(this.hp, 0, this.maxHp, 0, 32);
       rect(this.x - 16, this.y - 50, hpWidth, 4);
+
+      if (this.playing){
+        strokeWeight(3);
+        stroke(0)
+        fill(255, 0, 0)
+        textAlign(CENTER, TOP);
+        textSize(18);
+        text("playing!", this.x, this.y - 70)
+      }
+      else if (this.slowed){
+        strokeWeight(3);
+        stroke(0)
+        fill(100, 150, 255)
+        textAlign(CENTER, TOP);
+        textSize(18);
+        text("slowed!", this.x, this.y - 70)
+      }
     }
     
     reachedEnd() { return this.current >= this.path.length-1; }
@@ -71,4 +92,12 @@ class Pet {
     
     // 타워에 맞으면 강아지 hp 증가하는 logic. 
     takeDamage(d) { this.hp += d; } 
+
+    getSlowed(x){
+      if (this.slowed){
+        return
+      }
+      this.slowed = true
+      this.speed *= x
+    }
   }

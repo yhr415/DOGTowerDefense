@@ -63,6 +63,13 @@ function setup() {
   pathWaypoints.unshift({ x: -HEX_R, y: pathY });
   pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: pathY });
 
+  //각 타일마다 인접 타일들 미리 저장
+  for (let r = 0; r < hexGrid.rows; r++) {
+    for (let c = 0; c < hexGrid.cols; c++) {
+      hexGrid.tiles[r][c].setAdjTiles()
+    }
+  }  
+
   // stageDesign 데이터를 전달
   stageManager = new StageManager(stageDesign, pathWaypoints);
 }
@@ -105,14 +112,31 @@ function draw() {
     }
   }
 
-  // 타워가 선택된 셀을 클릭했을 때 interaction
+  // 타워 관리
   for (let row = 0; row < hexGrid.rows; row++) {
     for (let col = 0; col < hexGrid.cols; col++) {
       const tile = hexGrid.tiles[row][col];
-      if (tile.tower) {
-        tile.tower.update();
-        tile.tower.show();
-        tile.tower.shoot(enemies);
+      const t = tile.tower
+      if (t) {
+        t.update();
+        t.show();
+        if (towerStats[t.type].canShoot){
+          t.shoot(enemies);
+        }
+        else{
+          if (t.type === "support"){
+            t.enhance(tile)
+          }
+          else if (t.type === "block"){
+            t.block()
+          }
+          else if (t.type === "factory"){
+            t.earn()
+          }
+          else if (t.type === "playground"){
+            t.play()
+          }
+        }
       }
     }
   }
@@ -184,12 +208,11 @@ function mousePressed() {
 
   const tile = hexGrid.getTileAt(mouseX, mouseY);
   if (!tile) return;
-  if (tile.isPath) return;
 
   // 타워 불러오기, 업그레이드 (지금은 단순 터치만 하면 업그레이드)
   const tower = tile.tower;
 
-  if (tower) {
+  if (tower && levelUpCost[tower.type]) {
     if (tower.level < maxTowerLevel) {
       if (money >= levelUpCost[tower.type][tower.level]) {
         money -= levelUpCost[tower.type][tower.level]
@@ -203,7 +226,7 @@ function mousePressed() {
 function mouseReleased() {
   if (draggingItem) {
     const tile = hexGrid.getTileAt(mouseX, mouseY);
-    if (tile && !tile.isPath && !tile.tower) {
+    if (tile && !tile.tower && (!tile.isPath ^ towerStats[draggingItem.type]["canBuiltPath"])) {
       if (money >= draggingItem.cost) {
         money -= draggingItem.cost;
         const newTower = new Tower(tile.x, tile.y, tile.col, tile.row, 1, draggingItem.type, draggingItem.color);

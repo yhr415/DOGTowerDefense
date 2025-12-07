@@ -11,10 +11,14 @@ class Dog {
     this.name = name;
     this.w = 32;
     this.h = 32;
+    this.slowed = false
+    this.playing = false
+    this.playStartTime = 0
   }
 
   // dog update method //
   update() {
+    if(this.playing) return
     if (this.current >= this.path.length - 1) return;
     let target = this.path[this.current + 1];
     const dx = target.x - this.x;
@@ -63,6 +67,23 @@ class Dog {
     fill("#72ECEA");
     let hpWidth = map(this.hp, 0, this.maxHp, 0, 2 * hpW);
     rect(this.x - hpW, this.y - 80, hpWidth, 6);
+
+    if (this.playing){
+      strokeWeight(3);
+      stroke(0)
+      fill(255, 0, 0)
+      textAlign(CENTER, TOP);
+      textSize(24);
+      text("playing!", this.x, this.y - 70)
+    }
+    else if (this.slowed){
+      strokeWeight(3);
+      stroke(0)
+      fill(100, 150, 255)
+      textAlign(CENTER, TOP);
+      textSize(24);
+      text("slowed!", this.x, this.y - 100)
+    }
   }
 
   reachedEnd() { return this.current >= this.path.length - 1; }
@@ -95,5 +116,13 @@ class Dog {
   takeDamage(d) {
     // Bullet.hasHit()의 기본 간식/사랑 로직에서 호출되도록 연결
     this.applyEffect('basic', d);
+  }
+
+  getSlowed(x){
+    if (this.slowed){
+      return
+    }
+    this.slowed = true
+    this.speed *= x
   }
 }
