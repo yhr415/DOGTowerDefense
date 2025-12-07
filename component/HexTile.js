@@ -8,12 +8,36 @@ class HexTile {
     this.isPath = false;
     this.tower = null;
     this.justPlaced = false; // 타워 배치 직후 플래그
+    this.enhanced = 1
+    this.adjTiles = []  //인접한 타일의 col, row값
   }
 
+  // 두 타일이 인접한지 확인하는 메서드
+  isAdjacent(otherTile) {
+    const a = this.getCubeCoords();
+    const b = otherTile.getCubeCoords();
+    const distance = Math.max(
+      Math.abs(a.x - b.x), 
+      Math.abs(a.y - b.y), 
+      Math.abs(a.z - b.z)
+    );
+    return distance <= 1; // 거리가 1이면 인접한 타일
+  }
+
+  setAdjTiles(){
+    for (let r = 0; r < hexGrid.rows; r++) {
+      for (let c = 0; c < hexGrid.cols; c++) {
+        const otherTile = hexGrid.tiles[r][c];
+        if (this.isAdjacent(otherTile)) {
+          this.adjTiles.push([r, c]); // [row, col] 형태로 저장
+        }
+      }
+    }  
+  }
   //육각형 타일 간 거리 계산 받아오는 method 
   getCubeCoords() {
-    let x = this.col - (this.row - (this.row & 1)) / 2;
-    let z = this.row;
+    let x = this.col;
+    let z = this.row - (this.col - (this.col & 1)) / 2;
     let y = -x - z;
     return { x, y, z };
   }
@@ -34,6 +58,10 @@ class HexTile {
       noStroke();
       let colorPath = color(78,68,46,100); // #B9A989 in RGB
       fill(this.isPath ? colorPath : color(0, 0, 0, 0));
+    }
+
+    if (this.enhanced > 1 && !this.isPath){
+      fill(100 * this.enhanced, 0, 100 * this.enhanced, 100 * this.enhanced)
     }
 
     polygon(this.x, this.y, this.r, 6);

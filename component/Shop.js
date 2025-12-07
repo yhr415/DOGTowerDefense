@@ -7,11 +7,16 @@ class Shop {
       
       // 판매할 타워 목록
       this.items = [
-        { name: "치유 타워", type: "normal", cost: 50, type: "heal", color: [0, 200, 255] },
+        { name: "안정 타워", cost: 50, type: "snack", color: [255, 200, 0] },
         // 추후 타워 종류가 늘어나면 여기에 추가
         // { name: "스나이퍼", type: "sniper", cost: 100, color: [255, 50, 50] } 
-        { name: "안정 타워", type: "splash", cost: 60, type: "snack", color: [255, 200, 0] },
-        { name: "치료 타워", type: "penetrate", cost: 70, type: "love",color: [100, 255, 100] }
+        { name: "치유 타워", cost: 60, type: "heal", color: [0, 200, 255] },
+        { name: "치료 타워", cost: 70, type: "love", color: [100, 255, 100] },
+        { name: "슬로우 타워", cost: 80, type: "slow", color: [0, 0, 255] },
+        { name: "서포트 타워", cost: 90, type: "support", color: [150, 0, 255] },
+        { name: "입양 타워", cost: 100, type: "block", color: [150, 100, 50] },
+        { name: "놀이터 타워", cost: 150, type: "playground", color: [255, 0, 0] },
+        { name: "공장 타워", cost: 200, type: "factory", color: [255, 128, 0] },
       ];
       
       this.itemSize = 70; // 상점 아이콘 크기
