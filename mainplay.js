@@ -13,7 +13,7 @@ const petSpawnRate = 60;
 let bossActive = false
 let bossDog = null;
 
-let HEX_COLS = 15, HEX_ROWS = 7, HEX_R = 60, MARGIN = 24;
+let HEX_COLS = 15, HEX_ROWS = 7, HEX_R = 50, MARGIN = 24;
 let hexGrid;
 
 let currentStage = 0, stageManager, isStageActive = false;
@@ -46,7 +46,8 @@ function preload() {
   healGreen20=loadImage('data/effect/healGreen20.png');
   healYellow5=loadImage('data/effect/healYellow5.png');
   towerSpriteSheets["heal"]=loadImage('data/tower/heal.png');
-  towerSpriteSheets["snack"]=loadImage('data/tower/snack.png')
+  towerSpriteSheets["snack"]=loadImage('data/tower/snack.png');
+  towerSpriteSheets["love"]=loadImage('data/tower/love.png')
 }
 
 function setup() {

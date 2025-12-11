@@ -66,17 +66,7 @@ class Dog {
     if (currentImage) image(currentImage, this.x, this.y, 170, 170); // 크기 살짝 조정함 (170은 너무 클듯?)
     else { fill(255, 0, 0); rect(this.x, this.y, 32, 32); }
 
-    // HP바
-    noStroke();
-    fill("#EE2C73");
-    let hpW = 25;
-    rect(this.x - hpW, this.y - 40, 2 * hpW, 6);
-    fill("#72ECEA");
-    let hpWidth = map(this.hp, 0, this.maxHp, 0, 2 * hpW);
-    // hpWidth가 음수나 초과되지 않게 안전장치
-    hpWidth = constrain(hpWidth, 0, 2 * hpW); 
-    rect(this.x - hpW, this.y - 40, hpWidth, 6);
-
+    drawDogHPbar(this.x,this.y,this.hp,this.maxHp);
     // 상태 텍스트 표시
     if (this.playing){
       text("playing!", this.x, this.y - 70);
@@ -133,4 +123,18 @@ class Dog {
     this.speed = this.baseSpeed * factor;
     this.effectTimer = 120; // 120프레임(약 2초) 동안 슬로우 유지
   }
+}
+
+
+function drawDogHPbar(x,y,hp,maxHp){
+  // HP바
+noStroke();
+fill("#EE2C73");
+let hpW = 25;
+rect(x - hpW, y - 80, 2 * hpW, 6);
+fill("#72ECEA");
+let hpWidth = map(hp, 0, maxHp, 0, 2 * hpW);
+// hpWidth가 음수나 초과되지 않게 안전장치
+hpWidth = constrain(hpWidth, 0, 2 * hpW); 
+rect(x - hpW, y - 80, hpWidth, 6);
 }
