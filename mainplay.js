@@ -78,6 +78,8 @@ function preload() {
   towerSpriteSheets["snack"] = loadImage('data/tower/snack.png');
   towerSpriteSheets["love"] = loadImage('data/tower/love.png');
   towerSpriteSheets["block"]=loadImage('data/tower/block.png');
+  towerSpriteSheets["factory"]=loadImage('data/tower/gold.png');
+  towerSpriteSheets["support"]=loadImage('data/tower/support.png');
 }
 
 function setup() {
