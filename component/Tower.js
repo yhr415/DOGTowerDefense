@@ -83,6 +83,7 @@ class Tower {
       noStroke();
       ellipse(this.x, this.y, 10 + this.level * 5);
     }
+    drawIndicator(this.level,this.x,this.y);
   }
 
   shoot(enemies) {
