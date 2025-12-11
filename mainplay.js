@@ -13,7 +13,7 @@ const petSpawnRate = 60;
 let bossActive = false
 let bossDog = null;
 
-let HEX_COLS = 15, HEX_ROWS = 7, HEX_R = 32, MARGIN = 24;
+let HEX_COLS = 15, HEX_ROWS = 7, HEX_R = 60, MARGIN = 24;
 let hexGrid;
 
 let currentStage = 0, stageManager, isStageActive = false;
@@ -29,6 +29,8 @@ let backgrnd;
 //effect를 담는 List
 let effects = [];
 
+let towerSpriteSheets = {}; //타워 이미지 담기
+
 // 강아지 이미지 로딩
 function preload() {
   jindoImg = loadImage('data/jindo.png');
@@ -43,6 +45,7 @@ function preload() {
   iconCoin = loadImage('data/coin_icon.png');
   healGreen20=loadImage('data/effect/healGreen20.png');
   healYellow5=loadImage('data/effect/healYellow5.png');
+  towerSpriteSheets["heal"]=loadImage('data/tower/heal.png');
 }
 
 function setup() {
@@ -180,15 +183,42 @@ function draw() {
 
   shop.draw();
 
+// ... (draw 함수 맨 아래쪽) ...
+
+  // 🖱️ 드래그 중인 아이템 그리기
   if (draggingItem) {
     push();
-    translate(mouseX, mouseY);
+    translate(mouseX, mouseY); // 마우스 위치를 (0,0) 기준으로 잡음
+
+    // 1. 사거리 미리보기 원 (이건 유지!)
+    // level1Range가 정의되어 있다고 가정, 없으면 기본값 100
+    let range = (typeof level1Range !== 'undefined' && level1Range[draggingItem.type]) ? level1Range[draggingItem.type] : 100;
+    
     noFill();
-    stroke(255, 255, 255, 100);
-    ellipse(0, 0, level1Range[draggingItem.type] * 2);
-    noStroke();
-    fill(draggingItem.color);
-    ellipse(0, 0, 40);
+    stroke(255, 255, 255, 100); // 반투명 흰색
+    ellipse(0, 0, range * 2);   // 사거리 표시
+
+    // 2. 타워 스프라이트 그리기 (여기가 수정됨! 🚀)
+    const sheet = towerSpriteSheets[draggingItem.type];
+
+    if (sheet) {
+        // 0번 인덱스(1레벨) 모습을 보여줌
+        // translate(mouseX, mouseY)를 했기 때문에 좌표는 0, 0 기준인데,
+        // 이미지를 마우스 정중앙에 오게 하려면 크기의 절반만큼 빼줘야 해 (-32, -32)
+        drawSprite(
+            sheet, 
+            0,         // 1레벨(인덱스 0)
+            0,0,  // 위치 (중앙 정렬 보정)
+            70,70,    // 크기
+            5,1          // 가로 3칸짜리 시트
+        );
+    } else {
+        // 이미지 없으면 기존 동그라미 (백업)
+        noStroke();
+        fill(draggingItem.color);
+        ellipse(0, 0, 40); 
+    }
+    
     pop();
   }
   if (isStageActive) stageManager.update();
