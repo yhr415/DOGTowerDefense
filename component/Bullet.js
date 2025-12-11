@@ -84,36 +84,7 @@ class Bullet {
 
   show() {
     // 폭발 중이면? 나는 투명해진다! (그림은 Effect 객체 담당)
-    if (this.type === "heal" && this.exploding) {
-      return; // 아무것도 안 그리고 함수 종료! 
-    }
-
-    // 충돌 전 날아가는 총알 : 여기도 이모지에서 sprite image로 바꿔줄 것
-
-    // heal bullet
-    if (this.type === "heal") {
-      // 만약 날아가는 스프라이트(healBulletImg)가 있다면:
-      if (typeof healBulletImg !== 'undefined') {
-        drawSprite(healBulletImg, floor(frameCount / 5) % 4, this.x, this.y, 32, 32, 4);
-      } else {
-        // 없으면 이모지
-        textAlign(CENTER, CENTER);
-        textSize(16);
-        text('💊', this.x, this.y);
-      }
-    }
-    // love bullet
-    else if (this.type === "love") {
-      textAlign(CENTER, CENTER);
-      textSize(16);
-      text('💘', this.x, this.y);
-    }
-    // basic bullet
-    else {
-      fill(this.color);
-      noStroke();
-      ellipse(this.x, this.y, 8);
-    }
+    drawBullet(this.type, this.exploding, this.x, this.y, this.color);
   }
 
   hasHit() {
@@ -122,7 +93,7 @@ class Bullet {
       // 목표 도달 시 폭발 시작 -> effect시작
       if (!this.exploding && this.target && dist(this.x, this.y, this.target.x, this.target.y) < 10) {
         this.exploding = true;
-        let effectSize=this.maxRadius*2; //폭발 effect size를 폭발 radius에 종속
+        let effectSize = this.maxRadius * 2; //폭발 effect size를 폭발 radius에 종속
         effects.push(new Effect(
           this.x, this.y,
           healGreen20, // 이미지
@@ -184,5 +155,21 @@ class Bullet {
 
   isOffScreen() {
     return this.x < 0 || this.x > width || this.y < 0 || this.y > height;
+  }
+}
+
+function drawBullet(type, exploding, x, y, color) {
+  if (type === "heal" && exploding) {
+    return; // 아무것도 안 그리고 함수 종료! 
+  }
+
+  if (bulletimgs[type]) {
+    image(bulletimgs[type], x, y,40,40);
+  }
+  // basic bullet
+  else {
+    fill(color);
+    noStroke();
+    ellipse(x, y, 8);
   }
 }
