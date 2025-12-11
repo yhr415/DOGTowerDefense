@@ -46,6 +46,7 @@ function preload() {
   healGreen20=loadImage('data/effect/healGreen20.png');
   healYellow5=loadImage('data/effect/healYellow5.png');
   towerSpriteSheets["heal"]=loadImage('data/tower/heal.png');
+  towerSpriteSheets["snack"]=loadImage('data/tower/snack.png')
 }
 
 function setup() {
