@@ -5,62 +5,74 @@ class Bullet {
     this.y = tower.y;
     this.towerX = tower.x;
     this.towerY = tower.y;
-    
+
     this.speed = 6;
-    this.damage = tower.damage || 1; 
-    
-    // 💡 타입 매핑: tower.type이 'snack', 'heal', 'love' 중 하나로 들어옴
-    this.type = tower.type || 'snack'; 
+    this.damage = tower.damage || 1;
 
-    // 🎨 타입별 색상 자동 지정 (타워 색상 안 따라가고 탄환 고유색 지정)
-    this.color = towerStats[this.type]["bulletColor"]
+    // 💡 타입 매핑
+    this.type = tower.type || 'snack';
 
-    //특수 효과 값 가져오기
-    if (this.type === "heal"){
-      // --- [치유 (구 스플래시) 설정] ---
-      this.hitList = []; 
+    // 🎨 색상 가져오기 (안전장치: towerStats가 없거나 색이 없으면 기본색)
+    if (typeof towerStats !== 'undefined' && towerStats[this.type]) {
+      this.color = towerStats[this.type]["bulletColor"];
+    } else {
+      this.color = [0, 0, 0]; // 기본 검정
+    }
+
+    // --- [타입별 초기화] ---
+    this.hitList = []; // 광역/관통용 피격 리스트
+
+    if (this.type === "heal") {
       this.maxRadius = tower.maxRadius || 60;
       this.currentRadius = 0;
       this.expandSpeed = 3;
       this.exploding = false;
     }
-    else if (this.type === "love"){
-      // --- [사랑 (구 관통) 설정] ---
-      this.hitList = []; 
-      this.penetrateLimit = tower.penetrateLimit || 3; 
+    else if (this.type === "love") {
+      this.penetrateLimit = tower.penetrateLimit || 3;
       this.penetrated = 0;
-      // 사랑(관통)은 방향 고정
-      const vx = target.x - this.x;
-      const vy = target.y - this.y;
-      const len = sqrt(vx*vx + vy*vy);
-      this.dir = {x: vx/len, y: vy/len}; 
+
+      // 🚨 안전장치: 타겟이 존재할 때만 방향 계산
+      if (this.target) {
+        const vx = target.x - this.x;
+        const vy = target.y - this.y;
+        const len = sqrt(vx * vx + vy * vy);
+        this.dir = { x: vx / len, y: vy / len };
+      } else {
+        // 타겟이 없으면 그냥 오른쪽으로 날아가게 (에러 방지)
+        this.dir = { x: 1, y: 0 };
+      }
     }
-    else if (this.type === "slow"){
-      //슬로우
-      this.slowPower = tower.slowPower
+    else if (this.type === "slow") {
+      this.slowPower = tower.slowPower || 0.5; // 기본 슬로우 값
     }
-    
   }
 
   update() {
-    // 1. 치유(Heal) 폭발 중 (향기가 퍼지는 중!)
+    // 1. 치유(Heal) 폭발 중
     if (this.type === "heal" && this.exploding) {
       this.currentRadius += this.expandSpeed;
       return;
     }
 
-    // 2. 사랑(Love) 이동 (직진!)
+    // 2. 사랑(Love) 이동 (직진 - 타겟 없어도 감)
     if (this.type === "love") {
-      this.x += this.dir.x * this.speed;
-      this.y += this.dir.y * this.speed;
+      if (this.dir) {
+        this.x += this.dir.x * this.speed;
+        this.y += this.dir.y * this.speed;
+      }
       return;
     }
 
-    // 3. 기본 총알 이동 (유도탄)
+    // 3. 유도탄 (Snack, Slow)
+    // 🚨 안전장치: 타겟이 죽어서 사라졌으면 총알도 삭제 (또는 그냥 직진)
+    // 여기서는 간단하게 타겟이 없으면 멈추게(삭제되게) 처리
+    if (!this.target) return;
+
     const dx = this.target.x - this.x;
     const dy = this.target.y - this.y;
-    const distToTarget = sqrt(dx*dx + dy*dy);
-    
+    const distToTarget = sqrt(dx * dx + dy * dy);
+
     if (distToTarget < this.speed) {
       this.x = this.target.x;
       this.y = this.target.y;
@@ -71,78 +83,103 @@ class Bullet {
   }
 
   show() {
-    // 치유(Heal) 이펙트: 퍼지는 링
+    // 폭발 중이면? 나는 투명해진다! (그림은 Effect 객체 담당)
+    if (this.type === "heal" && this.exploding) {
+      return; // 아무것도 안 그리고 함수 종료! 
+    }
+
+    // 충돌 전 날아가는 총알 : 여기도 이모지에서 sprite image로 바꿔줄 것
+
+    // heal bullet
     if (this.type === "heal") {
-      if (this.exploding){
-        noFill();
-        stroke(this.color);
-        strokeWeight(3);
-        ellipse(this.x, this.y, this.currentRadius * 2);
-      }
-      else {
-        text('💣', this.x, this.y);
+      // 만약 날아가는 스프라이트(healBulletImg)가 있다면:
+      if (typeof healBulletImg !== 'undefined') {
+        drawSprite(healBulletImg, floor(frameCount / 5) % 4, this.x, this.y, 32, 32, 4);
+      } else {
+        // 없으면 이모지
+        textAlign(CENTER, CENTER);
+        textSize(16);
+        text('💊', this.x, this.y);
       }
     }
-    // 사랑(Love) 이펙트: 핑크색 원 (하트로 바꾸고 싶으면 text('❤️', this.x, this.y) 쓰면 됨!)
+    // love bullet
     else if (this.type === "love") {
-      text('❤️', this.x, this.y);
+      textAlign(CENTER, CENTER);
+      textSize(16);
+      text('💘', this.x, this.y);
     }
-    // 얼음
-    else if (this.type === "slow") {
-      text('🧊', this.x, this.y);
-    }
-    // 간식(Snack) 이펙트: 작은 알갱이
-    else if (this.type === "snack"){
+    // basic bullet
+    else {
       fill(this.color);
       noStroke();
-      ellipse(this.x, this.y, 6);
+      ellipse(this.x, this.y, 8);
     }
   }
 
   hasHit() {
-    // 🌿 [치유 (Heal)] = 광역 힐링(배부름)
+    // heal 관련 bullet 과 effect
     if (this.type === "heal") {
-      if (!this.exploding && dist(this.x, this.y, this.target.x, this.target.y) < 8) {
-        this.exploding = true; 
-        return false; 
+      // 목표 도달 시 폭발 시작 -> effect시작
+      if (!this.exploding && this.target && dist(this.x, this.y, this.target.x, this.target.y) < 10) {
+        this.exploding = true;
+        let effectSize=this.maxRadius*2; //폭발 effect size를 폭발 radius에 종속
+        effects.push(new Effect(
+          this.x, this.y,
+          healGreen20, // 이미지
+          20, // 총 프레임
+          5, 4,  // 가로 세로 줄 수
+          effectSize, effectSize
+        ));
+        return false;
       }
 
+      // 2. 폭발 중 범위 체크
       if (this.exploding) {
         for (let e of enemies) {
           if (!this.hitList.includes(e) && dist(this.x, this.y, e.x, e.y) <= this.currentRadius) {
-            e.takeDamage(this.damage / 2); 
+            // Dog의 applyEffect 호출 (데미지 + 모션 변경)
+            // 힐링이니까 데미지는 음수? 아니면 로직에 따라 양수(배부름)
+            e.applyEffect('heal', this.damage);
             this.hitList.push(e);
           }
         }
-        if (this.currentRadius >= this.maxRadius) return true;
+        if (this.currentRadius >= this.maxRadius) return true; // 폭발 끝, 총알 삭제
       }
       return false;
     }
-    // 💖 [사랑 (Love)] = 관통하는 사랑
+
+    // ------------------💖 [사랑 (Love)] = 관통
     else if (this.type === "love") {
       for (let e of enemies) {
-        if (!this.hitList.includes(e) && dist(this.x, this.y, e.x, e.y) < 15) {
+        if (!this.hitList.includes(e) && dist(this.x, this.y, e.x, e.y) < 20) {
           this.hitList.push(e);
-          e.takeDamage(this.damage);
+          e.applyEffect('love', this.damage);
           this.penetrated++;
 
           if (this.penetrated >= this.penetrateLimit) return true;
         }
       }
-      return false; 
-    }
-    else if (this.type === "snack" || this.type === "slow") {
-      // 🍖 [간식 (Snack)] = 단일 타겟
-      if (dist(this.x, this.y, this.target.x, this.target.y) < 4) {
-        this.target.takeDamage(this.damage);
-        if (this.type === "slow"){
-          this.target.getSlowed(this.slowPower)
-        }
-        return true; 
-      }
       return false;
     }
 
+    // 🍖 [간식/슬로우] = 단일 타겟
+    else if (this.type === "snack" || this.type === "slow") {
+      if (this.target && dist(this.x, this.y, this.target.x, this.target.y) < 5) {
+
+        if (this.type === "slow") {
+          // 슬로우 효과 적용 (Dog에 getSlowed가 있다면)
+          if (this.target.getSlowed) this.target.getSlowed(this.slowPower);
+          // 모션 변경용
+          this.target.applyEffect('slow', this.damage);
+        } else {
+          // 일반 간식
+          this.target.applyEffect('snack', this.damage);
+        }
+
+        return true; // 명중, 총알 삭제
+      }
+      return false;
+    }
   }
 
   isOffScreen() {
