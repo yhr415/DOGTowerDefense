@@ -6,18 +6,7 @@ class Shop {
     this.h = h;
 
     // 판매할 타워 목록
-    this.items = [
-      { name: "안정 타워", cost: 50, type: "snack", color: [255, 200, 0] },
-      // 추후 타워 종류가 늘어나면 여기에 추가
-      // { name: "스나이퍼", type: "sniper", cost: 100, color: [255, 50, 50] } 
-      { name: "치유 타워", cost: 60, type: "heal", color: [0, 200, 255] },
-      { name: "치료 타워", cost: 70, type: "love", color: [100, 255, 100] },
-      { name: "슬로우 타워", cost: 80, type: "slow", color: [0, 0, 255] },
-      { name: "서포트 타워", cost: 90, type: "support", color: [150, 0, 255] },
-      { name: "입양 타워", cost: 100, type: "block", color: [150, 100, 50] },
-      { name: "놀이터 타워", cost: 150, type: "playground", color: [255, 0, 0] },
-      { name: "공장 타워", cost: 200, type: "factory", color: [255, 128, 0] },
-    ];
+    this.items = itemDesc;
 
     this.itemSize = 70; // 상점 아이콘 크기
     this.padding = 7;
@@ -65,6 +54,8 @@ class Shop {
     pop();
     rectMode(CORNER);
 
+    let hoveringItem = null;
+
     // 판매 아이템 그리기 (루프 시작)
     for (let i = 0; i < this.items.length; i++) {
       let item = this.items[i];
@@ -72,6 +63,16 @@ class Shop {
       // 좌표 계산 
       let ix = this.x + this.padding + (i * (this.itemSize + this.padding));
       let iy = this.y + 28;
+
+      if (mouseX > ix && mouseX < ix + this.itemSize &&
+        mouseY > iy && mouseY < iy + this.itemSize + this.inbotmar) {
+        hoveringItem = item; // 당첨! 루프 끝나고 그릴 거야.
+
+        // (선택사항) 호버 시 살짝 테두리 강조
+        stroke(255, 0, 0); strokeWeight(2);
+      } else {
+        noStroke();
+      }
 
       // --- [아이템 카드 그리기] ---
       push(); // 🛡️ 아이템 스타일 고립 시작
@@ -113,10 +114,10 @@ class Shop {
 
         // 중앙 정렬 계산
         let drawX = ix + (this.itemSize) / 2;
-        let drawY = iy + (this.itemSize ) / 2;
+        let drawY = iy + (this.itemSize) / 2;
 
         //실제로 그리는 부분
-        drawSprite(sheet, 0, drawX, drawY, spriteSize, spriteSize, 5,1);
+        drawSprite(sheet, 0, drawX, drawY, spriteSize, spriteSize, 5, 1);
       } else {
         // 이미지 없으면: 기존 동그라미 (Fallback)
         fill(item.color);
@@ -140,11 +141,56 @@ class Shop {
       item.w = this.itemSize;
       item.h = this.itemSize + this.inbotmar; // 높이 계산 정확하게 반영
     }
+    if (hoveringItem) {
+      this.drawTooltip(hoveringItem);
+    }
 
     pop();
   }
 
-  // 마우스 클릭 시 어떤 아이템을 잡았는지 리턴
+  drawTooltip(item) {
+    push();
+    // 툴팁 위치: 마우스 오른쪽 아래
+    let tx = mouseX + 15;
+    let ty = mouseY + 15;
+    let tw = 200; // 툴팁 너비
+    let th = 100; // 툴팁 높이 (텍스트 길이에 따라 늘려도 됨)
+
+    // 화면 밖으로 나가는 거 방지 (오른쪽 끝이면 왼쪽으로 보여주기)
+    if (tx + tw > width) tx = mouseX - tw - 10;
+    if (ty + th > height) ty = mouseY - th - 10;
+
+    // 1. 툴팁 배경 (반투명 검정 or 네이비)
+    fill(0, 0, 0, 200); // 약간 투명한 검정
+    stroke(255);
+    strokeWeight(1);
+    rect(tx, ty, tw, th, 8); // 둥근 모서리
+
+    // 2. 텍스트 설정
+    noStroke();
+    textAlign(LEFT, TOP);
+
+    // 제목 (노란색)
+    fill(255, 200, 0);
+    textSize(16);
+    textStyle(BOLD);
+    text(item.name, tx + 10, ty + 10);
+
+    // 가격
+    fill(200, 200, 255);
+    textSize(14);
+    textStyle(NORMAL);
+    text(`가격: ${item.cost}g`, tx + 10, ty + 35);
+
+    // 설명 (흰색, 줄바꿈 처리)
+    fill(255);
+    textSize(12);
+    textLeading(18); // 줄 간격
+    text(item.desc, tx + 10, ty + 55, tw - 20, th - 55); // 박스 안에 텍스트 가두기
+
+    pop();
+  }
+
   getItemAt(mx, my) {
     for (let item of this.items) {
       if (mx > item.x && mx < item.x + item.w &&
@@ -154,4 +200,5 @@ class Shop {
     }
     return null;
   }
+
 }
