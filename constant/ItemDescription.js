@@ -16,11 +16,11 @@ const itemDesc=[
       desc: "적을 얼려 속도를 느리게 만듦.\n전략적 요충지에 필수!"
     },
     { 
-      name: "서포트 타워", cost: 90, type: "support", color: [150, 0, 255],
+      name: "푸들 요정의 가호", cost: 90, type: "support", color: [150, 0, 255],
       desc: "주변 타워의 능력을 강화함.\n공격 기능은 없음."
     },
     { 
-      name: "입양 타워", cost: 100, type: "block", color: [150, 100, 50],
+      name: "강아지를 찾습니다", cost: 100, type: "block", color: [150, 100, 50],
       desc: "경로 위에 설치하여\n적을 막아서고 집으로 보냄 (블로킹)."
     },
     { 
@@ -28,7 +28,7 @@ const itemDesc=[
       desc: "경로 위에 설치.\n적이 잠시 머물며 놀다가 감 (시간 벌기)."
     },
     { 
-      name: "공장 타워", cost: 200, type: "factory", color: [255, 128, 0],
+      name: "황금 뼈다귀 사원", cost: 200, type: "factory", color: [255, 128, 0],
       desc: "일정 시간마다 돈을 생산함.\n투자의 귀재가 되어보자!"
     },
   ];
