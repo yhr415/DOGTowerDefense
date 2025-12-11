@@ -33,6 +33,17 @@ let towerSpriteSheets = {}; //타워 이미지 담기
 let bulletimgs = {}; //bullet image 담기
 let dogPics = {};
 
+// API / apiInfo 관련 전역 변수
+let rescueData = null;        // preload에서 불러온 전체 JSON (rescueData.items)
+let currentApiInfo = null;  // 지금 화면에 띄운 선택된 item 객체
+let apiInfo = null;
+let showApiInfoScreen = false; // API 정보 화면 표시 여부
+let isApiScreenOpen = false; //현재 API 정보 화면 열림 여부
+let apiInfoImg = null;      // 선택 item의 p5.Image
+let imageCache = {};          // imageUrl -> p5.Image 캐시
+let showStageInfoScreen = false; // info 화면 표시 여부
+let apiImgLoading = false;
+let apiImgLoadError = false;
 // 강아지 이미지 로딩
 function preload() {
   dogPics['jindo'] ||= {}; 
@@ -80,6 +91,9 @@ function preload() {
   towerSpriteSheets["block"]=loadImage('data/tower/block.png');
   towerSpriteSheets["factory"]=loadImage('data/tower/gold.png');
   towerSpriteSheets["support"]=loadImage('data/tower/support.png');
+
+  rescueData = loadJSON('data/daejeon_dog.json');
+
 }
 
 function setup() {
@@ -91,19 +105,55 @@ function setup() {
 
   shop = new Shop(0, height - 120, width, 120);
 
-  const centerRow = floor(HEX_ROWS / 2);
-  for (let c = 0; c < HEX_COLS; c++) hexGrid.setPathTile(centerRow, c, true);
+  const pathDesign = [
+    { r: 1, c: 0 },
+    { r: 1, c: 1 },
+    { r: 2, c: 2 },
+    { r: 3, c: 2 },
+    { r: 4, c: 2 },
+    { r: 5, c: 2 },
+    { r: 5, c: 3 },
+    { r: 5, c: 4 },
+    { r: 5, c: 5 },
+    { r: 5, c: 6 },
+    { r: 5, c: 7 },
+    { r: 5, c: 8 },
+    { r: 4, c: 8 },
+    { r: 3, c: 8 },
+    { r: 2, c: 8 },
+    { r: 1, c: 9 },
+    { r: 1, c: 10 },
+    { r: 1, c: 11 },
+    { r: 1, c: 12 },
+    { r: 1, c: 13 },
+    { r: 2, c: 13 },
+    { r: 3, c: 13 },
+    { r: 4, c: 13 },
+    { r: 5, c: 13 },
+    { r: 6, c: 13 },
+  ];
 
-  const pathWaypoints = [];
-  for (let c = 0; c < HEX_COLS; c++) {
-    pathWaypoints.push({
-      x: hexGrid.tiles[centerRow][c].x,
-      y: hexGrid.tiles[centerRow][c].y
-    });
+  // 2) path 타일 지정
+  for (let p of pathDesign) {
+    hexGrid.setPathTile(p.r, p.c, true);
   }
-  const pathY = hexGrid.tiles[centerRow][0].y;
-  pathWaypoints.unshift({ x: -HEX_R, y: pathY });
-  pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: pathY });
+
+  // 3) Waypoints 생성
+  const pathWaypoints = [];
+  for (let p of pathDesign) {
+    const tile = hexGrid.tiles[p.r][p.c];
+    pathWaypoints.push({ x: tile.x, y: tile.y });
+  }
+
+  // 4) 맵 바깥에서 등장/퇴장 보정
+  const startTile = hexGrid.tiles[pathDesign[0].r][pathDesign[0].c];
+  const endTile   = hexGrid.tiles[pathDesign.at(-1).r][pathDesign.at(-1).c];
+
+  pathWaypoints.unshift({ x: -HEX_R, y: startTile.y });
+  pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: endTile.y });
+
+  // 5) StageManager에 전달
+  stageManager = new StageManager(stageDesign, pathWaypoints);
 
   //각 타일마다 인접 타일들 미리 저장
   for (let r = 0; r < hexGrid.rows; r++) {
@@ -118,6 +168,20 @@ function setup() {
 
 function draw() {
   image(backgrnd, width / 2, height / 2, width, height); //background 이미지 불러오기
+
+  if (showApiInfoScreen) {
+    if (currentApiInfo) {
+      drawApiInfoScreen();
+      return;
+    } else {
+      // 데이터 없음 — 플래그 클리어
+      isApiScreenOpen = false;
+    }
+  }
+  if (!isStageActive && !gameOver) {
+    drawStageInfo(); 
+    return;
+  }
 
   if (gameOver) {
     drawGameOver(); // 게임오버 시 화면
@@ -211,6 +275,16 @@ function draw() {
   if (isStageActive && stageManager.isStageOver() && enemies.length === 0) {
     isStageActive = false;
     money += stageDesign[currentStage].stageReward;
+
+      // rescueData에서 랜덤 선택
+  if (rescueData && rescueData.items && rescueData.items.length > 0) {
+    const rndIndex = floor(random(rescueData.items.length));
+    startApiInfoScreen(rescueData.items[rndIndex]);
+  } else {
+    // 데이터 없으면 바로 StageInfo로 복귀(혹시 몰라서 넣어둠)
+    showApiInfoScreen = false;
+  }
+
     currentStage++;
     if (currentStage >= stageDesign.length) gameOver = true;
   }
@@ -260,6 +334,25 @@ function draw() {
 }
 
 function mousePressed() {
+
+  if (showApiInfoScreen) {
+    const boxW = min(width - 80, 860);
+    const boxH = min(height - 200, 520);
+    const boxX = (width - boxW) / 2;
+    const boxY = (height - boxH) / 2;
+
+    const btnW = 200, btnH = 48;
+    const btnX = width/2 - btnW/2;
+    const btnY = boxY + boxH - 70;
+
+    if (mouseX > btnX && mouseX < btnX + btnW && mouseY > btnY && mouseY < btnY + btnH) {
+      // API 화면 닫고 기존 StageInfo 화면 보이도록
+      showApiInfoScreen = false;
+      // (currentApiInfo 유지하거나 null 처리 가능)
+    }
+    return; // API 화면이 켜져 있는 동안 다른 클릭 이벤트 차단
+  }
+
   //게임 오버 상태일 때 '다시 하기' 버튼 클릭 체크
   if (gameOver) {
     // 버튼 영역: 중앙(width/2), y위치(height/2 + 80), 크기(200x50)
