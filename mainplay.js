@@ -61,7 +61,7 @@ function preload() {
   PomeImg = loadImage('data/jindo.png');
   BeagleImg = loadImage('data/jindo.png');
   DobermanImg = loadImage('data/jindo.png');
-  petPome = loadImage('data/dog_pome.png');
+  petPome = loadImage('data/pome.png');
   //배경 이미지 로딩
   backgrnd = loadImage('data/dtdBackgrnd.png');
   //icon loading
