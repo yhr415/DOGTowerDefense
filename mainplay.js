@@ -30,11 +30,33 @@ let backgrnd;
 let effects = [];
 
 let towerSpriteSheets = {}; //타워 이미지 담기
-let bulletimgs={}; //bullet image 담기
+let bulletimgs = {}; //bullet image 담기
+let dogPics = {};
 
 // 강아지 이미지 로딩
 function preload() {
-  jindoImg = loadImage('data/jindo.png');
+  dogPics['jindo'] ||= {}; 
+  dogPics['jindo']['white'] ||= {};
+  dogPics['pome'] ||= {}; 
+  dogPics['pome']['white'] ||= {};
+  dogPics['jindo']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
+  dogPics['jindo']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
+  dogPics['jindo']['white']['happy'] = loadImage('data/dog/WhiteJindoHappy.png');
+  dogPics['pome']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
+  dogPics['pome']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
+  dogPics['pome']['white']['happy'] = loadImage('data/dog/WhiteJindoHappy.png');
+  dogPics['shiba'] ||= {}; 
+  dogPics['shiba']['white'] ||= {};
+  dogPics['shiba']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
+  dogPics['shiba']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
+  dogPics['shiba']['white']['happy'] = loadImage('data/dog/WhiteJindoHappy.png');
+  dogPics['doberman'] ||= {}; 
+  dogPics['doberman']['white'] ||= {};
+  dogPics['doberman']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
+  dogPics['doberman']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
+  dogPics['doberman']['white']['happy'] = loadImage('data/dog/WhiteJindoHappy.png');
+
+
   shibaImg = loadImage('data/jindo.png');
   PomeImg = loadImage('data/jindo.png');
   BeagleImg = loadImage('data/jindo.png');
@@ -45,14 +67,17 @@ function preload() {
   //icon loading
   iconCoin = loadImage('data/coin_icon.png');
   //effect loading
-  healGreen20=loadImage('data/effect/healGreen20.png');
-  healYellow5=loadImage('data/effect/healYellow5.png');
+  healGreen20 = loadImage('data/effect/healGreen20.png');
+  healYellow5 = loadImage('data/effect/healYellow5.png');
+  heartEffect5 = loadImage('data/effect/heartEffect.png');
   //bullet loading
-  bulletimgs['love']=loadImage('data/bullet/heartbullet.png');
+  bulletimgs['love'] = loadImage('data/bullet/heartbullet.png');
+  bulletimgs['snack']=loadImage('data/bullet/snackbullet.png');
   //tower loading
-  towerSpriteSheets["heal"]=loadImage('data/tower/heal.png');
-  towerSpriteSheets["snack"]=loadImage('data/tower/snack.png');
-  towerSpriteSheets["love"]=loadImage('data/tower/love.png')
+  towerSpriteSheets["heal"] = loadImage('data/tower/heal.png');
+  towerSpriteSheets["snack"] = loadImage('data/tower/snack.png');
+  towerSpriteSheets["love"] = loadImage('data/tower/love.png');
+  towerSpriteSheets["block"]=loadImage('data/tower/block.png');
 }
 
 function setup() {
@@ -190,7 +215,7 @@ function draw() {
 
   shop.draw();
 
-// ... (draw 함수 맨 아래쪽) ...
+  // ... (draw 함수 맨 아래쪽) ...
 
   // 🖱️ 드래그 중인 아이템 그리기
   if (draggingItem) {
@@ -200,7 +225,7 @@ function draw() {
     // 1. 사거리 미리보기 원 (이건 유지!)
     // level1Range가 정의되어 있다고 가정, 없으면 기본값 100
     let range = (typeof level1Range !== 'undefined' && level1Range[draggingItem.type]) ? level1Range[draggingItem.type] : 100;
-    
+
     noFill();
     stroke(255, 255, 255, 100); // 반투명 흰색
     ellipse(0, 0, range * 2);   // 사거리 표시
@@ -209,23 +234,23 @@ function draw() {
     const sheet = towerSpriteSheets[draggingItem.type];
 
     if (sheet) {
-        // 0번 인덱스(1레벨) 모습을 보여줌
-        // translate(mouseX, mouseY)를 했기 때문에 좌표는 0, 0 기준인데,
-        // 이미지를 마우스 정중앙에 오게 하려면 크기의 절반만큼 빼줘야 해 (-32, -32)
-        drawSprite(
-            sheet, 
-            0,         // 1레벨(인덱스 0)
-            0,0,  // 위치 (중앙 정렬 보정)
-            70,70,    // 크기
-            5,1          // 가로 3칸짜리 시트
-        );
+      // 0번 인덱스(1레벨) 모습을 보여줌
+      // translate(mouseX, mouseY)를 했기 때문에 좌표는 0, 0 기준인데,
+      // 이미지를 마우스 정중앙에 오게 하려면 크기의 절반만큼 빼줘야 해 (-32, -32)
+      drawSprite(
+        sheet,
+        0,         // 1레벨(인덱스 0)
+        0, 0,  // 위치 (중앙 정렬 보정)
+        70, 70,    // 크기
+        5, 1          // 가로 3칸짜리 시트
+      );
     } else {
-        // 이미지 없으면 기존 동그라미 (백업)
-        noStroke();
-        fill(draggingItem.color);
-        ellipse(0, 0, 40); 
+      // 이미지 없으면 기존 동그라미 (백업)
+      noStroke();
+      fill(draggingItem.color);
+      ellipse(0, 0, 40);
     }
-    
+
     pop();
   }
   if (isStageActive) stageManager.update();
