@@ -26,6 +26,9 @@ let BeagleImg;
 let DobermanImg;
 let backgrnd;
 
+//effect를 담는 List
+let effects = [];
+
 // 강아지 이미지 로딩
 function preload() {
   jindoImg = loadImage('data/jindo.png');
@@ -33,11 +36,13 @@ function preload() {
   PomeImg = loadImage('data/jindo.png');
   BeagleImg = loadImage('data/jindo.png');
   DobermanImg = loadImage('data/jindo.png');
-  petPome=loadImage('data/dog_pome.png');
+  petPome = loadImage('data/dog_pome.png');
   //배경 이미지 로딩
   backgrnd = loadImage('data/dtdBackgrnd.png');
   //icon loading
   iconCoin = loadImage('data/coin_icon.png');
+  healGreen20=loadImage('data/effect/healGreen20.png');
+  healYellow5=loadImage('data/effect/healYellow5.png');
 }
 
 function setup() {
@@ -68,7 +73,7 @@ function setup() {
     for (let c = 0; c < hexGrid.cols; c++) {
       hexGrid.tiles[r][c].setAdjTiles()
     }
-  }  
+  }
 
   // stageDesign 데이터를 전달
   stageManager = new StageManager(stageDesign, pathWaypoints);
@@ -88,7 +93,7 @@ function draw() {
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
     e.update();
-    e.show();
+    e.show(); //enemies 배열 안에 있는 것들을 불러와서 보여줌
 
     if (e.reachedEnd()) {
       // 끝에 도달했을 때 로직
@@ -120,20 +125,20 @@ function draw() {
       if (t) {
         t.update();
         t.show();
-        if (towerStats[t.type].canShoot){
+        if (towerStats[t.type].canShoot) {
           t.shoot(enemies);
         }
-        else{
-          if (t.type === "support"){
+        else {
+          if (t.type === "support") {
             t.enhance(tile)
           }
-          else if (t.type === "block"){
+          else if (t.type === "block") {
             t.block()
           }
-          else if (t.type === "factory"){
+          else if (t.type === "factory") {
             t.earn()
           }
-          else if (t.type === "playground"){
+          else if (t.type === "playground") {
             t.play()
           }
         }
@@ -150,6 +155,18 @@ function draw() {
       if (b.target && b.target.takeDamage) b.target.takeDamage(b.damage);
       bullets.splice(i, 1);
     } else if (b.isOffScreen()) bullets.splice(i, 1);
+  }
+
+  //effect update
+  for (let i = effects.length - 1; i >= 0; i--) {
+    let ef = effects[i];
+    ef.update();
+    ef.show();
+
+    // 애니메이션 끝난 배열 삭제
+    if (ef.finished) {
+      effects.splice(i, 1);
+    }
   }
 
   // 스테이지 완료 확인
