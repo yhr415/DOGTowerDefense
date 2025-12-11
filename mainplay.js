@@ -30,6 +30,7 @@ let backgrnd;
 let effects = [];
 
 let towerSpriteSheets = {}; //타워 이미지 담기
+let bulletimgs={}; //bullet image 담기
 
 // 강아지 이미지 로딩
 function preload() {
@@ -43,8 +44,12 @@ function preload() {
   backgrnd = loadImage('data/dtdBackgrnd.png');
   //icon loading
   iconCoin = loadImage('data/coin_icon.png');
+  //effect loading
   healGreen20=loadImage('data/effect/healGreen20.png');
   healYellow5=loadImage('data/effect/healYellow5.png');
+  //bullet loading
+  bulletimgs['love']=loadImage('data/bullet/heartbullet.png');
+  //tower loading
   towerSpriteSheets["heal"]=loadImage('data/tower/heal.png');
   towerSpriteSheets["snack"]=loadImage('data/tower/snack.png');
   towerSpriteSheets["love"]=loadImage('data/tower/love.png')
