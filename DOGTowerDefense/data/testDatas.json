@@ -1,0 +1,47 @@
+{
+"items": [
+    {
+      "adoptionStatusCd": "1",
+      "age": "2년령(추정)",
+      "animalSeq": "47058",
+      "classification": "417000",
+      "fileNm": "25-5-191.jpg",
+      "filePath": "FileUpload/ANI/202511/20251126041753999.jpg",
+      "foundPlace": "송촌동세연중앙교회 주변",
+      "gender": "F",
+      "gu": "3680000",
+      "hairColor": "백색",
+      "hitCnt": "24",
+      "memo": "경계심, 홍역음성, 파보음성, 코로나음성",
+      "modDtTm": "2025-11-26",
+      "regDtTm": "2025-11-26",
+      "regId": "25-5-191",
+      "rescueDate": "2025-11-26",
+      "species": "믹스",
+      "weight": "11.5kg",
+      "imageUrl": "https://www.daejeon.go.kr/FileUpload/ANI/202511/20251126041753999.jpg",
+      "imageFileName": "949160e68bd174164a962df3b14e2e85.jpg"
+    },
+    {
+      "adoptionStatusCd": "1",
+      "age": "2년령(추정)",
+      "animalSeq": "47057",
+      "classification": "417000",
+      "fileNm": "25-2-221.jpg",
+      "filePath": "FileUpload/ANI/202511/20251126041716469.jpg",
+      "foundPlace": "침산동 398번지 주변",
+      "gender": "F",
+      "gu": "3650000",
+      "hairColor": "흑황백색",
+      "hitCnt": "28",
+      "memo": "목줄 및 리드줄 착용, 홍역음성, 파보음성, 코로나음성",
+      "modDtTm": "2025-11-26",
+      "regDtTm": "2025-11-26",
+      "regId": "25-2-221",
+      "rescueDate": "2025-11-26",
+      "species": "믹스",
+      "weight": "24.5kg",
+      "imageUrl": "https://www.daejeon.go.kr/FileUpload/ANI/202511/20251126041716469.jpg",
+      "imageFileName": "ad952111360d682657dfe6074ba90ee6.jpg"
+    }
+]}
