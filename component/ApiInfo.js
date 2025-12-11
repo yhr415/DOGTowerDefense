@@ -1,39 +1,40 @@
 function startApiInfoScreen(item) {
-    if (!item || typeof item !== 'object') {
-        console.warn('startApiInfoScreen called without valid item:', item);
-        return; // 방어: 잘못 호출됐으면 무시
-      }
-    currentApiInfo = item || null;
-    showApiInfoScreen = true;
-    apiInfoImg = null;
-    apiImgLoading = false;
-    apiImgLoadError = false;
-  
-    if (!item) return;
-  
-    const url = item.imageUrl || item.filePath || null;
-    if (!url) return;
-  
-    // 캐시 있으면 사용
-    if (imageCache[url]) {
-      apiInfoImg = imageCache[url];
-      return;
-    }
-  
-    apiImgLoading = true;
-    loadImage(url,
-      (img) => {
-        imageCache[url] = img;
-        apiInfoImg = img;
-        apiImgLoading = false;
-      },
-      (err) => {
-        console.warn('API image load failed:', url, err);
-        apiImgLoading = false;
-        apiImgLoadError = true;
-      }
-    );
+  if (!item || typeof item !== "object") return;
+
+  currentApiInfo = item;
+  showApiInfoScreen = true;
+  apiInfoImg = null;
+  apiImgLoading = false;
+  apiImgLoadError = false;
+
+  const originalUrl = item.imageUrl || item.filePath;
+  if (!originalUrl) return;
+
+  const filename = originalUrl.split("/").pop();
+  const localUrl = "images/" + filename;
+
+  // 캐시 확인
+  if (imageCache[localUrl]) {
+    apiInfoImg = imageCache[localUrl];
+    return;
   }
+
+  apiImgLoading = true;
+  loadImage(
+    localUrl,
+    (img) => {
+      imageCache[localUrl] = img;
+      apiInfoImg = img;
+      apiImgLoading = false;
+    },
+    (err) => {
+      console.warn("API image load failed:", localUrl, err);
+      apiImgLoading = false;
+      apiImgLoadError = true;
+    }
+  );
+}
+
 
   function drawApiInfoScreen() {
     // 반투명 전체 배경
