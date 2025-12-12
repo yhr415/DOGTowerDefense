@@ -18,6 +18,10 @@ let hexGrid;
 
 let currentStage = 0, stageManager, isStageActive = false;
 
+//sound 변수 선언
+let bgm;
+let fxsounds={};
+
 // 이미지 변수 선언
 let jindoImg;
 let shibaImg;
@@ -94,9 +98,20 @@ function preload() {
 
   rescueData = loadJSON('data/daejeon_dog.json');
 
+  //음악
+  //bgm
+  bgm = loadSound('data/sound/hyperpop.wav');
+  fxsounds["click"]=loadSound('data/sound/click.wav');
+  fxsounds["hit"]=loadSound('data/sound/뿅뿅.wav');
+  fxsounds["money"]=loadSound('data/sound/돈소리.wav');
+  fxsounds["eat"]=loadSound('data/sound/eat.wav');
 }
 
 function setup() {
+  bgm.setVolume(0.3);
+  fxsounds["money"].setVolume(0.2);
+  fxsounds["hit"].setVolume(0.1);
+  fxsounds["eat"].setVolume(0.1);
   hexGrid = new HexGridManager(HEX_COLS, HEX_ROWS, HEX_R, MARGIN);
   createCanvas(hexGrid.totalW, hexGrid.totalH + 100);
   textAlign(CENTER, CENTER);
@@ -335,10 +350,10 @@ function draw() {
 
 function mousePressed() {
 
+  // 1. [UI] API 정보창 닫기
   if (showApiInfoScreen) {
     const boxW = min(width - 80, 860);
     const boxH = min(height - 200, 520);
-    const boxX = (width - boxW) / 2;
     const boxY = (height - boxH) / 2;
 
     const btnW = 200, btnH = 48;
@@ -346,55 +361,84 @@ function mousePressed() {
     const btnY = boxY + boxH - 70;
 
     if (mouseX > btnX && mouseX < btnX + btnW && mouseY > btnY && mouseY < btnY + btnH) {
-      // API 화면 닫고 기존 StageInfo 화면 보이도록
       showApiInfoScreen = false;
-      // (currentApiInfo 유지하거나 null 처리 가능)
+      
+      // 🔊 클릭 소리 재생
+      fxsounds['click'].play();
     }
-    return; // API 화면이 켜져 있는 동안 다른 클릭 이벤트 차단
+    return; 
   }
 
-  //게임 오버 상태일 때 '다시 하기' 버튼 클릭 체크
+  // 2. [UI] 게임 오버 -> 다시 하기
   if (gameOver) {
-    // 버튼 영역: 중앙(width/2), y위치(height/2 + 80), 크기(200x50)
     if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 &&
       mouseY > height / 2 + 80 && mouseY < height / 2 + 130) {
-      resetGame();
+      
+      // 🔊 클릭 소리 재생
+      if (typeof sfxClick !== 'undefined') sfxClick.play();
+      
+      resetGame(); // resetGame 안에서 BGM을 다시 켜는 로직이 있으면 좋음
     }
     return;
   }
 
-  // 1. 상점 아이템 클릭 체크
+  // 3. [상점] 아이템 클릭 체크
   let shopItem = shop.getItemAt(mouseX, mouseY);
   if (shopItem) {
     if (money >= shopItem.cost) {
       draggingItem = shopItem; // 드래그 시작!
+      
+      // 🔊 아이템 집는 소리 (촥!)
+      //fxsounds['money'].play();
+      
     } else {
       console.log("돈이 부족합니다!");
+      
+      // 🔊 실패/경고 소리 (띠딕!)
+      //if (typeof sfxError !== 'undefined') sfxError.play();
     }
     return;
   }
 
+  // 4. [게임 흐름] 스테이지 시작
   if (!isStageActive) {
     stageManager.startStage(currentStage);
     isStageActive = true;
+    
+    // 🔊 전투 시작 소리 & 배경음악 재생
+    fxsounds['click'].play();
+    
+    // BGM이 꺼져있다면 켜기 (중복 재생 방지)
+    if (!bgm.isPlaying()) {
+        bgm.loop();
+    }
+    
     return;
   }
 
+  // 5. [타워] 업그레이드
   const tile = hexGrid.getTileAt(mouseX, mouseY);
   if (!tile) return;
 
-  // 타워 불러오기, 업그레이드 (지금은 단순 터치만 하면 업그레이드)
   const tower = tile.tower;
 
   if (tower && levelUpCost[tower.type]) {
     if (tower.level < maxTowerLevel) {
+      // 돈이 충분할 때
       if (money >= levelUpCost[tower.type][tower.level]) {
-        money -= levelUpCost[tower.type][tower.level]
-        tower.levelUp()
+        money -= levelUpCost[tower.type][tower.level];
+        tower.levelUp();
+        
+        // 🔊 업그레이드/건설 성공 소리 (뚝딱!)
+        fxsounds['money'].play();
+        
+      } else {
+        // 돈이 부족할 때
+        // 🔊 실패 소리 (띠딕!)
+        //if (typeof sfxError !== 'undefined') sfxError.play();
       }
     }
   }
-  // else { ... } 블록을 제거하여 빈 타일 클릭 시 설치되지 않도록 함
 }
 
 function mouseReleased() {
