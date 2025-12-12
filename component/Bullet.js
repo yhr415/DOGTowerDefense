@@ -122,7 +122,7 @@ class Bullet {
           this.penetrated++;
 
           // 💥 사랑의 화살 맞은 적 위치에 이펙트 생성!
-          spawnHitEffect("love", e.x, e.y, 60,60);
+          spawnHitEffect("love", e.x, e.y, 70,70);
           fxsounds['hit'].play();
 
           if (this.penetrated >= this.penetrateLimit) return true;
