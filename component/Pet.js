@@ -96,21 +96,21 @@ class Pet {
         else if(this.name === 'doberman') currentImage = window.petPome;
         
         if (currentImage) {
-            image(currentImage, this.x, this.y, 50, 50); // 펫이니까 조금 작게 (100은 너무 큼)
+            image(currentImage, this.x, this.y, 70, 70); // 펫이니까 조금 작게 (100은 너무 큼)
         } else {
             fill(255, 0, 0); 
-            rect(this.x, this.y, 32, 32);
+            rect(this.x, this.y, 60, 60);
         }
     }
 
     // HP바 design (Dog랑 깔맞춤)
     noStroke();
     fill("#EE2C73"); 
-    rect(this.x - 16, this.y - 40, 32, 4); 
+    rect(this.x - 16, this.y - 50, 32, 4); 
     fill("#72ECEA"); 
     let hpWidth = map(this.hp, 0, this.maxHp, 0, 32);
     hpWidth = constrain(hpWidth, 0, 32); // 범위 넘지 않게
-    rect(this.x - 16, this.y - 40, hpWidth, 4);
+    rect(this.x - 16, this.y - 50, hpWidth, 4);
 
     if (this.playing){
       strokeWeight(3);
