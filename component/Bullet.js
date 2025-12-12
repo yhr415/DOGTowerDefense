@@ -97,7 +97,7 @@ class Bullet {
         // 💥 이펙트 생성 (폭발은 크기가 가변적이라 여기서 직접 호출)
         let effectSize = this.maxRadius * 2;
         spawnHitEffect("heal", this.x, this.y, effectSize,effectSize);
-        
+        fxsounds['hit'].play();
         return false;
       }
 
@@ -123,6 +123,7 @@ class Bullet {
 
           // 💥 사랑의 화살 맞은 적 위치에 이펙트 생성!
           spawnHitEffect("love", e.x, e.y, 60,60);
+          fxsounds['hit'].play();
 
           if (this.penetrated >= this.penetrateLimit) return true;
         }
@@ -140,6 +141,7 @@ class Bullet {
           
           // 💥 얼음 이펙트 (적 위치에)
           spawnHitEffect("slow", this.target.x, this.target.y, 40,40);
+          fxsounds['hit'].play();
 
         } else {
           // 일반 간식
@@ -147,6 +149,7 @@ class Bullet {
           
           // 💥 간식 이펙트 (적 위치에)
           spawnHitEffect("snack", this.target.x, this.target.y, 30,30);
+          fxsounds['eat'].play();
         }
 
         return true; // 총알 삭제
