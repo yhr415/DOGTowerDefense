@@ -89,11 +89,11 @@ class Pet {
     // 3. 없으면 형이 설정한 정지 이미지 그리기 (백업)
     else {
         let currentImage;
-        if(this.name === 'jindo') currentImage = window.jindoImg; // 전역변수 참조
-        else if(this.name === 'shiba') currentImage = window.shibaImg;
+        if(this.name === 'jindo') currentImage = window.petPome; // 전역변수 참조
+        else if(this.name === 'shiba') currentImage = window.petPome;
         else if(this.name === 'pome') currentImage = window.petPome || window.PomeImg; // 변수명 안전장치
-        else if(this.name === 'beagle') currentImage = window.BeagleImg;
-        else if(this.name === 'doberman') currentImage = window.DobermanImg;
+        else if(this.name === 'beagle') currentImage = window.petPome;
+        else if(this.name === 'doberman') currentImage = window.petPome;
         
         if (currentImage) {
             image(currentImage, this.x, this.y, 50, 50); // 펫이니까 조금 작게 (100은 너무 큼)
