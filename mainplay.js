@@ -4,7 +4,9 @@ let enemies = [];
 let shop;
 let draggingItem = null; // 상점에서 drag and drop 기능 : 현재 drag 중인 타워 정보 저장
 let bullets = [];
-let money = 1000, lives = 10, score = 0, gameOver = false;
+const startMoney = 70
+let money = startMoney
+let lives = 10, score = 0, gameOver = false;
 
 //pet spawn Rate 변수 하나 만들었음... 근데 dog에 spawn rate가 필요할까?
 const spawnRate = 60;
@@ -48,6 +50,10 @@ let imageCache = {};          // imageUrl -> p5.Image 캐시
 let showStageInfoScreen = false; // info 화면 표시 여부
 let apiImgLoading = false;
 let apiImgLoadError = false;
+
+// 타워 선택 관련 변수
+let selectedTower = null; // 선택된 타워
+let selectedTile = null; // 선택된 타일
 // 강아지 이미지 로딩
 function preload() {
   dogPics['jindo'] ||= {}; 
@@ -119,6 +125,8 @@ function setup() {
   imageMode(CENTER);
 
   shop = new Shop(0, height - 120, width, 120);
+  // 초기 스테이지의 사용 가능한 타워 목록 설정
+  shop.updateAvailableItems(currentStage);
 
   const pathDesign = [
     { r: 1, c: 0 },
@@ -168,7 +176,6 @@ function setup() {
   pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: endTile.y });
 
   // 5) StageManager에 전달
-  stageManager = new StageManager(stageDesign, pathWaypoints);
 
   //각 타일마다 인접 타일들 미리 저장
   for (let r = 0; r < hexGrid.rows; r++) {
@@ -182,6 +189,7 @@ function setup() {
 }
 
 function draw() {
+  money += 0.0333
   image(backgrnd, width / 2, height / 2, width, height); //background 이미지 불러오기
 
   if (showApiInfoScreen) {
@@ -205,6 +213,41 @@ function draw() {
 
   hexGrid.draw();
   drawUI();
+  
+  // 선택된 타워의 사거리 표시
+  if (selectedTower && selectedTile) {
+    drawSelectedTowerRange();
+  }
+
+  // 타워 관리
+  for (let row = 0; row < hexGrid.rows; row++) {
+    for (let col = 0; col < hexGrid.cols; col++) {
+      const tile = hexGrid.tiles[row][col];
+      const t = tile.tower
+      if (t) {
+        t.update();
+        t.show();
+        if (towerStats[t.type].canShoot) {
+          t.shoot(enemies);
+        }
+        else {
+          if (t.type === "block") {
+            t.block()
+          }
+          else if (t.type === "playground") {
+            t.play()
+          }
+          else if (t.type === "support") {
+            t.enhance(tile)
+          }
+          else if (t.type === "factory") {
+            t.earn()
+          }
+        }
+      }
+    }
+  }
+
   // 적 관리 시스템 update (1205): dog과 pet을 별도의 object로 받아와서 enemies로 한 번에 관리
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
@@ -226,39 +269,10 @@ function draw() {
       }
 
     } else if (e.isDead()) {
-      money += 10; score += 10;
+      money += 5; score += 10;
       enemies.splice(i, 1);
       // stageManager에게 알릴 필요가 있을 경우 (적 카운트 등)
       // stageManager.enemyDefeated(); 
-    }
-  }
-
-  // 타워 관리
-  for (let row = 0; row < hexGrid.rows; row++) {
-    for (let col = 0; col < hexGrid.cols; col++) {
-      const tile = hexGrid.tiles[row][col];
-      const t = tile.tower
-      if (t) {
-        t.update();
-        t.show();
-        if (towerStats[t.type].canShoot) {
-          t.shoot(enemies);
-        }
-        else {
-          if (t.type === "support") {
-            t.enhance(tile)
-          }
-          else if (t.type === "block") {
-            t.block()
-          }
-          else if (t.type === "factory") {
-            t.earn()
-          }
-          else if (t.type === "playground") {
-            t.play()
-          }
-        }
-      }
     }
   }
 
@@ -268,7 +282,6 @@ function draw() {
     b.update();
     b.show();
     if (b.hasHit()) {
-      if (b.target && b.target.takeDamage) b.target.takeDamage(b.damage);
       bullets.splice(i, 1);
     } else if (b.isOffScreen()) bullets.splice(i, 1);
   }
@@ -302,9 +315,19 @@ function draw() {
 
     currentStage++;
     if (currentStage >= stageDesign.length) gameOver = true;
+    
+    // 스테이지 변경 시 상점의 사용 가능한 타워 목록 업데이트
+    if (shop) {
+      shop.updateAvailableItems(currentStage);
+    }
   }
 
   shop.draw();
+
+  // 선택된 타워 UI 그리기 (Shop 이후에 그려서 Shop 배경이 UI를 가리지 않도록)
+  if (selectedTower && selectedTile) {
+    drawTowerSelectionUI();
+  }
 
   // ... (draw 함수 맨 아래쪽) ...
 
@@ -314,11 +337,11 @@ function draw() {
     translate(mouseX, mouseY); // 마우스 위치를 (0,0) 기준으로 잡음
 
     // 1. 사거리 미리보기 원 (이건 유지!)
-    // level1Range가 정의되어 있다고 가정, 없으면 기본값 100
-    let range = (typeof level1Range !== 'undefined' && level1Range[draggingItem.type]) ? level1Range[draggingItem.type] : 100;
+    // level1Range가 정의되어 있다고 가정, 없으면 기본값 0
+    let range = (typeof level1Range !== 'undefined' && level1Range[draggingItem.type]) ? level1Range[draggingItem.type] : 0;
 
     noFill();
-    stroke(255, 255, 255, 100); // 반투명 흰색
+    stroke(255, 255, 255, 200); // 반투명 흰색
     ellipse(0, 0, range * 2);   // 사거리 표시
 
     // 2. 타워 스프라이트 그리기 (여기가 수정됨! 🚀)
@@ -382,11 +405,16 @@ function mousePressed() {
     return;
   }
 
-  // 3. [상점] 아이템 클릭 체크
+  if (handleTowerSelectionUI()) {
+    return; // 버튼 클릭 처리됨
+  }
+  
   let shopItem = shop.getItemAt(mouseX, mouseY);
   if (shopItem) {
     if (money >= shopItem.cost) {
       draggingItem = shopItem; // 드래그 시작!
+      selectedTower = null;
+      selectedTile = null;
       
       // 🔊 아이템 집는 소리 (촥!)
       //fxsounds['money'].play();
@@ -400,10 +428,11 @@ function mousePressed() {
     return;
   }
 
-  // 4. [게임 흐름] 스테이지 시작
   if (!isStageActive) {
     stageManager.startStage(currentStage);
     isStageActive = true;
+    selectedTower = null;
+    selectedTile = null;
     
     // 🔊 전투 시작 소리 & 배경음악 재생
     fxsounds['click'].play();
@@ -416,28 +445,25 @@ function mousePressed() {
     return;
   }
 
-  // 5. [타워] 업그레이드
+  // 6. [타워] 선택 (업그레이드/제거 UI 표시)
   const tile = hexGrid.getTileAt(mouseX, mouseY);
-  if (!tile) return;
+  if (!tile) {
+    // 타일이 아닌 곳을 클릭하면 선택 해제
+    selectedTower = null;
+    selectedTile = null;
+    return;
+  }
 
   const tower = tile.tower;
-
-  if (tower && levelUpCost[tower.type]) {
-    if (tower.level < maxTowerLevel) {
-      // 돈이 충분할 때
-      if (money >= levelUpCost[tower.type][tower.level]) {
-        money -= levelUpCost[tower.type][tower.level];
-        tower.levelUp();
-        
-        // 🔊 업그레이드/건설 성공 소리 (뚝딱!)
-        fxsounds['money'].play();
-        
-      } else {
-        // 돈이 부족할 때
-        // 🔊 실패 소리 (띠딕!)
-        //if (typeof sfxError !== 'undefined') sfxError.play();
-      }
-    }
+  
+  // 타워가 있는 타일을 클릭하면 선택
+  if (tower) {
+    selectedTower = tower;
+    selectedTile = tile;
+  } else {
+    // 타워가 없는 타일을 클릭하면 선택 해제
+    selectedTower = null;
+    selectedTile = null;
   }
 }
 
@@ -450,6 +476,9 @@ function mouseReleased() {
         const newTower = new Tower(tile.x, tile.y, tile.col, tile.row, 1, draggingItem.type, draggingItem.color);
         tile.tower = newTower;
         tile.placeTower(newTower);
+
+        selectedTower = null; // 새 타워 설치 시 선택 해제
+        selectedTile = null;
       }
     }
     draggingItem = null;
@@ -467,4 +496,227 @@ function spawnBoss(stageIndex) {
   bossDog = boss;
   dogs.push(boss);
   bossActive = true;
+}
+
+// 선택된 타워의 사거리 표시 함수
+function drawSelectedTowerRange() {
+  if (!selectedTower || !selectedTile) return;
+  
+  // 공격 가능한 타워만 사거리 표시
+  const stats = towerStats[selectedTower.type];
+  if (!stats || !stats.canShoot || !selectedTower.range) return;
+  
+  push();
+  noFill();
+  stroke(255, 255, 255, 200); // 반투명 흰색 (드래그 중인 타워와 동일한 스타일)
+  strokeWeight(2);
+  ellipse(selectedTower.x, selectedTower.y, selectedTower.range * 2);
+  pop();
+}
+
+// 타워 선택 UI 그리기 함수
+function drawTowerSelectionUI() {
+  if (!selectedTower || !selectedTile) return;
+  
+  // 타워 이름 찾기
+  const towerItem = itemDesc.find(item => item.type === selectedTower.type);
+  const towerName = towerItem ? towerItem.name : selectedTower.type;
+  
+  // UI 위치 (Shop 내부 오른쪽 아래)
+  const uiWidth = 250;
+  const uiHeight = 100; // Shop 높이(120)보다 작게 설정
+  const shopHeight = 120; // Shop 높이
+  const uiX = width - uiWidth - 20; // 화면 오른쪽에서 20px 여백
+  const uiY = height - shopHeight + (shopHeight - uiHeight) / 2; // Shop 내부 중앙에 배치
+  
+  // 배경
+  push();
+  fill(0, 0, 0, 200);
+  noStroke();
+  rect(uiX, uiY, uiWidth, uiHeight, 10);
+  
+  // 타워 이름
+  fill(255, 200, 0);
+  textAlign(CENTER, TOP);
+  textSize(18);
+  text(towerName, uiX + uiWidth / 2, uiY + 10);
+  
+  // 레벨 정보
+  fill(255);
+  textSize(14);
+  text(`레벨: ${selectedTower.level}`, uiX + uiWidth / 2, uiY + 35);
+  
+  // 업그레이드 버튼
+  const upgradeBtnX = uiX + 20;
+  const upgradeBtnY = uiY + 60;
+  const upgradeBtnW = 100;
+  const upgradeBtnH = 35;
+  
+  // block 타워는 업그레이드 불가
+  const isBlockTower = selectedTower.type === "block";
+  
+  // 업그레이드 가능 여부 확인
+  const canUpgrade = !isBlockTower && 
+                     selectedTower.level < maxTowerLevel && 
+                     levelUpCost[selectedTower.type] && 
+                     money >= levelUpCost[selectedTower.type][selectedTower.level];
+  
+  if (canUpgrade) {
+    fill(100, 200, 100);
+  } else {
+    fill(150, 150, 150);
+  }
+  rect(upgradeBtnX, upgradeBtnY, upgradeBtnW, upgradeBtnH, 5);
+  
+  fill(0);
+  textSize(14);
+  textAlign(CENTER, CENTER);
+  if (isBlockTower) {
+    text(`업그레이드\n불가`, upgradeBtnX + upgradeBtnW / 2, upgradeBtnY + upgradeBtnH / 2);
+  } else {
+    const upgradeCost = levelUpCost[selectedTower.type] ? levelUpCost[selectedTower.type][selectedTower.level] : 0;
+    if (selectedTower.level < maxTowerLevel) {
+      text(`업그레이드\n${upgradeCost}g`, upgradeBtnX + upgradeBtnW / 2, upgradeBtnY + upgradeBtnH / 2);
+    } else {
+      text(`최대 레벨`, upgradeBtnX + upgradeBtnW / 2, upgradeBtnY + upgradeBtnH / 2);
+    }
+  }
+  
+  // 제거 버튼
+  const removeBtnX = uiX + 130;
+  const removeBtnY = uiY + 60;
+  const removeBtnW = 100;
+  const removeBtnH = 35;
+  
+  // block과 playground 타워는 제거 불가
+  const canRemove = selectedTower.type !== "block" && selectedTower.type !== "playground";
+  
+  if (canRemove) {
+    fill(200, 100, 100);
+  } else {
+    fill(150, 150, 150);
+  }
+  rect(removeBtnX, removeBtnY, removeBtnW, removeBtnH, 5);
+  
+  fill(0);
+  textSize(14);
+  textAlign(CENTER, CENTER);
+  if (canRemove) {
+    const refundAmount = towerItem ? Math.floor(towerItem.cost / 2) : 0;
+    text(`제거\n+${refundAmount}g`, removeBtnX + removeBtnW / 2, removeBtnY + removeBtnH / 2);
+  } else {
+    text(`제거\n불가`, removeBtnX + removeBtnW / 2, removeBtnY + removeBtnH / 2);
+  }
+  
+  pop();
+}
+
+// 타워 선택 UI 버튼 클릭 처리
+function handleTowerSelectionUI() {
+  if (!selectedTower || !selectedTile) return false;
+  
+  // 타워 이름 찾기
+  const towerItem = itemDesc.find(item => item.type === selectedTower.type);
+  
+  // UI 위치 (Shop 내부 오른쪽 아래)
+  const uiWidth = 250;
+  const uiHeight = 100; // Shop 높이(120)보다 작게 설정
+  const shopHeight = 120; // Shop 높이
+  const uiX = width - uiWidth - 20; // 화면 오른쪽에서 20px 여백
+  const uiY = height - shopHeight + (shopHeight - uiHeight) / 2; // Shop 내부 중앙에 배치
+  
+  // 업그레이드 버튼
+  const upgradeBtnX = uiX + 20;
+  const upgradeBtnY = uiY + 60;
+  const upgradeBtnW = 100;
+  const upgradeBtnH = 35;
+  
+  if (mouseX >= upgradeBtnX && mouseX <= upgradeBtnX + upgradeBtnW &&
+      mouseY >= upgradeBtnY && mouseY <= upgradeBtnY + upgradeBtnH) {
+    // 업그레이드 처리 (block 타워는 업그레이드 불가)
+    if (selectedTower.type !== "block" &&
+        selectedTower.level < maxTowerLevel && 
+        levelUpCost[selectedTower.type] && 
+        money >= levelUpCost[selectedTower.type][selectedTower.level]) {
+      money -= levelUpCost[selectedTower.type][selectedTower.level];
+      selectedTower.levelUp();
+      fxsounds['money'].play();
+      return true;
+    }
+  }
+  
+  // 제거 버튼
+  const removeBtnX = uiX + 130;
+  const removeBtnY = uiY + 60;
+  const removeBtnW = 100;
+  const removeBtnH = 35;
+  
+  if (mouseX >= removeBtnX && mouseX <= removeBtnX + removeBtnW &&
+      mouseY >= removeBtnY && mouseY <= removeBtnY + removeBtnH) {
+    // 제거 처리 (block과 playground 타워는 제거 불가)
+    if (selectedTower.type === "block" || selectedTower.type === "playground") {
+      return true; // 클릭은 처리했지만 제거하지 않음
+    }
+    
+    const removedTowerType = selectedTower.type;
+    const removedTile = selectedTile;
+    
+    if (towerItem) {
+      const refundAmount = Math.floor(towerItem.cost / 2);
+      money += refundAmount;
+      fxsounds['money'].play();
+    }
+    
+    // 타워 제거 전에 타일 정보 저장
+    selectedTile.tower = null;
+    
+    // support 타워 제거 시 인접 타일들의 enhanced 값 재계산
+    if (removedTowerType === "support") {
+      // 모든 support 타워를 다시 확인하여 enhanced 값 재계산
+      recalculateAllSupportEnhancements();
+    } else {
+      // support 타워가 아닌 경우, 해당 타일의 enhanced 값만 초기화
+      // (다른 support 타워가 영향을 주고 있을 수 있으므로 재계산은 하지 않음)
+      removedTile.enhanced = 1;
+    }
+    selectedTower = null;
+    selectedTile = null;
+    return true;
+  }
+  
+  return false;
+}
+
+// 모든 support 타워의 강화 효과를 재계산하는 함수
+function recalculateAllSupportEnhancements() {
+  // 먼저 모든 타일의 enhanced 값을 1로 초기화
+  for (let row = 0; row < hexGrid.rows; row++) {
+    for (let col = 0; col < hexGrid.cols; col++) {
+      const tile = hexGrid.tiles[row][col];
+      tile.enhanced = 1;
+    }
+  }
+  
+  // 모든 support 타워를 순회하며 enhanced 값 재계산
+  for (let row = 0; row < hexGrid.rows; row++) {
+    for (let col = 0; col < hexGrid.cols; col++) {
+      const tile = hexGrid.tiles[row][col];
+      const tower = tile.tower;
+      if (tower && tower.type === "support") {
+        // support 타워의 enhance 함수 호출
+        tower.enhance(tile);
+      }
+    }
+  }
+  
+  // 모든 타워의 스탯 재계산 (enhanced 값이 변경되었으므로)
+  for (let row = 0; row < hexGrid.rows; row++) {
+    for (let col = 0; col < hexGrid.cols; col++) {
+      const tile = hexGrid.tiles[row][col];
+      const tower = tile.tower;
+      if (tower) {
+        tower.generate();
+      }
+    }
+  }
 }

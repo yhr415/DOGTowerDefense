@@ -30,8 +30,6 @@ class Bullet {
       this.exploding = false;
     }
     else if (this.type === "love") {
-      this.penetrateLimit = tower.penetrateLimit || 3;
-      this.penetrated = 0;
 
       // 🚨 안전장치: 타겟이 존재할 때만 방향 계산
       if (this.target) {
@@ -91,17 +89,26 @@ class Bullet {
   hasHit() {
     // 🌿 [치유 (Heal)] = 기존 로직 유지 + 이펙트 함수 사용
     if (this.type === "heal") {
-      if (!this.exploding && this.target && dist(this.x, this.y, this.target.x, this.target.y) < 10) {
+      if (!this.exploding){
+        let hitted = null
+        for (let i = enemies.length - 1; i >= 0; i--){
+          if (dist(this.x, this.y, enemies[i].x, enemies[i].y) < 10){
+            hitted = enemies[i]
+            break
+          }
+        }
+        if (!hitted){
+          return false
+        }
+
         this.exploding = true;
-        
         // 💥 이펙트 생성 (폭발은 크기가 가변적이라 여기서 직접 호출)
         let effectSize = this.maxRadius * 2;
         spawnHitEffect("heal", this.x, this.y, effectSize,effectSize);
         fxsounds['hit'].play();
         return false;
       }
-
-      if (this.exploding) {
+      else {
         for (let e of enemies) {
           if (!this.hitList.includes(e) && dist(this.x, this.y, e.x, e.y) <= this.currentRadius) {
             e.applyEffect('heal', this.damage);
@@ -119,42 +126,61 @@ class Bullet {
         if (!this.hitList.includes(e) && dist(this.x, this.y, e.x, e.y) < 20) {
           this.hitList.push(e);
           e.applyEffect('love', this.damage);
-          this.penetrated++;
 
           // 💥 사랑의 화살 맞은 적 위치에 이펙트 생성!
           spawnHitEffect("love", e.x, e.y, 70,70);
           fxsounds['hit'].play();
-
-          if (this.penetrated >= this.penetrateLimit) return true;
         }
       }
       return false;
     }
 
     // 🍖 [간식/슬로우] = 단일 타겟 충돌 시 이펙트!
-    else if (this.type === "snack" || this.type === "slow") {
-      if (this.target && dist(this.x, this.y, this.target.x, this.target.y) < 5) {
-
-        if (this.type === "slow") {
-          if (this.target.getSlowed) this.target.getSlowed(this.slowPower);
-          this.target.applyEffect('slow', this.damage);
-          
-          // 💥 얼음 이펙트 (적 위치에)
-          spawnHitEffect("slow", this.target.x, this.target.y, 40,40);
-          fxsounds['hit'].play();
-
-        } else {
-          // 일반 간식
-          this.target.applyEffect('snack', this.damage);
-          
-          // 💥 간식 이펙트 (적 위치에)
-          spawnHitEffect("snack", this.target.x, this.target.y, 30,30);
-          fxsounds['eat'].play();
+    else if (this.type === "snack" || this.type === "slow" || this.type === "antiTanker") {
+      
+      if (this.target.isDead()){
+        // target이 다른 총알에 의해 죽었을 때(나 말고) 현재 위치 근처의 적을 새 target으로 설정하려면 아래 활성화
+        /*
+        for (let e of enemies){
+          if (dist(this.x, this.y, e.x, e.y) < 100){
+            this.target = e
+            return false
+          }
         }
-
-        return true; // 총알 삭제
+        */
+        return true
       }
-      return false;
+      let hitted = null
+      for (let i = enemies.length - 1; i >= 0; i--){
+        if (dist(this.x, this.y, enemies[i].x, enemies[i].y) < 10){
+          hitted = enemies[i]
+          break
+        }
+      }
+      if (!hitted){
+        return false
+      }
+
+      if (this.type === "slow") {
+        hitted.applyEffect('slow', this.damage, this.slowPower);
+        // 💥 얼음 이펙트 (적 위치에)
+        spawnHitEffect("slow", hitted.x, hitted.y, 40,40);
+        fxsounds['hit'].play();
+      }
+      else if (this.type === "snack"){
+        // 일반 간식
+        hitted.applyEffect('snack', this.damage, 1.0);  //1.0배만큼 속도 빨라지도록
+        // 💥 간식 이펙트 (적 위치에)
+        spawnHitEffect("snack", hitted.x, hitted.y, 30,30);
+        fxsounds['eat'].play();
+      }
+      else if (this.type === "antiTanker"){
+        hitted.applyEffect("antiTanker", this.damage, null);
+        spawnHitEffect("antiTanker", hitted.x, hitted.y, 30,30);
+        fxsounds['hit'].play();
+      }
+
+      return true; // 총알 삭제
     }
   }
 
@@ -185,6 +211,9 @@ function spawnHitEffect(type, x, y, w,h) {
   else if (type === "snack") {
     img = window.snackHitImg; // 🍖 간식 이펙트 이미지 (preload 필요)
     frames = 4; cols = 2; rows = 2; // 예시 값
+  }
+  else if (type === "antiTanker") {
+    //TODO
   }
 
   // 2. 이미지가 존재하면 이펙트 생성

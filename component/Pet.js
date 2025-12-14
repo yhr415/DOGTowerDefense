@@ -31,8 +31,6 @@ class Pet {
 
   // dog update method //
   update() {
-    if (this.playing) return;
-    
     // 💡 [상태 회복 로직] 타이머가 돌고 있으면 줄여주고, 0이 되면 원상복구
     if (this.effectTimer > 0) {
       this.effectTimer--;
@@ -40,9 +38,12 @@ class Pet {
           this.speed = this.baseSpeed;
           this.slowed = false;
           this.speedBoosted = false;
+          this.playing = false
           this.currentEffect = 'walk';
       }
     }
+
+    if (this.playing) return;
 
     if (this.current >= this.path.length-1) return;
     let target = this.path[this.current+1];
@@ -126,6 +127,8 @@ class Pet {
       text("❄️", this.x, this.y - 60) // 이모지로 교체
     }
     else if (this.speedBoosted) {
+      textAlign(CENTER, TOP);
+      textSize(18);
       text("⚡", this.x, this.y - 60)
     }
   }
@@ -135,7 +138,7 @@ class Pet {
   
   // 🔥 [핵심 Fix] applyEffect 함수 추가!
   // 이게 없어서 에러가 났던 거야. Dog랑 똑같이 맞춰줬어.
-  applyEffect(type, value) {
+  applyEffect(type, value, abilityFactor) {
       this.hp += value;
       if (this.hp > this.maxHp) this.hp = this.maxHp;
 
@@ -146,27 +149,31 @@ class Pet {
       }
 
       // 특수 효과
-      if (type === 'snack') {
-          if (!this.speedBoosted) {
-              this.speedBoosted = true;
-              this.speed = this.baseSpeed * 1.5;
-              this.effectTimer = 60;
-          }
-      } else if (type === 'slow') {
-          this.getSlowed(0.5);
+      if (type === 'snack' && !this.slowed && !this.playing) {
+        this.getBoosted(abilityFactor)
+      }
+      else if (type === 'slow') {
+        this.getSlowed(abilityFactor);
+      }
+      else if (type === "playground"){
+        this.getPlayed(abilityFactor)
       }
   }
 
-  // 기존 takeDamage는 applyEffect를 부르도록 연결
-  takeDamage(d) { 
-      this.applyEffect('basic', d); 
-  } 
+  getBoosted(factor){
+    this.speedBoosted = true;
+    this.speed = this.baseSpeed * factor;
+    this.effectTimer = 50;
+  }
 
-  getSlowed(factor){
-    if (this.slowed) return;
-    
+  getSlowed(factor){    
     this.slowed = true;
     this.speed = this.baseSpeed * factor;
     this.effectTimer = 120; // 120프레임(2초) 뒤에 풀림
+  }
+
+  getPlayed(factor){
+    this.playing = true
+    this.effectTimer = factor
   }
 }

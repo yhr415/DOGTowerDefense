@@ -25,8 +25,6 @@ class Dog {
   }
 
   update() {
-    if (this.playing) return;
-
     // 💡 상태 회복 로직 추가
     if (this.effectTimer > 0) {
       this.effectTimer--;
@@ -34,9 +32,12 @@ class Dog {
       if (this.effectTimer === 0) {
         this.speed = this.baseSpeed;
         this.slowed = false;
+        this.playing = false
         this.speedBoosted = false;
       }
     }
+
+    if (this.playing) return;
 
     if (this.current >= this.path.length - 1) return;
 
@@ -61,16 +62,23 @@ class Dog {
     drawDogHPbar(this.x, this.y, this.hp, this.maxHp);
     // 상태 텍스트 표시
     if (this.playing) {
-      text("playing!", this.x, this.y - 70);
+      strokeWeight(3);
+      stroke(0)
+      fill(255, 0, 0)
+      textAlign(CENTER, TOP);
+      textSize(18);
+      text("playing!", this.x, this.y - 70)
     }
     else if (this.slowed) {
       fill(100, 150, 255);
       textAlign(CENTER, TOP);
-      textSize(12);
+      textSize(18);
       text("❄️", this.x, this.y - 50); // 텍스트 대신 이모지로 깔끔하게
     }
     else if (this.speedBoosted) {
       fill(255, 100, 0);
+      textAlign(CENTER, TOP);
+      textSize(18);
       text("⚡", this.x, this.y - 50);
     }
   }
@@ -79,7 +87,7 @@ class Dog {
   isDead() { return this.hp >= this.maxHp; }
 
   // 💡 수정된 applyEffect
-  applyEffect(type, value) {
+  applyEffect(type, value, abilityFactor) {
     // 1. HP 채우기 (기본, 간식, 사랑, 힐)
     // 형 게임이 '만족도 채우기'라면 힐도 += 가 맞을 것 같아서 수정했어.
     // 만약 힐이 '방해' 목적이면 -= 로 다시 바꿔!
@@ -88,32 +96,35 @@ class Dog {
     // HP가 Max 넘지 않게 막기 (선택사항)
     if (this.hp > this.maxHp) this.hp = this.maxHp;
 
-    // 2. 특수 효과 처리
-    if (type === 'snack') {
-      // 이미 부스트 상태가 아닐 때만 속도 증가 (무한 중첩 방지)
-      if (!this.speedBoosted) {
-        this.speedBoosted = true;
-        this.speed = this.baseSpeed * 1.5; // 50% 빨라짐
-        this.effectTimer = 60; // 60프레임(약 1초) 동안 유지
-      }
+    // 상태별 모션 (스프라이트 있으면 작동)
+    if (type === 'heal' || type === 'love') {
+      this.currentEffect = type;
+      this.effectTimer = 30;
     }
-    // Bullet.js에서 slow 타입일 때 호출됨
+
+    // 특수 효과
+    if (type === 'snack' && !this.slowed && !this.playing) {
+      this.speedBoosted = true;
+      this.speed = this.baseSpeed * abilityFactor;
+      this.effectTimer = 50;
+    }
     else if (type === 'slow') {
-      this.getSlowed(0.5); // 50% 느려짐
+      this.getSlowed(abilityFactor);
+    }
+    else if (type === "playground"){
+      this.getPlayed(abilityFactor)
     }
   }
 
-  takeDamage(d) {
-    this.applyEffect('basic', d);
-  }
-
-  getSlowed(factor) {
-    // 이미 느려져 있으면 무시 (중첩 방지)
-    if (this.slowed) return;
-
+  getSlowed(factor){    
     this.slowed = true;
     this.speed = this.baseSpeed * factor;
-    this.effectTimer = 120; // 120프레임(약 2초) 동안 슬로우 유지
+    this.effectTimer = 120; // 120프레임(2초) 뒤에 풀림
+  }
+
+  getPlayed(factor){
+    this.playing = true
+    this.effectTimer = factor
   }
 }
 
