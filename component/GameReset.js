@@ -2,7 +2,7 @@
 function resetGame() {
     enemies = [];
     bullets = [];
-    money = 1000;
+    money = startMoney;
     lives = 10;
     score = 0;
     gameOver = false;
@@ -70,4 +70,6 @@ function resetGame() {
   
     // stageDesign 전달
     stageManager = new StageManager(stageDesign, pathWaypoints);
+
+    shop.updateAvailableItems(0)
   }

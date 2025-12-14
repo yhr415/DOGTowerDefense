@@ -28,7 +28,7 @@ class Tower {
       this.maxRadius = stats.maxRadius[this.level] * enhancedValue
     }
     else if (this.type === "love") {
-      this.maxPenetrate = stats.maxPenetrate[this.level] * enhancedValue
+      //pass
     }
     else if (this.type === "slow") {
       this.slowPower = stats.slowPower[this.level] * enhancedValue
@@ -41,7 +41,6 @@ class Tower {
     }
     else if (this.type === "playground") { //경로 내의 타워라서 enhance 불가로 일단 구현
       this.stopTime = stats.stopTime[this.level]
-      this.fun = stats.fun[this.level]
       this.playedList = []
     }
     else if (this.type === "factory") {
@@ -50,6 +49,13 @@ class Tower {
       this.printTime = stats.printTime
       this.printing = false
       this.printStartTime = 0
+    }
+    else if (this.type === "antiTanker") {
+      this.growLevel = 1
+      this.maxGrowLevel = stats.maxGrowLevel
+      this.toGrowCnt = stats.toGrowCnt
+      this.cnt = 0
+      this.beforeTarget = null
     }
   }
 
@@ -71,28 +77,52 @@ class Tower {
 
   shoot(enemies) {
     if (this.cooldown > 0) return;
-    for (let e of enemies) {
-      if (dist(this.x, this.y, e.x, e.y) <= this.range) {
-        bullets.push(new Bullet(e, this));
-        this.cooldown = this.fireRate;
-        // [수정] 발사하는 순간의 시간을 millis()로 기록
-        this.lastShotTime = millis();
-        break;
-      }
-    }
-  }
-
-  enhance(tile) {
-    for (const [r, c] of tile.adjTiles) {
-      const adjTile = hexGrid.tiles[r][c]
-      if (tile.tower.supportPower > adjTile.enhanced) {
-        adjTile.enhanced = tile.tower.supportPower
-        const adjTower = adjTile.tower
-        if (adjTower) {
-          adjTower.generate()
+    let bossInRange = null
+    const lastEnemy = enemies[enemies.length - 1]
+    if (lastEnemy instanceof Dog){
+      if (dist(this.x, this.y, lastEnemy.x, lastEnemy.y) <= this.range){
+        bossInRange = lastEnemy
+        if (this.type == "antiTanker"){
+          this.grow(bossInRange)
+          bullets.push(new Bullet(bossInRange, this));
+          this.cooldown = this.fireRate;
+          this.lastShotTime = millis();
+          return
         }
       }
     }
+    for (let e of enemies) {
+      if (dist(this.x, this.y, e.x, e.y) <= this.range) {
+        if (this.type == "antiTanker"){
+          this.grow(e)
+        }
+        bullets.push(new Bullet(e, this));
+        this.cooldown = this.fireRate;
+        this.lastShotTime = millis();
+        return
+      }
+    }
+    if (bossInRange){
+      bullets.push(new Bullet(bossInRange, this));
+      this.cooldown = this.fireRate;
+      this.lastShotTime = millis();
+    }
+  }
+
+  grow(toShoot){
+    if (!toShoot || this.beforeTarget != toShoot){
+      this.generate()
+    }
+    else{
+      if (this.growLevel < this.maxGrowLevel){
+        if (++this.cnt >= this.toGrowCnt * this.growLevel){
+          this.fireRate /= 2
+          this.growLevel += 1
+          this.cnt = 0
+        }
+      }
+    }
+    this.beforeTarget = toShoot
   }
 
   block() {
@@ -120,17 +150,23 @@ class Tower {
 
   play() {
     for (let e of enemies) {
-      if (e.playing) {
-        let passedTime = millis() - e.playStartTime
-        if (passedTime > this.stopTime) {
-          e.playing = false
-          e.hp += this.fun
-        }
-      }
       if (!this.playedList.includes(e) && dist(this.x, this.y, e.x, e.y) <= 4) {
-        e.playing = true
-        e.playStartTime = millis()
+        e.applyEffect('playground', 0, this.stopTime)
+        spawnHitEffect("playground", e.x, e.y, 30, 30)
         this.playedList.push(e);
+      }
+    }
+  }
+
+  enhance(tile) {
+    for (const [r, c] of tile.adjTiles) {
+      const adjTile = hexGrid.tiles[r][c]
+      if (tile.tower.supportPower > adjTile.enhanced) {
+        adjTile.enhanced = tile.tower.supportPower
+        const adjTower = adjTile.tower
+        if (adjTower) {
+          adjTower.generate()
+        }
       }
     }
   }

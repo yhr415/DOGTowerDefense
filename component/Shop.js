@@ -7,6 +7,10 @@ class Shop {
 
     // 판매할 타워 목록
     this.items = itemDesc;
+    
+    // 성능 최적화: 사용 가능한 타워 목록 캐시
+    this.availableItems = itemDesc; // 초기값은 모든 아이템
+    this.currentStageCache = -1; // 캐시된 스테이지 인덱스
 
     this.itemSize = 70; // 상점 아이콘 크기
     this.padding = 7;
@@ -15,6 +19,33 @@ class Shop {
     this.titleh = 34;
     this.titlew = 220;
     this.menuw = 90;
+  }
+  
+  // 스테이지별 사용 가능한 타워 타입 (상수로 정의하여 매번 계산하지 않음)
+  static getAvailableTypes(stageIndex) {
+    const types = {
+      0: ["snack"], // stage 1
+      1: ["snack", "heal", "love"], // stage 2
+      2: ["snack", "heal", "love", "slow", "antiTanker"], // stage 3
+      3: ["snack", "heal", "love", "slow", "antiTanker", "block", "playground"], // stage 4
+      4: ["snack", "heal", "love", "slow", "antiTanker", "block", "playground", "support", "factory"] // stage 5
+    };
+    // stage 5 이상이면 모든 타워 사용 가능
+    return types[Math.min(stageIndex, 4)] || types[0];
+  }
+  
+  // 사용 가능한 타워 목록 업데이트 (스테이지 변경 시에만 호출)
+  updateAvailableItems(stageIndex) {
+    // 이미 같은 스테이지면 업데이트하지 않음
+    if (this.currentStageCache === stageIndex) {
+      return;
+    }
+    
+    this.currentStageCache = stageIndex;
+    const availableTypes = Shop.getAvailableTypes(stageIndex);
+    
+    // 사용 가능한 타워만 필터링
+    this.availableItems = this.items.filter(item => availableTypes.includes(item.type));
   }
 
   draw() {
@@ -49,16 +80,21 @@ class Shop {
     fill(pink1);
     noStroke();
     textSize(14);
-    text(`${money}g`, 0, -7);
+    text(`${Math.floor(money)}g`, 0, -7);
     image(iconCoin, -this.menuw / 11 * 4, 0, 20, 20);
     pop();
     rectMode(CORNER);
 
     let hoveringItem = null;
+    
+    // 현재 스테이지에서 사용 가능한 타워 타입 가져오기 (성능 최적화)
+    const availableTypes = Shop.getAvailableTypes(this.currentStageCache >= 0 ? this.currentStageCache : 0);
 
-    // 판매 아이템 그리기 (루프 시작)
+    // 판매 아이템 그리기 (루프 시작) - 모든 아이템 표시
     for (let i = 0; i < this.items.length; i++) {
       let item = this.items[i];
+      const isAvailable = availableTypes.includes(item.type);
+      const canAfford = typeof money !== 'undefined' && money >= item.cost; // 돈이 충분한지 확인
 
       // 좌표 계산 
       let ix = this.x + this.padding + (i * (this.itemSize + this.padding));
@@ -80,7 +116,11 @@ class Shop {
       // (1) 아이콘 배경 박스
       stroke(pink2);
       strokeWeight(1); // 선 굵기 안전하게 초기화
-      fill(pink1);
+      if (isAvailable) {
+        fill(pink1);
+      } else {
+        fill(100, 100, 100); // 어두운 회색
+      }
       rect(ix, iy, this.itemSize, this.itemSize + this.inbotmar, 5);
 
       // (2) 타워 미리보기 배경 (네모)
@@ -124,14 +164,45 @@ class Shop {
         ellipse(ix + this.itemSize / 2, iy + this.itemSize / 2, 30);
       }
 
+      // 해금되었지만 돈이 부족하면 반투명 검은색 레이어로 어둡게 표시 (tint 대신)
+      if (isAvailable && !canAfford) {
+        noStroke();
+        fill(0, 0, 0, 150); // 반투명 검은색 (150 = 약 60% 불투명도)
+        rect(
+          ix + this.inpadding,
+          iy + this.inpadding,
+          this.itemSize - 2 * this.inpadding,
+          this.itemSize - 2 * this.inpadding,
+          5
+        );
+      }
+
       // (4) 가격 텍스트
-      fill(255);
-      stroke(pink2);
-      strokeWeight(2);
-      textAlign(CENTER, CENTER);
-      textSize(14);
-      text(`${item.cost}g`, ix + this.itemSize / 2, iy + this.itemSize + 4.5);
-      noStroke();
+      if (isAvailable) {
+        // 돈이 부족하면 어둡게 표시
+        if (canAfford) {
+          fill(255);
+          stroke(pink2);
+          strokeWeight(2);
+        } else {
+          fill(150, 150, 150);
+          stroke(100, 100, 100);
+          strokeWeight(1);
+        }
+        textAlign(CENTER, CENTER);
+        textSize(14);
+        text(`${item.cost}g`, ix + this.itemSize / 2, iy + this.itemSize + 4.5);
+        noStroke();
+      } else {
+        // 사용 불가능한 타워는 "잠김" 표시
+        fill(150, 150, 150);
+        stroke(100, 100, 100);
+        strokeWeight(1);
+        textAlign(CENTER, CENTER);
+        textSize(12);
+        text("잠김", ix + this.itemSize / 2, iy + this.itemSize + 4.5);
+        noStroke();
+      }
       pop(); //아이템 스타일
 
       // --- [로직 업데이트] ---
@@ -192,10 +263,17 @@ class Shop {
   }
 
   getItemAt(mx, my) {
+    // 모든 아이템 검사하되, 해금된 것만 반환
+    const availableTypes = Shop.getAvailableTypes(this.currentStageCache >= 0 ? this.currentStageCache : 0);
+    
     for (let item of this.items) {
       if (mx > item.x && mx < item.x + item.w &&
         my > item.y && my < item.y + item.h) {
-        return item;
+        // 해금된 타워만 반환
+        if (availableTypes.includes(item.type)) {
+          return item;
+        }
+        return null; // 해금되지 않은 타워는 null 반환
       }
     }
     return null;

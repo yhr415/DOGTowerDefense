@@ -39,7 +39,7 @@ class StageManager {
     console.log(`Stage ${stageIndex + 1}: 보스(${bossSpeed})와 펫(${petSpeed}) 동시 출격!`);
 
     // 보스 즉시 생성
-    this.createAndSpawnEntity('boss', bossType, bossHp, bossSpeed);
+    //this.createAndSpawnEntity('boss', bossType, bossHp, bossSpeed);
 
     // 펫들을 큐에 넣기 (얘네는 간격 두고 나올지, 한방에 나올지 interval로 결정)
     // 만약 펫도 보스랑 동시에 우르르 나오게 하고 싶으면 interval을 아주 짧게(5~10)
@@ -51,6 +51,12 @@ class StageManager {
         speed: petSpeed 
       });
     }
+    this.spawnQueue.push({ 
+      category: 'boss', 
+      type: bossType, 
+      hp: bossHp, 
+      speed: bossSpeed 
+    });
   }
 
   update() {
