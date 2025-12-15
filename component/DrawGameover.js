@@ -30,7 +30,19 @@ function triggerGameOver(){
     bgm.stop(); 
   }
   if (!bgmFail.isPlaying()) {
-    bgmFail.loop(); // 계속 들으면서 반성하라고 loop 추천
+    bgmFail.loop();
+  }
+}
+
+//game over one shot 함수
+function triggerGameClear(){
+  if (gameClear) return; // 중복실행 방지용
+  gameClear = true; // 상태 변경
+  if (bgm.isPlaying()) {
+    bgm.stop(); 
+  }
+  if (!bgmClear.isPlaying()) {
+    bgmClear.loop();
   }
 }
 
@@ -41,10 +53,10 @@ function drawGameClear() {
   fill(255);
   textSize(40);
   textFont(title_text);
-  text("유기견 구조 성공", width / 2, height / 2 - 20);
+  text("유기견 구조 성공!", width / 2, height / 2 - 20);
   textFont(body_text);
   textSize(20);
-  text(`Final Score: ${score}`, width / 2, height / 2 + 20);
+  text(`구조한 강아지 : ${score}`, width / 2, height / 2 + 20);
 
   // '다시 하기' 버튼 그리기
   fill(pink1);
