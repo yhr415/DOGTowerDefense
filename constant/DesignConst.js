@@ -9,3 +9,7 @@ const yellow="#FFC341";
 const pink1="#FCB1D8";
 const pink2="#F163AA";
 const br1="#3C322F";
+
+let y1 =("#fadc8e");
+let orangeline=("#cf5f2f");
+let orangefill=("#eb9d49");
