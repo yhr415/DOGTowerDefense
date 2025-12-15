@@ -56,7 +56,7 @@ class HexTile {
       }
     } else {
       noStroke();
-      let colorPath = color(78,68,46,100); // #B9A989 in RGB
+      let colorPath = "#DDB481"; // #B9A989 in RGB
       fill(this.isPath ? colorPath : color(0, 0, 0, 0));
     }
 

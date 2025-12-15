@@ -25,7 +25,6 @@ class Dog {
   }
 
   update() {
-    // 💡 상태 회복 로직 추가
     if (this.effectTimer > 0) {
       this.effectTimer--;
       // 타이머가 0이 되면 모든 상태와 속도를 원래대로 초기화

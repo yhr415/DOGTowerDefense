@@ -1,8 +1,10 @@
-/////drawUI와 drawIndicator 함수
-//drawUI는 실제 게임 내 UI를 전부 그리는 함수
-//drawIndicator는 tower 아래 레벨 표시하는 동그라미 그리는 함수
+/////drawUI
+//drawUI : 게임 중 지속되는 UI그리는 함수
+//drawInfo (12/15 update) : 게임 중 팝업으로 띄워주는 게임 관련 설명들 그리는 함수
+//drawHowtoTower() : 타워 설치 0개일때! 띄워주는 함수
+//
 
-function drawUI() { 
+function drawUI() {
     noStroke();
     fill(255);
     textAlign(LEFT, TOP);
@@ -31,11 +33,40 @@ function drawUI() {
             // 하트 그리기 (가로 반복)
             let heartPadding = 15;
             for (let h = 0; h < item.count; h++) {
-                text("❤️", startX +50+ (h * heartPadding), currentY+2);
+                text("❤️", startX + 50 + (h * heartPadding), currentY + 2);
             }
         } else {
             // 일반 텍스트 그리기
             text(item.content, startX, currentY);
         }
     }
+}
+
+function drawInfo(information) {
+    let outMarginX=width*0.05;
+    let txtMarginX=width*0.03;
+    let txtMarginY=height*0.03;
+    let outMarginY=height*0.7;
+    let headerH=height*0.04;
+
+    rectMode(CORNER);
+    fill(orangefill);
+    stroke(orangeline); //주황색 라인
+    strokeWeight(3);
+    rect(outMarginX, outMarginY, width-2*outMarginX, height * (0.2), 8); //주황색 제목 영역
+    fill(y1);
+    rect(outMarginX, outMarginY+headerH, width -2*outMarginX, height * (0.15), 0, 0, 8, 8); //노란색 영역
+    textAlign(LEFT,TOP);
+    textSize(16);
+    noStroke();
+    textFont(body_text);
+    fill(navy2);
+    text(information,outMarginX+txtMarginX,outMarginY+headerH+txtMarginY,width-2*(outMarginX+txtMarginX),height*0.13);
+}
+
+function drawHowtoTower(){
+    //arrow를 그리는 부분
+    //글씨를 그리는... 부분 : 타워를 설치해 배고픈 유기견들에게 밥을 주세요!
+    text("타워를 설치해 배고픈 유기견들에게 밥을 주세요!");
+    text("타워는 강아지가 지나가는 경로 밖에 설치할 수 있습니다.")
 }

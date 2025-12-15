@@ -1,12 +1,16 @@
 //dog, pet들의 정보를 담는 list
 let enemies = [];
 
+//1205 update : 타워 데이터를 기존에는 Hex grid에 저장
+//-> 전역변수 towers를 만들어서 따로 관리
+let towers = [];
+
 let shop;
 let draggingItem = null; // 상점에서 drag and drop 기능 : 현재 drag 중인 타워 정보 저장
 let bullets = [];
 const startMoney = 70
 let money = startMoney
-let lives = 10, score = 0, gameOver = false;
+let lives = 10, score = 0, gameOver = false, gameClear=false;
 
 //pet spawn Rate 변수 하나 만들었음... 근데 dog에 spawn rate가 필요할까?
 const spawnRate = 60;
@@ -22,7 +26,7 @@ let currentStage = 0, stageManager, isStageActive = false;
 
 //sound 변수 선언
 let bgm;
-let fxsounds={};
+let fxsounds = {};
 
 // 이미지 변수 선언
 let jindoImg;
@@ -56,9 +60,9 @@ let selectedTower = null; // 선택된 타워
 let selectedTile = null; // 선택된 타일
 // 강아지 이미지 로딩
 function preload() {
-  dogPics['jindo'] ||= {}; 
+  dogPics['jindo'] ||= {};
   dogPics['jindo']['white'] ||= {};
-  dogPics['pome'] ||= {}; 
+  dogPics['pome'] ||= {};
   dogPics['pome']['white'] ||= {};
   dogPics['jindo']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
   dogPics['jindo']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
@@ -66,12 +70,12 @@ function preload() {
   dogPics['pome']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
   dogPics['pome']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
   dogPics['pome']['white']['happy'] = loadImage('data/dog/WhiteJindoHappy.png');
-  dogPics['shiba'] ||= {}; 
+  dogPics['shiba'] ||= {};
   dogPics['shiba']['white'] ||= {};
   dogPics['shiba']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
   dogPics['shiba']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
   dogPics['shiba']['white']['happy'] = loadImage('data/dog/WhiteJindoHappy.png');
-  dogPics['doberman'] ||= {}; 
+  dogPics['doberman'] ||= {};
   dogPics['doberman']['white'] ||= {};
   dogPics['doberman']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
   dogPics['doberman']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
@@ -85,6 +89,7 @@ function preload() {
   petPome = loadImage('data/pome.png');
   //배경 이미지 로딩
   backgrnd = loadImage('data/dtdBackgrnd.png');
+  backgrndGameover = loadImage('data/gameOver.png');
   //icon loading
   iconCoin = loadImage('data/coin_icon.png');
   //effect loading
@@ -93,28 +98,30 @@ function preload() {
   heartEffect5 = loadImage('data/effect/heartEffect.png');
   //bullet loading
   bulletimgs['love'] = loadImage('data/bullet/heartbullet.png');
-  bulletimgs['snack']=loadImage('data/bullet/snackbullet.png');
+  bulletimgs['snack'] = loadImage('data/bullet/snackbullet.png');
   //tower loading
   towerSpriteSheets["heal"] = loadImage('data/tower/heal.png');
   towerSpriteSheets["snack"] = loadImage('data/tower/snack.png');
   towerSpriteSheets["love"] = loadImage('data/tower/love.png');
-  towerSpriteSheets["block"]=loadImage('data/tower/block.png');
-  towerSpriteSheets["factory"]=loadImage('data/tower/gold.png');
-  towerSpriteSheets["support"]=loadImage('data/tower/support.png');
+  towerSpriteSheets["block"] = loadImage('data/tower/block.png');
+  towerSpriteSheets["factory"] = loadImage('data/tower/gold.png');
+  towerSpriteSheets["support"] = loadImage('data/tower/support.png');
 
   rescueData = loadJSON('data/daejeon_dog.json');
 
   //음악
   //bgm
   bgm = loadSound('data/sound/hyperpop.wav');
-  fxsounds["click"]=loadSound('data/sound/click.wav');
-  fxsounds["hit"]=loadSound('data/sound/뿅뿅.wav');
-  fxsounds["money"]=loadSound('data/sound/돈소리.wav');
-  fxsounds["eat"]=loadSound('data/sound/eat.wav');
+  bgmFail = loadSound('data/sound/rescue_failed.wav');
+  fxsounds["click"] = loadSound('data/sound/click.wav');
+  fxsounds["hit"] = loadSound('data/sound/뿅뿅.wav');
+  fxsounds["money"] = loadSound('data/sound/돈소리.wav');
+  fxsounds["eat"] = loadSound('data/sound/eat.wav');
 }
 
 function setup() {
   bgm.setVolume(0.3);
+  bgmFail.setVolume(0.3);
   fxsounds["money"].setVolume(0.2);
   fxsounds["hit"].setVolume(0.1);
   fxsounds["eat"].setVolume(0.1);
@@ -170,7 +177,7 @@ function setup() {
 
   // 4) 맵 바깥에서 등장/퇴장 보정
   const startTile = hexGrid.tiles[pathDesign[0].r][pathDesign[0].c];
-  const endTile   = hexGrid.tiles[pathDesign.at(-1).r][pathDesign.at(-1).c];
+  const endTile = hexGrid.tiles[pathDesign.at(-1).r][pathDesign.at(-1).c];
 
   pathWaypoints.unshift({ x: -HEX_R, y: startTile.y });
   pathWaypoints.push({ x: hexGrid.totalW + HEX_R, y: endTile.y });
@@ -189,31 +196,35 @@ function setup() {
 }
 
 function draw() {
-  money += 0.0333
-  image(backgrnd, width / 2, height / 2, width, height); //background 이미지 불러오기
-
-  if (showApiInfoScreen) {
-    if (currentApiInfo) {
-      drawApiInfoScreen();
-      return;
-    } else {
-      // 데이터 없음 — 플래그 클리어
-      isApiScreenOpen = false;
-    }
-  }
-  if (!isStageActive && !gameOver) {
-    drawStageInfo(); 
-    return;
-  }
+  image(backgrnd, width / 2-20, height / 2-20, width*1.1, height*1.1); //background 이미지 불러오기
 
   if (gameOver) {
     drawGameOver(); // 게임오버 시 화면
     return;
   }
 
+  if (gameClear) {
+    drawGameClear(); //game 클리어 시 화면
+    return;
+  }
+
+  if (showApiInfoScreen) {
+    if (currentApiInfo) {
+      drawApiInfoScreen();
+      return;
+    } else {
+      isApiScreenOpen = false;
+    }
+  }
+
+  if (!isStageActive) {
+    drawStageInfo();
+    return;
+  }
+
   hexGrid.draw();
   drawUI();
-  
+
   // 선택된 타워의 사거리 표시
   if (selectedTower && selectedTile) {
     drawSelectedTowerRange();
@@ -262,10 +273,10 @@ function draw() {
       // 여기서는 Dog 클래스의 인스턴스인지 확인 (instanceof Dog) 하거나 
       // 속성(e.isBoss)으로 확인
       if (e instanceof Dog) { // 만약 보스(Dog)라면
-        gameOver = true; // 보스를 놓치면 바로 게임 오버!
+        triggerGameOver(); // 보스를 놓치면 바로 게임 오버!
       } else {
         lives--; // 펫이면 라이프 1 감소
-        if (lives <= 0) gameOver = true;
+        if (lives <= 0) { triggerGameOver(); }
       }
 
     } else if (e.isDead()) {
@@ -304,22 +315,27 @@ function draw() {
     isStageActive = false;
     money += stageDesign[currentStage].stageReward;
 
-      // rescueData에서 랜덤 선택
-  if (rescueData && rescueData.items && rescueData.items.length > 0) {
-    const rndIndex = floor(random(rescueData.items.length));
-    startApiInfoScreen(rescueData.items[rndIndex]);
-  } else {
-    // 데이터 없으면 바로 StageInfo로 복귀(혹시 몰라서 넣어둠)
-    showApiInfoScreen = false;
-  }
+    // rescueData에서 랜덤 선택
+    if (rescueData && rescueData.items && rescueData.items.length > 0) {
+      const rndIndex = floor(random(rescueData.items.length));
+      startApiInfoScreen(rescueData.items[rndIndex]);
+    } else {
+      // 데이터 없으면 바로 StageInfo로 복귀(혹시 몰라서 넣어둠)
+      showApiInfoScreen = false;
+    }
 
     currentStage++;
-    if (currentStage >= stageDesign.length) gameOver = true;
-    
+    if (currentStage >= stageDesign.length) gameClear = true;
+
     // 스테이지 변경 시 상점의 사용 가능한 타워 목록 업데이트
     if (shop) {
       shop.updateAvailableItems(currentStage);
     }
+  }
+
+  //boss alert 팝업 인터페이스 관리
+  if (stageManager.bossPopupText) { // 텍스트가 있을 때만 그림
+    drawInfo(stageManager.bossPopupText);
   }
 
   shop.draw();
@@ -367,6 +383,7 @@ function draw() {
 
     pop();
   }
+
   if (isStageActive) stageManager.update();
   else drawStageInfo();
 }
@@ -380,26 +397,26 @@ function mousePressed() {
     const boxY = (height - boxH) / 2;
 
     const btnW = 200, btnH = 48;
-    const btnX = width/2 - btnW/2;
+    const btnX = width / 2 - btnW / 2;
     const btnY = boxY + boxH - 70;
 
     if (mouseX > btnX && mouseX < btnX + btnW && mouseY > btnY && mouseY < btnY + btnH) {
       showApiInfoScreen = false;
-      
+
       // 🔊 클릭 소리 재생
       fxsounds['click'].play();
     }
-    return; 
+    return;
   }
 
   // 2. [UI] 게임 오버 -> 다시 하기
   if (gameOver) {
     if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 &&
       mouseY > height / 2 + 80 && mouseY < height / 2 + 130) {
-      
+
       // 🔊 클릭 소리 재생
       if (typeof sfxClick !== 'undefined') sfxClick.play();
-      
+
       resetGame(); // resetGame 안에서 BGM을 다시 켜는 로직이 있으면 좋음
     }
     return;
@@ -408,20 +425,20 @@ function mousePressed() {
   if (handleTowerSelectionUI()) {
     return; // 버튼 클릭 처리됨
   }
-  
+
   let shopItem = shop.getItemAt(mouseX, mouseY);
   if (shopItem) {
     if (money >= shopItem.cost) {
       draggingItem = shopItem; // 드래그 시작!
       selectedTower = null;
       selectedTile = null;
-      
+
       // 🔊 아이템 집는 소리 (촥!)
       //fxsounds['money'].play();
-      
+
     } else {
       console.log("돈이 부족합니다!");
-      
+
       // 🔊 실패/경고 소리 (띠딕!)
       //if (typeof sfxError !== 'undefined') sfxError.play();
     }
@@ -433,15 +450,15 @@ function mousePressed() {
     isStageActive = true;
     selectedTower = null;
     selectedTile = null;
-    
+
     // 🔊 전투 시작 소리 & 배경음악 재생
     fxsounds['click'].play();
-    
+
     // BGM이 꺼져있다면 켜기 (중복 재생 방지)
     if (!bgm.isPlaying()) {
-        bgm.loop();
+      bgm.loop();
     }
-    
+
     return;
   }
 
@@ -455,7 +472,7 @@ function mousePressed() {
   }
 
   const tower = tile.tower;
-  
+
   // 타워가 있는 타일을 클릭하면 선택
   if (tower) {
     selectedTower = tower;
@@ -475,6 +492,7 @@ function mouseReleased() {
         money -= draggingItem.cost;
         const newTower = new Tower(tile.x, tile.y, tile.col, tile.row, 1, draggingItem.type, draggingItem.color);
         tile.tower = newTower;
+        towers.push(newTower);
         tile.placeTower(newTower);
 
         selectedTower = null; // 새 타워 설치 시 선택 해제
@@ -501,11 +519,11 @@ function spawnBoss(stageIndex) {
 // 선택된 타워의 사거리 표시 함수
 function drawSelectedTowerRange() {
   if (!selectedTower || !selectedTile) return;
-  
+
   // 공격 가능한 타워만 사거리 표시
   const stats = towerStats[selectedTower.type];
   if (!stats || !stats.canShoot || !selectedTower.range) return;
-  
+
   push();
   noFill();
   stroke(255, 255, 255, 200); // 반투명 흰색 (드래그 중인 타워와 동일한 스타일)
@@ -517,57 +535,57 @@ function drawSelectedTowerRange() {
 // 타워 선택 UI 그리기 함수
 function drawTowerSelectionUI() {
   if (!selectedTower || !selectedTile) return;
-  
+
   // 타워 이름 찾기
   const towerItem = itemDesc.find(item => item.type === selectedTower.type);
   const towerName = towerItem ? towerItem.name : selectedTower.type;
-  
+
   // UI 위치 (Shop 내부 오른쪽 아래)
   const uiWidth = 250;
   const uiHeight = 100; // Shop 높이(120)보다 작게 설정
   const shopHeight = 120; // Shop 높이
   const uiX = width - uiWidth - 20; // 화면 오른쪽에서 20px 여백
   const uiY = height - shopHeight + (shopHeight - uiHeight) / 2; // Shop 내부 중앙에 배치
-  
+
   // 배경
   push();
   fill(0, 0, 0, 200);
   noStroke();
   rect(uiX, uiY, uiWidth, uiHeight, 10);
-  
+
   // 타워 이름
   fill(255, 200, 0);
   textAlign(CENTER, TOP);
   textSize(18);
   text(towerName, uiX + uiWidth / 2, uiY + 10);
-  
+
   // 레벨 정보
   fill(255);
   textSize(14);
   text(`레벨: ${selectedTower.level}`, uiX + uiWidth / 2, uiY + 35);
-  
+
   // 업그레이드 버튼
   const upgradeBtnX = uiX + 20;
   const upgradeBtnY = uiY + 60;
   const upgradeBtnW = 100;
   const upgradeBtnH = 35;
-  
+
   // block 타워는 업그레이드 불가
   const isBlockTower = selectedTower.type === "block";
-  
+
   // 업그레이드 가능 여부 확인
-  const canUpgrade = !isBlockTower && 
-                     selectedTower.level < maxTowerLevel && 
-                     levelUpCost[selectedTower.type] && 
-                     money >= levelUpCost[selectedTower.type][selectedTower.level];
-  
+  const canUpgrade = !isBlockTower &&
+    selectedTower.level < maxTowerLevel &&
+    levelUpCost[selectedTower.type] &&
+    money >= levelUpCost[selectedTower.type][selectedTower.level];
+
   if (canUpgrade) {
     fill(100, 200, 100);
   } else {
     fill(150, 150, 150);
   }
   rect(upgradeBtnX, upgradeBtnY, upgradeBtnW, upgradeBtnH, 5);
-  
+
   fill(0);
   textSize(14);
   textAlign(CENTER, CENTER);
@@ -581,23 +599,23 @@ function drawTowerSelectionUI() {
       text(`최대 레벨`, upgradeBtnX + upgradeBtnW / 2, upgradeBtnY + upgradeBtnH / 2);
     }
   }
-  
+
   // 제거 버튼
   const removeBtnX = uiX + 130;
   const removeBtnY = uiY + 60;
   const removeBtnW = 100;
   const removeBtnH = 35;
-  
+
   // block과 playground 타워는 제거 불가
   const canRemove = selectedTower.type !== "block" && selectedTower.type !== "playground";
-  
+
   if (canRemove) {
     fill(200, 100, 100);
   } else {
     fill(150, 150, 150);
   }
   rect(removeBtnX, removeBtnY, removeBtnW, removeBtnH, 5);
-  
+
   fill(0);
   textSize(14);
   textAlign(CENTER, CENTER);
@@ -607,69 +625,69 @@ function drawTowerSelectionUI() {
   } else {
     text(`제거\n불가`, removeBtnX + removeBtnW / 2, removeBtnY + removeBtnH / 2);
   }
-  
+
   pop();
 }
 
 // 타워 선택 UI 버튼 클릭 처리
 function handleTowerSelectionUI() {
   if (!selectedTower || !selectedTile) return false;
-  
+
   // 타워 이름 찾기
   const towerItem = itemDesc.find(item => item.type === selectedTower.type);
-  
+
   // UI 위치 (Shop 내부 오른쪽 아래)
   const uiWidth = 250;
   const uiHeight = 100; // Shop 높이(120)보다 작게 설정
   const shopHeight = 120; // Shop 높이
   const uiX = width - uiWidth - 20; // 화면 오른쪽에서 20px 여백
   const uiY = height - shopHeight + (shopHeight - uiHeight) / 2; // Shop 내부 중앙에 배치
-  
+
   // 업그레이드 버튼
   const upgradeBtnX = uiX + 20;
   const upgradeBtnY = uiY + 60;
   const upgradeBtnW = 100;
   const upgradeBtnH = 35;
-  
+
   if (mouseX >= upgradeBtnX && mouseX <= upgradeBtnX + upgradeBtnW &&
-      mouseY >= upgradeBtnY && mouseY <= upgradeBtnY + upgradeBtnH) {
+    mouseY >= upgradeBtnY && mouseY <= upgradeBtnY + upgradeBtnH) {
     // 업그레이드 처리 (block 타워는 업그레이드 불가)
     if (selectedTower.type !== "block" &&
-        selectedTower.level < maxTowerLevel && 
-        levelUpCost[selectedTower.type] && 
-        money >= levelUpCost[selectedTower.type][selectedTower.level]) {
+      selectedTower.level < maxTowerLevel &&
+      levelUpCost[selectedTower.type] &&
+      money >= levelUpCost[selectedTower.type][selectedTower.level]) {
       money -= levelUpCost[selectedTower.type][selectedTower.level];
       selectedTower.levelUp();
       fxsounds['money'].play();
       return true;
     }
   }
-  
+
   // 제거 버튼
   const removeBtnX = uiX + 130;
   const removeBtnY = uiY + 60;
   const removeBtnW = 100;
   const removeBtnH = 35;
-  
+
   if (mouseX >= removeBtnX && mouseX <= removeBtnX + removeBtnW &&
-      mouseY >= removeBtnY && mouseY <= removeBtnY + removeBtnH) {
+    mouseY >= removeBtnY && mouseY <= removeBtnY + removeBtnH) {
     // 제거 처리 (block과 playground 타워는 제거 불가)
     if (selectedTower.type === "block" || selectedTower.type === "playground") {
       return true; // 클릭은 처리했지만 제거하지 않음
     }
-    
+
     const removedTowerType = selectedTower.type;
     const removedTile = selectedTile;
-    
+
     if (towerItem) {
       const refundAmount = Math.floor(towerItem.cost / 2);
       money += refundAmount;
       fxsounds['money'].play();
     }
-    
+
     // 타워 제거 전에 타일 정보 저장
     selectedTile.tower = null;
-    
+
     // support 타워 제거 시 인접 타일들의 enhanced 값 재계산
     if (removedTowerType === "support") {
       // 모든 support 타워를 다시 확인하여 enhanced 값 재계산
@@ -683,7 +701,7 @@ function handleTowerSelectionUI() {
     selectedTile = null;
     return true;
   }
-  
+
   return false;
 }
 
@@ -696,7 +714,7 @@ function recalculateAllSupportEnhancements() {
       tile.enhanced = 1;
     }
   }
-  
+
   // 모든 support 타워를 순회하며 enhanced 값 재계산
   for (let row = 0; row < hexGrid.rows; row++) {
     for (let col = 0; col < hexGrid.cols; col++) {
@@ -708,7 +726,7 @@ function recalculateAllSupportEnhancements() {
       }
     }
   }
-  
+
   // 모든 타워의 스탯 재계산 (enhanced 값이 변경되었으므로)
   for (let row = 0; row < hexGrid.rows; row++) {
     for (let col = 0; col < hexGrid.cols; col++) {
