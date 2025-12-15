@@ -6,6 +6,7 @@ function resetGame() {
     lives = 10;
     score = 0;
     gameOver = false;
+    gameClear = false;
     currentStage = 0;
     isStageActive = false;
   

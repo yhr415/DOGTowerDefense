@@ -10,7 +10,7 @@ let draggingItem = null; // 상점에서 drag and drop 기능 : 현재 drag 중�
 let bullets = [];
 const startMoney = 70
 let money = startMoney
-let lives = 10, score = 0, gameOver = false, gameClear=false;
+let lives = 10, score = 0, gameOver = false, gameClear = false;
 
 //pet spawn Rate 변수 하나 만들었음... 근데 dog에 spawn rate가 필요할까?
 const spawnRate = 60;
@@ -113,6 +113,7 @@ function preload() {
   //bgm
   bgm = loadSound('data/sound/hyperpop.wav');
   bgmFail = loadSound('data/sound/rescue_failed.wav');
+  bgmClear = loadSound('data/sound/gameEndBGM.wav');
   fxsounds["click"] = loadSound('data/sound/click.wav');
   fxsounds["hit"] = loadSound('data/sound/뿅뿅.wav');
   fxsounds["money"] = loadSound('data/sound/돈소리.wav');
@@ -122,6 +123,7 @@ function preload() {
 function setup() {
   bgm.setVolume(0.3);
   bgmFail.setVolume(0.3);
+  bgmClear.setVolume(0.3);
   fxsounds["money"].setVolume(0.2);
   fxsounds["hit"].setVolume(0.1);
   fxsounds["eat"].setVolume(0.1);
@@ -196,7 +198,7 @@ function setup() {
 }
 
 function draw() {
-  image(backgrnd, width / 2-20, height / 2-20, width*1.1, height*1.1); //background 이미지 불러오기
+  image(backgrnd, width / 2 - 20, height / 2 - 20, width * 1.1, height * 1.1); //background 이미지 불러오기
 
   if (gameOver) {
     drawGameOver(); // 게임오버 시 화면
@@ -325,7 +327,9 @@ function draw() {
     }
 
     currentStage++;
-    if (currentStage >= stageDesign.length) gameClear = true;
+    if (currentStage >= stageDesign.length) {
+      triggerGameClear();
+    }
 
     // 스테이지 변경 시 상점의 사용 가능한 타워 목록 업데이트
     if (shop) {
@@ -344,8 +348,6 @@ function draw() {
   if (selectedTower && selectedTile) {
     drawTowerSelectionUI();
   }
-
-  // ... (draw 함수 맨 아래쪽) ...
 
   // 🖱️ 드래그 중인 아이템 그리기
   if (draggingItem) {
@@ -386,6 +388,11 @@ function draw() {
 
   if (isStageActive) stageManager.update();
   else drawStageInfo();
+
+
+  //test용 코드입니다. 켜져있으면 주석처리해주세요
+  drawtestButton1();
+  drawtestButton2();
 }
 
 function mousePressed() {
@@ -409,15 +416,27 @@ function mousePressed() {
     return;
   }
 
-  // 2. [UI] 게임 오버 -> 다시 하기
+  clicktestButton();
+
+  //[UI] 게임 오버 -> 다시 하기
   if (gameOver) {
     if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 &&
       mouseY > height / 2 + 80 && mouseY < height / 2 + 130) {
-
-      // 🔊 클릭 소리 재생
-      if (typeof sfxClick !== 'undefined') sfxClick.play();
-
       resetGame(); // resetGame 안에서 BGM을 다시 켜는 로직이 있으면 좋음
+      if (bgmFail.isPlaying()) {
+        bgmFail.stop();
+      }
+    }
+    return;
+  }
+  //game Clear 시에도 동일한 Logic으로 돌아가게!
+  if (gameClear) {
+    if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 &&
+      mouseY > height / 2 + 80 && mouseY < height / 2 + 130) {
+      resetGame();
+      if (bgmClear.isPlaying()) {
+        bgmClear.stop();
+      }
     }
     return;
   }
