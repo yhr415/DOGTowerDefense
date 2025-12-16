@@ -123,7 +123,7 @@ function preload() {
 function setup() {
   bgm.setVolume(0.3);
   bgmFail.setVolume(0.3);
-  bgmClear.setVolume(0.3);
+  bgmClear.setVolume(0.2);
   fxsounds["money"].setVolume(0.2);
   fxsounds["hit"].setVolume(0.1);
   fxsounds["eat"].setVolume(0.1);
