@@ -1,5 +1,12 @@
 // 💡 스테이지 디자인 (보스와 펫 분리 적용)
 const stageDesign = [
+    {
+      stage: 0,
+      petType: "pome", petCount: 2, interval: 240, petHp: 3, petSpeed: 0.5,
+      bossType: "pome", bossHp: 5, bossSpeed: 0.3,
+      stageReward: 0, fact: "튜토리얼"
+    },
+
     { 
       stage: 1, 
       // 쫄병

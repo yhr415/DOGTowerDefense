@@ -18,8 +18,17 @@ class StageManager {
     this.popupTimer = 0;       // 팝업 유지 시간 (프레임 단위)
     this.towerTutorial=true;
     this.towerPopupText=null;
-  }
 
+    this.upgradeTutorialShown = false //추가한 변수
+  }
+  // 타워가 하나 설치되면 멘트 체인지지
+  showUpgradeHint() {
+    if (!this.upgradeTutorialShown) {
+      this.bossPopupText = "타워를 클릭해서 더 강력하게 업그레이드 하세요!";
+      this.popupTimer = 180; // 약 3초 동안 표시
+      this.upgradeTutorialShown = true; // 이후에는 뜨지 않음
+    }
+  }
   startStage(stageIndex) {
     // 초기화
     this.activeEnemies = [];
@@ -27,14 +36,16 @@ class StageManager {
     this.spawnTimer = 0;
 
     this.currentStageIndex = stageIndex; // stage index는 startstage마다 update
+    
     if (stageIndex === 0) {
       this.spawnedBossCount = 0;
     }
 
     if (stageIndex === 0 && towers.length === 0) {
-      this.bossPopupText = "팁: 타워는 강아지가 이동하는 경로 밖에 설치할 수 있어요!";
+      this.bossPopupText = "드래그 앤 드랍으로 타워를 설치하세요!  일반적인 타워는 강아지가 이동하는 경로 밖에 설치할 수 있어요!";
       this.popupTimer = 240; // 4초 동안 넉넉하게 띄우기
   }
+
 
     if (stageIndex >= this.stageData.length) return;
 
