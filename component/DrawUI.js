@@ -15,7 +15,7 @@ function drawUI() {
     const uiList = [
         { type: 'heart', count: lives },            // 하트는 타입으로 구분
         { type: 'text', content: `Score : ${score}` },
-        { type: 'text', content: `Stage : ${min(currentStage + 1, stageDesign.length)}` }
+        { type: 'text', content: `Stage : ${min(currentStage, stageDesign.length)}` }
     ];
 
     // 배치 설정 변수
