@@ -2,7 +2,6 @@
 //drawUI : 게임 중 지속되는 UI그리는 함수
 //drawInfo (12/15 update) : 게임 중 팝업으로 띄워주는 게임 관련 설명들 그리는 함수
 //drawHowtoTower() : 타워 설치 0개일때! 띄워주는 함수
-//
 
 function drawUI() {
     noStroke();

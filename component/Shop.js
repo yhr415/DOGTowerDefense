@@ -221,46 +221,59 @@ class Shop {
 
   drawTooltip(item) {
     push();
-    // 툴팁 위치: 마우스 오른쪽 아래
-    let tx = mouseX + 15;
-    let ty = mouseY + 15;
-    let tw = 200; // 툴팁 너비
-    let th = 100; // 툴팁 높이 (텍스트 길이에 따라 늘려도 됨)
+    
+    // 1. 크기 대폭 상향 (기존 대비 1.5배~2배)
+    let tw = 280; // 너비 확장 (200 -> 280)
+    let th = 160; // 높이 확장 (100 -> 160)
+    
+    // 툴팁 위치: 마우스 오른쪽 아래 (여백 조금 더 줌)
+    let tx = mouseX + 20;
+    let ty = mouseY + 20;
 
-    // 화면 밖으로 나가는 거 방지 (오른쪽 끝이면 왼쪽으로 보여주기)
-    if (tx + tw > width) tx = mouseX - tw - 10;
-    if (ty + th > height) ty = mouseY - th - 10;
+    // 화면 밖으로 나가는 거 방지 로직 (확장된 크기 반영)
+    if (tx + tw > width) tx = mouseX - tw - 15;
+    if (ty + th > height) ty = mouseY - th - 15;
 
-    // 1. 툴팁 배경 (반투명 검정 or 네이비)
-    fill(0, 0, 0, 200); // 약간 투명한 검정
-    stroke(255);
-    strokeWeight(1);
-    rect(tx, ty, tw, th, 8); // 둥근 모서리
+    // 2. 툴팁 배경 (더 고급스러운 디자인)
+    fill(10, 20, 40, 230); // 깊은 네이비 톤으로 무게감 있게
+    stroke(255, 200, 0);   // 테두리를 노란색/금색으로 포인트
+    strokeWeight(2);       // 테두리 두께 강화
+    rect(tx, ty, tw, th, 12); // 모서리를 더 둥글게 (8 -> 12)
 
-    // 2. 텍스트 설정
+    // 3. 텍스트 설정
     noStroke();
     textAlign(LEFT, TOP);
 
-    // 제목 (노란색)
-    fill(255, 200, 0);
-    textSize(16);
+    // [제목] - 크고 아름답게
+    fill(255, 220, 50); // 좀 더 밝은 골드
+    textSize(20);       // (16 -> 20)
     textStyle(BOLD);
-    text(item.name, tx + 10, ty + 10);
+    text(item.name, tx + 15, ty + 15);
 
-    // 가격
-    fill(200, 200, 255);
-    textSize(14);
+    // [가격] - 가독성 업
+    fill(150, 200, 255); // 하늘색 톤
+    textSize(16);        // (14 -> 16)
     textStyle(NORMAL);
-    text(`가격: ${item.cost}g`, tx + 10, ty + 35);
+    // 아이콘 느낌으로 '💰' 하나 넣어주면 더 직관적이야
+    text(`💰 가격: ${item.cost}g`, tx + 15, ty + 45); 
 
-    // 설명 (흰색, 줄바꿈 처리)
-    fill(255);
-    textSize(12);
-    textLeading(18); // 줄 간격
-    text(item.desc, tx + 10, ty + 55, tw - 20, th - 55); // 박스 안에 텍스트 가두기
+    // 구분선 하나 그어주면 훨씬 깔끔함
+    stroke(255, 50);
+    strokeWeight(1);
+    line(tx + 15, ty + 70, tx + tw - 15, ty + 70);
+    noStroke();
+
+    // [설명] - 많은 내용을 담을 수 있게
+    fill(240);          // 순수 흰색보다 약간 눈이 편한 밝은 회색
+    textSize(14);       // (12 -> 14)
+    textLeading(22);    // 줄 간격을 벌려서 빽빽하지 않게 (18 -> 22)
+    
+    // 텍스트 영역을 넉넉하게 잡아서 줄바꿈 처리
+    // x, y, width, height 순서
+    text(item.desc, tx + 15, ty + 80, tw - 30, th - 90); 
 
     pop();
-  }
+}
 
   getItemAt(mx, my) {
     // 모든 아이템 검사하되, 해금된 것만 반환
