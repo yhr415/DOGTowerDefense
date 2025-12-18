@@ -6,7 +6,7 @@ function drawGameOver() {
   fill(255);
   textSize(40);
   textFont(title_text);
-  text("유기견을 구조하지 못해 안락사되었습니다.", width / 2, height / 2 - 20);
+  text("유기견을 구조하지 못했습니다.", width / 2, height / 2 - 20);
   textFont(body_text);
   textSize(20);
   text(`구조한 강아지 : ${score}`, width / 2, height / 2 + 20);

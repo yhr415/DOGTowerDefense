@@ -113,10 +113,12 @@ function draw() {
 
     case "GAMEOVER":
       drawGameOver();
+      triggerGameOver();
       break;
 
     case "GAMECLEAR":
       drawGameClear();
+      triggerGameClear();
       break;
   }
 }
@@ -147,10 +149,12 @@ function mousePressed() {
       break;
 
     case "GAMEOVER":
+      gameOverReset();
       resetGame();
       gamsState="INTRO";
       break;
     case "GAMECLEAR":
+      gameClearReset();
       resetGame();
       gameState = "INTRO"; // 다시 시작화면으로
       break;
