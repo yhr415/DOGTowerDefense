@@ -31,13 +31,8 @@ function drawStageInfo() { //Stage가 끝날 때 뜨는 화면
     text(`유기견 타워 디펜스에 어서오세요! \n간단한 튜토리얼 스테이지부터 시작해볼까요?`, width / 2, height / 4 + 120);
     return;
   }
-  else if (design) {
-    textFont(body_text);
-    text(`강아지: ${design.type} x ${design.count}`, width / 2, height / 4 + 60);
-    text(`보상: $${design.stageReward}`, width / 2, height / 4 + 90);
-    text(`정보: ${design.fact}`, width / 2, height / 4 + 120);
-  }
 
   textSize(14);
+  fill(pink2);
   text("클릭해서 시작", width / 2, height / 4 + 160);
 }

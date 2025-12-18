@@ -213,7 +213,7 @@ function drawTowerSelectionUI() {
 
   // 배경
   push();
-  fill(0, 0, 0, 200);
+  fill(navy2);
   noStroke();
   rect(uiX, uiY, uiWidth, uiHeight, 10);
 
@@ -221,6 +221,7 @@ function drawTowerSelectionUI() {
   fill(255, 200, 0);
   textAlign(CENTER, TOP);
   textSize(18);
+  textFont(body_text);
   text(towerName, uiX + uiWidth / 2, uiY + 10);
 
   // 레벨 정보

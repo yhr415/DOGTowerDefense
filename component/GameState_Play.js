@@ -1,4 +1,5 @@
 function runInGameLogic() {
+    money += 0.0333
     // 1. 맵과 기본 UI
     hexGrid.draw();
     drawUI();

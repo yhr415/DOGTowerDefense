@@ -48,23 +48,26 @@ function drawApiInfoScreen() {
   const boxH = min(height - 200, 520);
   const boxX = (width - boxW) / 2;
   const boxY = (height - boxH) / 2;
+  let marginY=20;
 
   push();
-  fill(255);
-  stroke(200);
+  fill(y1);
+  stroke(orangeline);
   rect(boxX, boxY, boxW, boxH, 12);
 
   // 타이틀
-  noStroke();
-  fill(0);
+  fill(orangefill);
+  stroke(orangeline);
+  strokeWeight(5);
   textAlign(CENTER, TOP);
-  textSize(24);
+  textSize(30);
   textFont(title_text); // 네 폰트 변수 사용
-  text("구조 동물 정보", width / 2, boxY + 12);
+  text("구조한 유기견", width / 2, boxY + marginY);
+  noStroke();
 
   // 이미지 영역 (좌측)
   const imgX = boxX + 24;
-  const imgY = boxY + 56;
+  const imgY = boxY + 150;
   const imgW = 280;
   const imgH = 280;
 
@@ -113,7 +116,7 @@ function drawApiInfoScreen() {
   const btnX = width / 2 - btnW / 2;
   const btnY = boxY + boxH - 70;
 
-  fill(40);
+  fill(orangefill);
   rect(btnX, btnY, btnW, btnH, 8);
   fill(255);
   textAlign(CENTER, CENTER);
