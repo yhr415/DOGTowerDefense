@@ -7,7 +7,7 @@ class Shop {
 
     // 판매할 타워 목록
     this.items = itemDesc;
-    
+
     // 성능 최적화: 사용 가능한 타워 목록 캐시
     this.availableItems = itemDesc; // 초기값은 모든 아이템
     this.currentStageCache = -1; // 캐시된 스테이지 인덱스
@@ -20,7 +20,7 @@ class Shop {
     this.titlew = 220;
     this.menuw = 90;
   }
-  
+
   // 스테이지별 사용 가능한 타워 타입 (상수로 정의하여 매번 계산하지 않음)
   static getAvailableTypes(stageIndex) {
     const types = {
@@ -33,17 +33,17 @@ class Shop {
     // stage 5 이상이면 모든 타워 사용 가능
     return types[Math.min(stageIndex, 4)] || types[0];
   }
-  
+
   // 사용 가능한 타워 목록 업데이트 (스테이지 변경 시에만 호출)
   updateAvailableItems(stageIndex) {
     // 이미 같은 스테이지면 업데이트하지 않음
     if (this.currentStageCache === stageIndex) {
       return;
     }
-    
+
     this.currentStageCache = stageIndex;
     const availableTypes = Shop.getAvailableTypes(stageIndex);
-    
+
     // 사용 가능한 타워만 필터링
     this.availableItems = this.items.filter(item => availableTypes.includes(item.type));
   }
@@ -86,7 +86,7 @@ class Shop {
     rectMode(CORNER);
 
     let hoveringItem = null;
-    
+
     // 현재 스테이지에서 사용 가능한 타워 타입 가져오기 (성능 최적화)
     const availableTypes = Shop.getAvailableTypes(this.currentStageCache >= 0 ? this.currentStageCache : 0);
 
@@ -221,11 +221,11 @@ class Shop {
 
   drawTooltip(item) {
     push();
-    
+
     // 1. 크기 대폭 상향 (기존 대비 1.5배~2배)
     let tw = 280; // 너비 확장 (200 -> 280)
     let th = 160; // 높이 확장 (100 -> 160)
-    
+
     // 툴팁 위치: 마우스 오른쪽 아래 (여백 조금 더 줌)
     let tx = mouseX + 20;
     let ty = mouseY + 20;
@@ -235,8 +235,8 @@ class Shop {
     if (ty + th > height) ty = mouseY - th - 15;
 
     // 2. 툴팁 배경 (더 고급스러운 디자인)
-    fill(10, 20, 40, 230); // 깊은 네이비 톤으로 무게감 있게
-    stroke(255, 200, 0);   // 테두리를 노란색/금색으로 포인트
+    fill(navy2_80); // 깊은 네이비 톤으로 무게감 있게
+    stroke(orangeline);   // 테두리를 노란색/금색으로 포인트
     strokeWeight(2);       // 테두리 두께 강화
     rect(tx, ty, tw, th, 12); // 모서리를 더 둥글게 (8 -> 12)
 
@@ -255,7 +255,7 @@ class Shop {
     textSize(16);        // (14 -> 16)
     textStyle(NORMAL);
     // 아이콘 느낌으로 '💰' 하나 넣어주면 더 직관적이야
-    text(`💰 가격: ${item.cost}g`, tx + 15, ty + 45); 
+    text(`💰 가격: ${item.cost}g`, tx + 15, ty + 45);
 
     // 구분선 하나 그어주면 훨씬 깔끔함
     stroke(255, 50);
@@ -267,18 +267,18 @@ class Shop {
     fill(240);          // 순수 흰색보다 약간 눈이 편한 밝은 회색
     textSize(14);       // (12 -> 14)
     textLeading(22);    // 줄 간격을 벌려서 빽빽하지 않게 (18 -> 22)
-    
+
     // 텍스트 영역을 넉넉하게 잡아서 줄바꿈 처리
     // x, y, width, height 순서
-    text(item.desc, tx + 15, ty + 80, tw - 30, th - 90); 
+    text(item.desc, tx + 15, ty + 80, tw - 30, th - 90);
 
     pop();
-}
+  }
 
   getItemAt(mx, my) {
     // 모든 아이템 검사하되, 해금된 것만 반환
     const availableTypes = Shop.getAvailableTypes(this.currentStageCache >= 0 ? this.currentStageCache : 0);
-    
+
     for (let item of this.items) {
       if (mx > item.x && mx < item.x + item.w &&
         my > item.y && my < item.y + item.h) {
@@ -292,4 +292,22 @@ class Shop {
     return null;
   }
 
+}
+
+function shopItemClick() {
+  if (money >= shopItem.cost) {
+    draggingItem = shopItem; // 드래그 시작!
+    selectedTower = null;
+    selectedTile = null;
+
+    // 🔊 아이템 집는 소리 (촥!)
+    //fxsounds['money'].play();
+
+  } else {
+    console.log("돈이 부족합니다!");
+
+    // 🔊 실패/경고 소리 (띠딕!)
+    //if (typeof sfxError !== 'undefined') sfxError.play();
+  }
+  return;
 }

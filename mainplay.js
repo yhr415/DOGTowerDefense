@@ -1,124 +1,7 @@
-//dog, pet들의 정보를 담는 list
-let enemies = [];
-
-//1205 update : 타워 데이터를 기존에는 Hex grid에 저장
-//-> 전역변수 towers를 만들어서 따로 관리
-let towers = [];
-
-let shop;
-let draggingItem = null; // 상점에서 drag and drop 기능 : 현재 drag 중인 타워 정보 저장
-let bullets = [];
-const startMoney = 70
-let money = startMoney
-let lives = 10, score = 0, gameOver = false, gameClear = false;
-
-//pet spawn Rate 변수 하나 만들었음... 근데 dog에 spawn rate가 필요할까?
-const spawnRate = 60;
-const petSpawnRate = 60;
-
-let bossActive = false
-let bossDog = null;
-
-let HEX_COLS = 15, HEX_ROWS = 7, HEX_R = 50, MARGIN = 24;
-let hexGrid;
-
-let currentStage = 0, stageManager, isStageActive = false;
-
-//sound 변수 선언
-let bgm;
-let fxsounds = {};
-
-// 이미지 변수 선언
-let jindoImg;
-let shibaImg;
-let PomeImg;
-let BeagleImg;
-let DobermanImg;
-let backgrnd;
-
-//effect를 담는 List
-let effects = [];
-
-let towerSpriteSheets = {}; //타워 이미지 담기
-let bulletimgs = {}; //bullet image 담기
-let dogPics = {};
-
-// API / apiInfo 관련 전역 변수
-let rescueData = null;        // preload에서 불러온 전체 JSON (rescueData.items)
-let currentApiInfo = null;  // 지금 화면에 띄운 선택된 item 객체
-let apiInfo = null;
-let showApiInfoScreen = false; // API 정보 화면 표시 여부
-let isApiScreenOpen = false; //현재 API 정보 화면 열림 여부
-let apiInfoImg = null;      // 선택 item의 p5.Image
-let imageCache = {};          // imageUrl -> p5.Image 캐시
-let showStageInfoScreen = false; // info 화면 표시 여부
-let apiImgLoading = false;
-let apiImgLoadError = false;
-
-// 타워 선택 관련 변수
-let selectedTower = null; // 선택된 타워
-let selectedTile = null; // 선택된 타일
-// 강아지 이미지 로딩
 function preload() {
-  dogPics['jindo'] ||= {};
-  dogPics['jindo']['white'] ||= {};
-  dogPics['pome'] ||= {};
-  dogPics['pome']['white'] ||= {};
-  dogPics['jindo']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
-  dogPics['jindo']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
-  dogPics['jindo']['white']['happy'] = loadImage('data/dog/WhiteJindoHappy.png');
-  dogPics['pome']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
-  dogPics['pome']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
-  dogPics['pome']['white']['happy'] = loadImage('data/dog/WhiteJindoHappy.png');
-  dogPics['shiba'] ||= {};
-  dogPics['shiba']['white'] ||= {};
-  dogPics['shiba']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
-  dogPics['shiba']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
-  dogPics['shiba']['white']['happy'] = loadImage('data/dog/WhiteJindoHappy.png');
-  dogPics['doberman'] ||= {};
-  dogPics['doberman']['white'] ||= {};
-  dogPics['doberman']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
-  dogPics['doberman']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
-  dogPics['doberman']['white']['happy'] = loadImage('data/dog/WhiteJindoHappy.png');
-
-
-  shibaImg = loadImage('data/jindo.png');
-  PomeImg = loadImage('data/jindo.png');
-  BeagleImg = loadImage('data/jindo.png');
-  DobermanImg = loadImage('data/jindo.png');
-  petPome = loadImage('data/pome.png');
-  //배경 이미지 로딩
-  backgrnd = loadImage('data/dtdBackgrnd.png');
-  backgrndGameover = loadImage('data/gameOver.png');
-  //icon loading
-  iconCoin = loadImage('data/coin_icon.png');
-  //effect loading
-  healGreen20 = loadImage('data/effect/healGreen20.png');
-  healYellow5 = loadImage('data/effect/healYellow5.png');
-  heartEffect5 = loadImage('data/effect/heartEffect.png');
-  //bullet loading
-  bulletimgs['love'] = loadImage('data/bullet/heartbullet.png');
-  bulletimgs['snack'] = loadImage('data/bullet/snackbullet.png');
-  //tower loading
-  towerSpriteSheets["heal"] = loadImage('data/tower/heal.png');
-  towerSpriteSheets["snack"] = loadImage('data/tower/snack.png');
-  towerSpriteSheets["love"] = loadImage('data/tower/love.png');
-  towerSpriteSheets["block"] = loadImage('data/tower/block.png');
-  towerSpriteSheets["factory"] = loadImage('data/tower/gold.png');
-  towerSpriteSheets["support"] = loadImage('data/tower/support.png');
-
-  rescueData = loadJSON('data/daejeon_dog.json');
-
-  //음악
-  //bgm
-  bgm = loadSound('data/sound/hyperpop.wav');
-  bgmFail = loadSound('data/sound/rescue_failed.wav');
-  bgmClear = loadSound('data/sound/gameEndBGM.wav');
-  fxsounds["click"] = loadSound('data/sound/click.wav');
-  fxsounds["hit"] = loadSound('data/sound/뿅뿅.wav');
-  fxsounds["money"] = loadSound('data/sound/돈소리.wav');
-  fxsounds["eat"] = loadSound('data/sound/eat.wav');
+  loadeverything();
 }
+//const/preload.js/loadeverything
 
 function setup() {
   bgm.setVolume(0.3);
@@ -198,308 +81,70 @@ function setup() {
 }
 
 function draw() {
-  image(backgrnd, width / 2 - 20, height / 2 - 20, width * 1.1, height * 1.1); //background 이미지 불러오기
+  // 배경은 공통으로 깔아주기
+  image(backgrnd, width / 2 - 20, height / 2 - 20, width * 1.1, height * 1.1);
 
-  if (gameOver) {
-    drawGameOver(); // 게임오버 시 화면
-    return;
-  }
+  switch (gameState) {
+    case "INTRO":
+      drawIntroduction();
+      break;
 
-  if (gameClear) {
-    drawGameClear(); //game 클리어 시 화면
-    return;
-  }
+    case "GUIDE1":
+      drawGameBackground(manual1); // 게임 가이드 화면
+      break;
+    
+    case "GUIDE2":
+      drawGameBackground(manual2);
+      break;
 
-  if (showApiInfoScreen) {
-    if (currentApiInfo) {
+    case "PLAY":
+      runInGameLogic(); // 실제 게임 플레이 로직 (따로 뺌)
+      break;
+
+    case "API":
       drawApiInfoScreen();
-      return;
-    } else {
-      isApiScreenOpen = false;
-    }
+      break;
+
+    case "GAMEOVER":
+      drawGameOver();
+      break;
+
+    case "GAMECLEAR":
+      drawGameClear();
+      break;
   }
-
-  if (!isStageActive) {
-    drawStageInfo();
-    return;
-  }
-
-  hexGrid.draw();
-  drawUI();
-
-  // 선택된 타워의 사거리 표시
-  if (selectedTower && selectedTile) {
-    drawSelectedTowerRange();
-  }
-
-  // 타워 관리
-  for (let row = 0; row < hexGrid.rows; row++) {
-    for (let col = 0; col < hexGrid.cols; col++) {
-      const tile = hexGrid.tiles[row][col];
-      const t = tile.tower
-      if (t) {
-        t.update();
-        t.show();
-        if (towerStats[t.type].canShoot) {
-          t.shoot(enemies);
-        }
-        else {
-          if (t.type === "block") {
-            t.block()
-          }
-          else if (t.type === "playground") {
-            t.play()
-          }
-          else if (t.type === "support") {
-            t.enhance(tile)
-          }
-          else if (t.type === "factory") {
-            t.earn()
-          }
-        }
-      }
-    }
-  }
-
-  // 적 관리 시스템 update (1205): dog과 pet을 별도의 object로 받아와서 enemies로 한 번에 관리
-  for (let i = enemies.length - 1; i >= 0; i--) {
-    const e = enemies[i];
-    e.update();
-    e.show(); //enemies 배열 안에 있는 것들을 불러와서 보여줌
-
-    if (e.reachedEnd()) {
-      // 끝에 도달했을 때 로직
-      enemies.splice(i, 1);
-
-      // Dog(보스)면 바로 게임 오버로 설정
-      // 여기서는 Dog 클래스의 인스턴스인지 확인 (instanceof Dog) 하거나 
-      // 속성(e.isBoss)으로 확인
-      if (e instanceof Dog) { // 만약 보스(Dog)라면
-        triggerGameOver(); // 보스를 놓치면 바로 게임 오버!
-      } else {
-        lives--; // 펫이면 라이프 1 감소
-        if (lives <= 0) { triggerGameOver(); }
-      }
-
-    } else if (e.isDead()) {
-      money += 5; score += 10;
-      enemies.splice(i, 1);
-      // stageManager에게 알릴 필요가 있을 경우 (적 카운트 등)
-      // stageManager.enemyDefeated(); 
-    }
-  }
-
-  // 총알 업데이트
-  for (let i = bullets.length - 1; i >= 0; i--) {
-    const b = bullets[i];
-    b.update();
-    b.show();
-    if (b.hasHit()) {
-      bullets.splice(i, 1);
-    } else if (b.isOffScreen()) bullets.splice(i, 1);
-  }
-
-  //effect update
-  for (let i = effects.length - 1; i >= 0; i--) {
-    let ef = effects[i];
-    ef.update();
-    ef.show();
-
-    // 애니메이션 끝난 배열 삭제
-    if (ef.finished) {
-      effects.splice(i, 1);
-    }
-  }
-
-  // 스테이지 완료 확인
-  // enemies가 비었고, 더 이상 스폰할 것도 없으면 다음 스테이지
-  if (isStageActive && stageManager.isStageOver() && enemies.length === 0) {
-    isStageActive = false;
-    money += stageDesign[currentStage].stageReward;
-
-    // rescueData에서 랜덤 선택
-    if (rescueData && rescueData.items && rescueData.items.length > 0) {
-      const rndIndex = floor(random(rescueData.items.length));
-      startApiInfoScreen(rescueData.items[rndIndex]);
-    } else {
-      // 데이터 없으면 바로 StageInfo로 복귀(혹시 몰라서 넣어둠)
-      showApiInfoScreen = false;
-    }
-
-    currentStage++;
-    if (currentStage >= stageDesign.length) {
-      triggerGameClear();
-    }
-
-    // 스테이지 변경 시 상점의 사용 가능한 타워 목록 업데이트
-    if (shop) {
-      shop.updateAvailableItems(currentStage);
-    }
-  }
-
-  //boss alert 팝업 인터페이스 관리
-  if (stageManager.bossPopupText) { // 텍스트가 있을 때만 그림
-    drawInfo(stageManager.bossPopupText);
-  }
-
-  shop.draw();
-
-  // 선택된 타워 UI 그리기 (Shop 이후에 그려서 Shop 배경이 UI를 가리지 않도록)
-  if (selectedTower && selectedTile) {
-    drawTowerSelectionUI();
-  }
-
-  // 🖱️ 드래그 중인 아이템 그리기
-  if (draggingItem) {
-    push();
-    translate(mouseX, mouseY); // 마우스 위치를 (0,0) 기준으로 잡음
-
-    // 1. 사거리 미리보기 원 (이건 유지!)
-    // level1Range가 정의되어 있다고 가정, 없으면 기본값 0
-    let range = (typeof level1Range !== 'undefined' && level1Range[draggingItem.type]) ? level1Range[draggingItem.type] : 0;
-
-    noFill();
-    stroke(255, 255, 255, 200); // 반투명 흰색
-    ellipse(0, 0, range * 2);   // 사거리 표시
-
-    // 2. 타워 스프라이트 그리기 (여기가 수정됨! 🚀)
-    const sheet = towerSpriteSheets[draggingItem.type];
-
-    if (sheet) {
-      // 0번 인덱스(1레벨) 모습을 보여줌
-      // translate(mouseX, mouseY)를 했기 때문에 좌표는 0, 0 기준인데,
-      // 이미지를 마우스 정중앙에 오게 하려면 크기의 절반만큼 빼줘야 해 (-32, -32)
-      drawSprite(
-        sheet,
-        0,         // 1레벨(인덱스 0)
-        0, 0,  // 위치 (중앙 정렬 보정)
-        70, 70,    // 크기
-        5, 1          // 가로 3칸짜리 시트
-      );
-    } else {
-      // 이미지 없으면 기존 동그라미 (백업)
-      noStroke();
-      fill(draggingItem.color);
-      ellipse(0, 0, 40);
-    }
-
-    pop();
-  }
-
-  if (isStageActive) stageManager.update();
-  else drawStageInfo();
-
-
-  //test용 코드입니다. 켜져있으면 주석처리해주세요
-  drawtestButton1();
-  drawtestButton2();
 }
 
 function mousePressed() {
+  fxsounds['click']?.play(); // 공통 클릭음
 
-  // 1. [UI] API 정보창 닫기
-  if (showApiInfoScreen) {
-    const boxW = min(width - 80, 860);
-    const boxH = min(height - 200, 520);
-    const boxY = (height - boxH) / 2;
+  switch (gameState) {
+    case "INTRO":
+      gameState = "GUIDE1"; // 클릭하면 가이드로
+      break;
 
-    const btnW = 200, btnH = 48;
-    const btnX = width / 2 - btnW / 2;
-    const btnY = boxY + boxH - 70;
+    case "GUIDE1":
+      gameState = "GUIDE2"; // 클릭하면 인게임으로
+      break;
+    
+    case "GUIDE2":
+      gameState="PLAY";
+      break;
 
-    if (mouseX > btnX && mouseX < btnX + btnW && mouseY > btnY && mouseY < btnY + btnH) {
+    case "API":
+      gameState = "PLAY"; // 정보창 닫고 다시 게임으로
       showApiInfoScreen = false;
+      break;
 
-      // 🔊 클릭 소리 재생
-      fxsounds['click'].play();
-    }
-    return;
-  }
+    case "PLAY":
+      handleInGameClick(); // 기존 상점, 타워 설치 클릭 로직
+      break;
 
-  clicktestButton();
-
-  //[UI] 게임 오버 -> 다시 하기
-  if (gameOver) {
-    if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 &&
-      mouseY > height / 2 + 80 && mouseY < height / 2 + 130) {
-      resetGame(); // resetGame 안에서 BGM을 다시 켜는 로직이 있으면 좋음
-      if (bgmFail.isPlaying()) {
-        bgmFail.stop();
-      }
-    }
-    return;
-  }
-  //game Clear 시에도 동일한 Logic으로 돌아가게!
-  if (gameClear) {
-    if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 &&
-      mouseY > height / 2 + 80 && mouseY < height / 2 + 130) {
+    case "GAMEOVER":
+    case "GAMECLEAR":
       resetGame();
-      if (bgmClear.isPlaying()) {
-        bgmClear.stop();
-      }
-    }
-    return;
-  }
-
-  if (handleTowerSelectionUI()) {
-    return; // 버튼 클릭 처리됨
-  }
-
-  let shopItem = shop.getItemAt(mouseX, mouseY);
-  if (shopItem) {
-    if (money >= shopItem.cost) {
-      draggingItem = shopItem; // 드래그 시작!
-      selectedTower = null;
-      selectedTile = null;
-
-      // 🔊 아이템 집는 소리 (촥!)
-      //fxsounds['money'].play();
-
-    } else {
-      console.log("돈이 부족합니다!");
-
-      // 🔊 실패/경고 소리 (띠딕!)
-      //if (typeof sfxError !== 'undefined') sfxError.play();
-    }
-    return;
-  }
-
-  if (!isStageActive) {
-    stageManager.startStage(currentStage);
-    isStageActive = true;
-    selectedTower = null;
-    selectedTile = null;
-
-    // 🔊 전투 시작 소리 & 배경음악 재생
-    fxsounds['click'].play();
-
-    // BGM이 꺼져있다면 켜기 (중복 재생 방지)
-    if (!bgm.isPlaying()) {
-      bgm.loop();
-    }
-
-    return;
-  }
-
-  // 6. [타워] 선택 (업그레이드/제거 UI 표시)
-  const tile = hexGrid.getTileAt(mouseX, mouseY);
-  if (!tile) {
-    // 타일이 아닌 곳을 클릭하면 선택 해제
-    selectedTower = null;
-    selectedTile = null;
-    return;
-  }
-
-  const tower = tile.tower;
-
-  // 타워가 있는 타일을 클릭하면 선택
-  if (tower) {
-    selectedTower = tower;
-    selectedTile = tile;
-  } else {
-    // 타워가 없는 타일을 클릭하면 선택 해제
-    selectedTower = null;
-    selectedTile = null;
+      gameState = "INTRO"; // 다시 시작화면으로
+      break;
   }
 }
 

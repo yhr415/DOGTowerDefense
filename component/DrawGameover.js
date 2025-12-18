@@ -25,7 +25,7 @@ function drawGameOver() {
 //game over one shot 함수
 function triggerGameOver(){
   if (gameOver) return; // 이미 게임오버면 중복 실행 방지
-  gameOver = true; // 상태 변경
+  gameState = "GAMEOVER";
   if (bgm.isPlaying()) {
     bgm.stop(); 
   }
@@ -37,7 +37,7 @@ function triggerGameOver(){
 //game over one shot 함수
 function triggerGameClear(){
   if (gameClear) return; // 중복실행 방지용
-  gameClear = true; // 상태 변경
+  gameState = "GAMECLEAR";
   if (bgm.isPlaying()) {
     bgm.stop(); 
   }

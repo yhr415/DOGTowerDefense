@@ -166,4 +166,35 @@ class StageManager {
   }
 }
 
+function startNewStage(){
+  stageManager.startStage(currentStage);
+  isStageActive = true;
+  selectedTower = null;
+  selectedTile = null;
 
+  // 🔊 전투 시작 소리 & 배경음악 재생
+  fxsounds['click'].play();
+
+  // BGM이 꺼져있다면 켜기 (중복 재생 방지)
+  if (!bgm.isPlaying()) {
+    bgm.loop();
+  }
+
+  return;
+}
+
+
+function handleStageClear() {
+  isStageActive = false;
+  money += stageDesign[currentStage].stageReward;
+
+  // API 화면 띄우기
+  if (rescueData?.items?.length > 0) {
+    const rndIndex = floor(random(rescueData.items.length));
+    startApiInfoScreen(rescueData.items[rndIndex]);
+    gameState = "API"; // 상태 전환!
+  }
+
+  currentStage++;
+  if (currentStage >= stageDesign.length) triggerGameClear();
+}
