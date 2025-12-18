@@ -4,9 +4,15 @@ function preload() {
 //const/preload.js/loadeverything
 
 function setup() {
-  bgm.setVolume(0.3);
-  bgmFail.setVolume(0.3);
-  bgmClear.setVolume(0.2);
+  if (bgm && bgm.isLoaded()) {
+    bgm.setVolume(0.3);
+  }
+  if (bgmFail && bgmFail.isLoaded()) {
+    bgmFail.setVolume(0.3);
+  }
+  if (bgmClear && bgmClear.isLoaded()) {
+    bgmClear.setVolume(0.2);
+  }
   fxsounds["money"].setVolume(0.2);
   fxsounds["hit"].setVolume(0.1);
   fxsounds["eat"].setVolume(0.1);
@@ -92,7 +98,7 @@ function draw() {
     case "GUIDE1":
       drawGameBackground(manual1); // 게임 가이드 화면
       break;
-    
+
     case "GUIDE2":
       drawGameBackground(manual2);
       break;
@@ -126,9 +132,9 @@ function mousePressed() {
     case "GUIDE1":
       gameState = "GUIDE2"; // 클릭하면 인게임으로
       break;
-    
+
     case "GUIDE2":
-      gameState="PLAY";
+      gameState = "PLAY";
       break;
 
     case "API":

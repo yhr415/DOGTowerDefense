@@ -23,7 +23,25 @@
         body {
             margin: 0;
             padding: 0;
+            display: flex;
+            /* 플렉스 박스 사용 */
+            justify-content: center;
+            /* 가로 중앙 정렬 */
+            align-items: center;
+            /* 세로 중앙 정렬 */
+            min-height: 100vh;
+            /* 화면 높이 100% 사용 */
+            background-color: #2E2F3E;
+            /* 아까 형이 말한 그 배경색! */
             overflow: hidden;
+            /* 스크롤바 방지 */
+        }
+
+        canvas {
+            display: block;
+            /* 캔버스를 블록 요소로 취급 */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            /* 테두리에 그림자 살짝 (간지) */
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
