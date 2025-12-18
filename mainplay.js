@@ -5,7 +5,7 @@ function preload() {
 
 function setup() {
   if (bgm && bgm.isLoaded()) {
-    bgm.setVolume(0.3);
+    bgm.setVolume(0.4);
   }
   if (bgmFail && bgmFail.isLoaded()) {
     bgmFail.setVolume(0.3);
@@ -147,6 +147,9 @@ function mousePressed() {
       break;
 
     case "GAMEOVER":
+      resetGame();
+      gamsState="INTRO";
+      break;
     case "GAMECLEAR":
       resetGame();
       gameState = "INTRO"; // 다시 시작화면으로

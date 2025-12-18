@@ -65,21 +65,41 @@ function runInGameLogic() {
         if (ef.finished) effects.splice(i, 1);
     }
 
-    // 6. 스테이지 완료 체크 로직 (이건 게임 진행 중에만 체크해야 하니까 여기에!)
+    // 6. 스테이지 완료 체크 로직
     if (isStageActive && stageManager.isStageOver() && enemies.length === 0) {
-        handleStageClear(); // 아까 만든 상태 전환 함수
+        if (rescueData && rescueData.items && rescueData.items.length > 0) {
+            const rndIndex = floor(random(rescueData.items.length));
+            startApiInfoScreen(rescueData.items[rndIndex]);
+        } else {
+            showApiInfoScreen = false;
+        }
+        if (currentStage >= stageDesign.length) {
+            gameOver = true;
+        }
+
+        // 💡 여기서 handleStageClear를 먼저 불러서 상태를 바꿔줘
+        handleStageClear(); 
     }
 
-    // 8. 보스 등장 팝업 등 매니저 업데이트
+    // 8. 매니저 업데이트
     if (stageManager.bossPopupText) drawInfo(stageManager.bossPopupText);
-
     if (isStageActive) stageManager.update();
-    else drawStageInfo(); // 대기 중일 때 "클릭해서 시작" 등 표시
+    else drawStageInfo();
 
-    // 7. 상점 및 드래그 UI
-    shop.draw();
-    if (selectedTower && selectedTile) drawTowerSelectionUI();
-    if (draggingItem) drawDraggingItem(); // 드래그 시각화 로직
+    // 🔥 [해결 포인트] 상점 업데이트와 그리기는 여기서 딱 "한 번만"!
+    // currentStage 변수 하나로 통일해서 상점에게 알려주자.
+    if (shop) {
+        shop.updateAvailableItems(currentStage); 
+        shop.draw();
+    }
+
+    // 9. 선택된 타워 UI
+    if (selectedTower && selectedTile) {
+        drawTowerSelectionUI();
+    }
+    if (draggingItem) {
+        drawDraggingItem(); 
+    }
 }
 
 function handleInGameClick() {
@@ -127,36 +147,36 @@ function handleInGameClick() {
 
 function drawDraggingItem() {
     if (!draggingItem) return;
-  
+
     push();
     // 1. 마우스 위치로 좌표 이동
     translate(mouseX, mouseY);
-  
+
     // 2. 사거리 미리보기 (반투명 원)
     // level1Range에 해당 타워의 사거리가 정의되어 있어야 해!
-    let range = (typeof level1Range !== 'undefined' && level1Range[draggingItem.type]) 
-                 ? level1Range[draggingItem.type] : 150; 
-  
+    let range = (typeof level1Range !== 'undefined' && level1Range[draggingItem.type])
+        ? level1Range[draggingItem.type] : 150;
+
     noFill();
     stroke(255, 255, 255, 150); // 반투명 흰색 테두리
     strokeWeight(2);
     ellipse(0, 0, range * 2);   // 사거리 원 그리기
-  
+
     // 3. 타워 모습 미리보기 (스프라이트 시트 활용)
     const sheet = towerSpriteSheets[draggingItem.type];
     if (sheet) {
-      // 1레벨(첫 번째 칸) 이미지를 마우스 위치에 그림
-      drawSprite(
-        sheet,
-        0,          // 1레벨 인덱스
-        0, 0,       // 현재 translate된 0,0 위치
-        70, 70,     // 크기
-        5, 1        // 시트 가로 5칸, 세로 1칸 기준 (형 설정에 맞춰)
-      );
+        // 1레벨(첫 번째 칸) 이미지를 마우스 위치에 그림
+        drawSprite(
+            sheet,
+            0,          // 1레벨 인덱스
+            0, 0,       // 현재 translate된 0,0 위치
+            70, 70,     // 크기
+            5, 1        // 시트 가로 5칸, 세로 1칸 기준 (형 설정에 맞춰)
+        );
     } else {
-      // 이미지가 없을 때의 백업 (동그라미)
-      fill(draggingItem.color || 'yellow');
-      ellipse(0, 0, 40);
+        // 이미지가 없을 때의 백업 (동그라미)
+        fill(draggingItem.color || 'yellow');
+        ellipse(0, 0, 40);
     }
     pop();
-  }
+}
