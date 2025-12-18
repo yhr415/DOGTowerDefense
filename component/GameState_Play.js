@@ -1,5 +1,7 @@
 function runInGameLogic() {
-    money += 0.0333
+    if(isStageActive){
+        money += 0.0333
+    }
     // 1. 맵과 기본 UI
     hexGrid.draw();
     drawUI();
@@ -40,9 +42,17 @@ function runInGameLogic() {
             enemies.splice(i, 1);
             if (e instanceof Dog) {
                 triggerGameOver();
+                drawGameOver();
+                gameState="GAMEOVER";
+                return;
             } else {
                 lives--;
-                if (lives <= 0) triggerGameOver();
+                if (lives <= 0) {
+                triggerGameOver();
+                drawGameOver();
+                gameState="GAMEOVER";
+                return;
+                }
             }
         } else if (e.isDead()) {
             money += 5; score += 10;
@@ -66,7 +76,7 @@ function runInGameLogic() {
     }
 
     // 6. 스테이지 완료 체크 로직
-    if (isStageActive && stageManager.isStageOver() && enemies.length === 0) {
+    if (gameState !== "GAMEOVER"&&isStageActive && stageManager.isStageOver() && enemies.length === 0) {
         if (rescueData && rescueData.items && rescueData.items.length > 0) {
             const rndIndex = floor(random(rescueData.items.length));
             startApiInfoScreen(rescueData.items[rndIndex]);

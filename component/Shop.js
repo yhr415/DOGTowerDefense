@@ -25,13 +25,14 @@ class Shop {
   static getAvailableTypes(stageIndex) {
     const types = {
       0: ["snack"], // stage 1
-      1: ["snack", "heal", "love"], // stage 2
-      2: ["snack", "heal", "love", "slow", "antiTanker"], // stage 3
-      3: ["snack", "heal", "love", "slow", "antiTanker", "block", "playground"], // stage 4
-      4: ["snack", "heal", "love", "slow", "antiTanker", "block", "playground", "support", "factory"] // stage 5
+      1: ["snack"], // stage 1
+      2: ["snack", "heal", "love"], // stage 2
+      3: ["snack", "heal", "love", "slow", "antiTanker"], // stage 3
+      4: ["snack", "heal", "love", "slow", "antiTanker", "block", "playground"], // stage 4
+      5: ["snack", "heal", "love", "slow", "antiTanker", "block", "playground", "support", "factory"] // stage 5
     };
     // stage 5 이상이면 모든 타워 사용 가능
-    return types[Math.min(stageIndex, 4)] || types[0];
+    return types[Math.min(stageIndex, 5)] || types[0];
   }
 
   // 사용 가능한 타워 목록 업데이트 (스테이지 변경 시에만 호출)
