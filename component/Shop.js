@@ -88,7 +88,8 @@ class Shop {
     let hoveringItem = null;
 
     // 현재 스테이지에서 사용 가능한 타워 타입 가져오기 (성능 최적화)
-    const availableTypes = Shop.getAvailableTypes(this.currentStageCache >= 0 ? this.currentStageCache : 0);
+    const currentIdx = this.currentStageCache >= 0 ? this.currentStageCache : 0;
+    const availableTypes = Shop.getAvailableTypes(currentIdx);
 
     // 판매 아이템 그리기 (루프 시작) - 모든 아이템 표시
     for (let i = 0; i < this.items.length; i++) {
@@ -277,7 +278,8 @@ class Shop {
 
   getItemAt(mx, my) {
     // 모든 아이템 검사하되, 해금된 것만 반환
-    const availableTypes = Shop.getAvailableTypes(this.currentStageCache >= 0 ? this.currentStageCache : 0);
+    const currentIdx = this.currentStageCache >= 0 ? this.currentStageCache : 0;
+    const availableTypes = Shop.getAvailableTypes(currentIdx);
 
     for (let item of this.items) {
       if (mx > item.x && mx < item.x + item.w &&
