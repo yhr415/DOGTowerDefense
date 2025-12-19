@@ -61,3 +61,5 @@ let selectedTile = null; // 선택된 타일
 
 let gameState = "INTRO";
 let manualPage=0;
+
+let lastHitSoundTime = 0;

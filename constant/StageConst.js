@@ -27,14 +27,14 @@ const stageDesign = [
     { 
       stage: 3, 
       petType: "pome", petCount: 3, interval: 400, petHp: 60, petSpeed: 0.5,
-      bossType: "shiba", bossHp: 200, bossSpeed: 0.3, 
+      bossType: "retriever", bossHp: 200, bossSpeed: 0.3, 
       stageReward: 600, fact: "Stage 3: 높은 체력 (슬로우, 집중케어 타워 해금)" 
     },
     
     { 
       stage: 4, 
       petType: "shiba", petCount: 15, interval: 100, petHp: 30, petSpeed: 1.0,
-      bossType: "jindo", bossHp: 350, bossSpeed: 0.4,
+      bossType: "blackretriever", bossHp: 350, bossSpeed: 0.4,
       stageReward: 1500, fact: "Stage 4: 빠른 속도 대처 (block, 놀이터 해금)" 
     },
     

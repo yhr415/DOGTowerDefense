@@ -105,7 +105,7 @@ class Bullet {
         // 💥 이펙트 생성 (폭발은 크기가 가변적이라 여기서 직접 호출)
         let effectSize = this.maxRadius * 2;
         spawnHitEffect("heal", this.x, this.y, effectSize,effectSize);
-        fxsounds['hit'].play();
+        playHitSound();
         return false;
       }
       else {
@@ -129,7 +129,7 @@ class Bullet {
 
           // 💥 사랑의 화살 맞은 적 위치에 이펙트 생성!
           spawnHitEffect("love", e.x, e.y, 70,70);
-          fxsounds['hit'].play();
+          playHitSound();        
         }
       }
       return false;
@@ -165,19 +165,19 @@ class Bullet {
         hitted.applyEffect('slow', this.damage, this.slowPower);
         // 💥 얼음 이펙트 (적 위치에)
         spawnHitEffect("slow", hitted.x, hitted.y, 40,40);
-        fxsounds['hit'].play();
+        playHitSound();
       }
       else if (this.type === "snack"){
         // 일반 간식
         hitted.applyEffect('snack', this.damage, 1.0);  //1.0배만큼 속도 빨라지도록
         // 💥 간식 이펙트 (적 위치에)
         spawnHitEffect("snack", hitted.x, hitted.y, 30,30);
-        fxsounds['eat'].play();
+        playHitSound();
       }
       else if (this.type === "antiTanker"){
         hitted.applyEffect("antiTanker", this.damage, null);
         spawnHitEffect("antiTanker", hitted.x, hitted.y, 30,30);
-        fxsounds['hit'].play();
+        playHitSound();
       }
 
       return true; // 총알 삭제
@@ -241,5 +241,12 @@ function drawBullet(type, exploding, x, y, color) {
     fill(color);
     noStroke();
     ellipse(x, y, 8);
+  }
+}
+
+function playHitSound() {
+  if (millis() - lastHitSoundTime > 100) { 
+    fxsounds['hit'].play();
+    lastHitSoundTime = millis(); // 시간 갱신
   }
 }
