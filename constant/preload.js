@@ -59,6 +59,8 @@ towerSpriteSheets["slow"] = loadImage('data/tower/bath.png');
 towerSpriteSheets["antiTanker"]=loadImage('data/tower/anti.png');
 towerSpriteSheets["playground"]=loadImage('data/tower/playground.png');
 
+frame=loadImage('data/frame.png');
+
 rescueData = loadJSON('data/daejeon_dog.json');
 
 //음악
