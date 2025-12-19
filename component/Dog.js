@@ -1,5 +1,5 @@
 class Dog {
-  constructor(path, initialHp, speed, name = 'jindo') {
+  constructor(path, initialHp, speed, name = 'jindo', color = 'white') {
     this.path = path;
     this.current = 0;
     this.x = path[0].x;
@@ -12,6 +12,7 @@ class Dog {
     this.speed = speed;
 
     this.name = name;
+    this.color = color;
     this.w = 32;
     this.h = 32;
 
@@ -56,7 +57,7 @@ class Dog {
   }
 
   show() {
-    drawDogImage(this.name,this.hp,this.maxHp,this.x,this.y)
+    drawDogImage(this.name, this.color,this.hp,this.maxHp,this.x,this.y)
 
     drawDogHPbar(this.x, this.y, this.hp, this.maxHp);
     // 상태 텍스트 표시
@@ -127,20 +128,42 @@ class Dog {
   }
 }
 
-function drawDogImage(name,hp,maxHp,x,y){
+// [수정] color 파라미터 추가!
+function drawDogImage(name, color, hp, maxHp, x, y) {
   let currentImage;
   let dogstatus;
-  if(hp<=maxHp/3){
-    dogstatus="sad"
-  }else if(hp<=(maxHp/3)*2){
-    dogstatus="neutral"
-  }else{
-    dogstatus="happy"
-  }
-  currentImage=dogPics[name]['white'][dogstatus];
 
-    if (currentImage) image(currentImage, x, y, 170, 170); // 크기 살짝 조정함 (170은 너무 클듯?)
-    else { fill(255, 0, 0); rect(x, y, 32, 32); }
+  // 1. 체력 상태 체크 (기존 로직)
+  if (hp <= maxHp / 3) {
+    dogstatus = "sad";
+  } else if (hp <= (maxHp / 3) * 2) {
+    dogstatus = "neutral";
+  } else {
+    dogstatus = "happy";
+  }
+
+  // 2. 🔥 [핵심 변경] 하드코딩된 'white' 대신 변수 사용!
+  // 방어 코드: 만약 dogPics[name] 안에 해당 color가 없으면 'white'로 강제 전환 (에러 방지)
+  let useColor = color;
+  if (!dogPics[name] || !dogPics[name][useColor]) {
+    console.warn(`⚠️ 경고: ${name}의 ${useColor} 색상이 없습니다. white로 대체합니다.`);
+    useColor = 'white';
+  }
+
+  // 3. 이미지 할당
+  // dogPics 구조가: dogPics['shiba']['brown']['happy'] 이런 식이어야 함
+  if (dogPics[name] && dogPics[name][useColor]) {
+    currentImage = dogPics[name][useColor][dogstatus];
+  }
+
+  // 4. 이미지 그리기 (이미지가 있으면)
+  if (currentImage) {
+    image(currentImage, x, y, 150, 150); // 크기는 형 설정에 맞게!
+  } else {
+    // 이미지 로딩 실패 시 빨간 박스 (디버깅용)
+    fill(255, 0, 0);
+    rect(x, y, 50, 50);
+  }
 }
 
 

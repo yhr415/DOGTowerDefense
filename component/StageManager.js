@@ -64,6 +64,7 @@ class StageManager {
     const bossType = design.bossType || 'shiba';
     const bossHp = design.bossHp || 100;
     const bossSpeed = design.bossSpeed || 0.6; // 보스: 아주 느림
+    const bossColor=design.bossColor||"white";
 
     this.currentInterval = interval;
 
@@ -83,7 +84,8 @@ class StageManager {
       category: 'boss',
       type: bossType,
       hp: bossHp,
-      speed: bossSpeed
+      speed: bossSpeed,
+      color : bossColor
     });
   }
 
@@ -109,15 +111,15 @@ class StageManager {
   processSpawnQueue() {
     if (this.spawnQueue.length === 0) return;
     const info = this.spawnQueue.shift();
-    this.createAndSpawnEntity(info.category, info.type, info.hp, info.speed);
+    this.createAndSpawnEntity(info.category, info.type, info.hp, info.speed,info.color);
   }
 
   // 실제 적을 만들어서 배열에 넣는 공통 함수
-  createAndSpawnEntity(category, type, hp, speed) {
+  createAndSpawnEntity(category, type, hp, speed,color) {
     let entity;
 
     if (category === 'boss') {
-      entity = new Dog(this.path, hp, speed, type);
+      entity = new Dog(this.path, hp, speed, type,color);
 
       // 1. [오타 수정] spanwed -> spawned
       this.spawnedBossCount++;
@@ -127,7 +129,7 @@ class StageManager {
 
     } else {
       if (typeof Pet !== 'undefined') {
-        entity = new Pet(this.path, hp, speed, type);
+        entity = new Pet(this.path, hp, speed, type,color);
       } else {
         entity = new Dog(this.path, hp, speed, type);
       }
