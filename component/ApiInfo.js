@@ -46,9 +46,11 @@ function drawApiInfoScreen() {
   // 카드 박스
   const boxW = min(width - 80, 860);
   const boxH = min(height - 200, 520);
-  const boxX = (width - boxW) / 2;
-  const boxY = (height - boxH) / 2;
+  let boxX = (width - boxW) / 2;
+  let boxY = (height - boxH) / 2;
   let marginY=20;
+  let marginY2=50;
+  let marginY3=90;
 
   push();
   fill(y1);
@@ -56,18 +58,33 @@ function drawApiInfoScreen() {
   rect(boxX, boxY, boxW, boxH, 12);
 
   // 타이틀
+  boxY = boxY+marginY
   fill(orangefill);
   stroke(orangeline);
   strokeWeight(5);
   textAlign(CENTER, TOP);
   textSize(30);
   textFont(title_text); // 네 폰트 변수 사용
-  text("구조한 유기견", width / 2, boxY + marginY);
+  text("구조한 유기견", width / 2, boxY);
   noStroke();
 
+  //qr자리 여기에 삽입하면 됩니다!!//
+  fill(200);
+  rect(boxX+30,boxY,120,120);
+
+  boxY = boxY+marginY2
+  //subtitle
+  fill(orangeline);
+  noStroke();
+  textAlign(CENTER,TOP);
+  textFont(body_text);
+  textSize(20);
+  text("지금 당신이 구할 수 있는 유기견은...",width/2,boxY);
+
   // 이미지 영역 (좌측)
+  boxY=boxY+marginY3;
   const imgX = boxX + 24;
-  const imgY = boxY + 150;
+  const imgY = boxY;
   const imgW = 280;
   const imgH = 280;
 
@@ -85,6 +102,8 @@ function drawApiInfoScreen() {
     else if (apiImgLoadError) text("이미지 로드 실패", imgX + imgW / 2, imgY + imgH / 2);
     else text("이미지 없음", imgX + imgW / 2, imgY + imgH / 2);
   }
+  image(frame,imgX-40,imgY-35,imgW+80,imgH+60);
+
 
   // 라벨:값 영역 (우측)
   const rx = imgX + imgW + 24;
@@ -114,7 +133,7 @@ function drawApiInfoScreen() {
   // 하단 버튼 (다음)
   const btnW = 200, btnH = 48;
   const btnX = width / 2 - btnW / 2;
-  const btnY = boxY + boxH - 70;
+  const btnY = (height-btnH)/2 + boxH - 70;
 
   fill(orangefill);
   rect(btnX, btnY, btnW, btnH, 8);
