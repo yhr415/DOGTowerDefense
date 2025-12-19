@@ -6,6 +6,8 @@ function startApiInfoScreen(item) {
   apiInfoImg = null;
   apiImgLoading = false;
   apiImgLoadError = false;
+  apiQrImg = null;
+  apiQrTargetUrl = "";
 
   const originalUrl = item.imageUrl || item.filePath;
   if (!originalUrl) return;
@@ -33,7 +35,16 @@ function startApiInfoScreen(item) {
       apiImgLoadError = true;
     }
   );
+
+  apiQrTargetUrl = getAnimalDetailUrl(item);
+  if (apiQrTargetUrl) {
+    const qrUrl = makeQrUrl(apiQrTargetUrl);
+    loadImage(qrUrl, img => {
+      apiQrImg = img;
+    });
+  }
 }
+
 
 
 function drawApiInfoScreen() {
@@ -68,10 +79,6 @@ function drawApiInfoScreen() {
   text("구조한 유기견", width / 2, boxY);
   noStroke();
 
-  //qr자리 여기에 삽입하면 됩니다!!//
-  fill(200);
-  rect(boxX+30,boxY,120,120);
-
   boxY = boxY+marginY2
   //subtitle
   fill(orangeline);
@@ -103,7 +110,6 @@ function drawApiInfoScreen() {
     else text("이미지 없음", imgX + imgW / 2, imgY + imgH / 2);
   }
   image(frame,imgX-40,imgY-35,imgW+80,imgH+60);
-
 
   // 라벨:값 영역 (우측)
   const rx = imgX + imgW + 24;
@@ -143,6 +149,21 @@ function drawApiInfoScreen() {
   text("다음", btnX + btnW / 2, btnY + btnH / 2);
 
   pop();
+
+  const qrSize = 120;
+  const qrX = boxX + boxW - qrSize - 30;
+  const qrY = boxY + boxH - qrSize*2 - 90;
+
+  if (apiQrImg) {
+    imageMode(CORNER);
+    image(apiQrImg, qrX, qrY, qrSize, qrSize);
+
+    fill(90);
+    textSize(12);
+    textAlign(CENTER, TOP);
+    text("공식 페이지\n바로가기", qrX + qrSize / 2, qrY + qrSize + 6);
+  }
+  imageMode(CENTER);
 }
 
 function clickCloseApiInfo() {
@@ -160,4 +181,33 @@ function clickCloseApiInfo() {
     fxsounds['click'].play();
   }
   return;
+}
+
+function getAnimalDetailUrl(item) {
+  if (!item || !item.animalSeq) return "";
+  return `https://www.daejeon.go.kr/ani/AniStrayAnimalView.do?animalSeq=${item.animalSeq}&gubun=&menuSeq=3108&flag=`;
+}
+
+function makeQrUrl(targetUrl, size = 160) {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(targetUrl)}`;
+}
+
+function isClickOnApiQr() {
+  if (!apiQrImg) return false;
+
+  const boxW = min(width - 80, 860);
+  const boxH = min(height - 200, 520);
+  const boxX = (width - boxW) / 2;
+  const boxY = (height - boxH) / 2;
+
+  const qrSize = 120;
+  const qrX = boxX + boxW - qrSize - 30;
+  const qrY = boxY + boxH - qrSize - 90;
+
+  return (
+    mouseX > qrX &&
+    mouseX < qrX + qrSize &&
+    mouseY > qrY &&
+    mouseY < qrY + qrSize
+  );
 }

@@ -21,11 +21,11 @@ class StageManager {
 
     this.upgradeTutorialShown = false //추가한 변수
   }
-  // 타워가 하나 설치되면 멘트 체인지지
+  // 타워가 하나 설치되면 멘트 체인지
   showUpgradeHint() {
     if (!this.upgradeTutorialShown) {
       this.bossPopupText = "타워를 클릭해서 더 강력하게 업그레이드 하세요!";
-      this.popupTimer = 180; // 약 3초 동안 표시
+      this.popupTimer = 400; // 약 3초 동안 표시
       this.upgradeTutorialShown = true; // 이후에는 뜨지 않음
     }
   }
@@ -43,7 +43,7 @@ class StageManager {
 
     if (stageIndex === 0 && towers.length === 0) {
       this.bossPopupText = "드래그 앤 드랍으로 타워를 설치하세요!  일반적인 타워는 강아지가 이동하는 경로 밖에 설치할 수 있어요!";
-      this.popupTimer = 240; // 4초 동안 넉넉하게 띄우기
+      this.popupTimer = 500; // 4초 동안 넉넉하게 띄우기
   }
 
 
@@ -153,18 +153,16 @@ class StageManager {
 
     // 1. 상황별 멘트 정하기 (형 로직 그대로)
     if (this.spawnedBossCount === 1) {
-      popUpStatement = "🚨 경고: 첫 번째 보스 출현! 타워를 집중하세요!";
-    } else if (this.spawnedBossCount === 3) {
-      popUpStatement = "🚨 경고: 강력한 중간 보스입니다!";
+      popUpStatement = "🚨 경고: 첫 번째 보스 출현! 타워를 강화해 강아지를 구조하세요.";
     } else if (this.currentStageIndex === this.stageData.length - 1) {
-      popUpStatement = "☠️ 경고: 최종 보스 등장! 모든 것을 쏟아부으세요!";
+      popUpStatement = "☠️ 경고: 최종 보스 등장! 이 강아지를 구조할 수 있나요?";
     } else {
-      popUpStatement = "⚠️ 보스 등장!";
+      popUpStatement = "⚠️ 보스 강아지 등장!";
     }
 
     // 2. [핵심] 상태 변수에 저장하기 (그리기는 안 함!)
     this.bossPopupText = popUpStatement;
-    this.popupTimer = 360; // 180프레임 = 약 3초 동안 띄우기 (60fps 기준)
+    this.popupTimer = 600; // 180프레임 = 약 3초 동안 띄우기 (60fps 기준)
   }
 }
 
