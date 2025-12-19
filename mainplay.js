@@ -151,7 +151,7 @@ function mousePressed() {
     case "GAMEOVER":
       gameOverReset();
       resetGame();
-      gamsState="INTRO";
+      gameState="INTRO";
       break;
     case "GAMECLEAR":
       gameClearReset();
