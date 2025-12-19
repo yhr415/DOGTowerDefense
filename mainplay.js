@@ -140,7 +140,11 @@ function mousePressed() {
       break;
 
     case "API":
-      gameState = "PLAY"; // 정보창 닫고 다시 게임으로
+      if (isClickOnApiQr()) {
+        window.open(apiQrTargetUrl, "_blank");
+        return;
+      }
+      gameState = "PLAY";
       showApiInfoScreen = false;
       break;
 
@@ -151,7 +155,7 @@ function mousePressed() {
     case "GAMEOVER":
       gameOverReset();
       resetGame();
-      gameState="INTRO";
+      gameState = "INTRO";
       break;
     case "GAMECLEAR":
       gameClearReset();

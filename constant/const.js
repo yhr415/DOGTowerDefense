@@ -54,6 +54,7 @@ let imageCache = {};          // imageUrl -> p5.Image 캐시
 let showStageInfoScreen = false; // info 화면 표시 여부
 let apiImgLoading = false;
 let apiImgLoadError = false;
+let apiQrTargetUrl = "";
 
 // 타워 선택 관련 변수
 let selectedTower = null; // 선택된 타워
