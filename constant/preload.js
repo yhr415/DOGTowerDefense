@@ -1,31 +1,45 @@
 function loadeverything(){
-dogPics['jindo'] ||= {};
-dogPics['jindo']['white'] ||= {};
-dogPics['pome'] ||= {};
-dogPics['pome']['white'] ||= {};
+
+dogPics['jindo'] = dogPics['jindo'] || {};
+dogPics['jindo']['white'] = dogPics['jindo']['white'] || {};
 dogPics['jindo']['white']['sad'] = loadImage('data/dog/WhiteJindoSad.png');
 dogPics['jindo']['white']['neutral'] = loadImage('data/dog/WhiteJindoNeutral.png');
 dogPics['jindo']['white']['happy'] = loadImage('data/dog/WhiteJindoHappy.png');
+
+// --- 포메 (화이트 & 브라운) ---
+dogPics['pome'] = dogPics['pome'] || {};
+dogPics['pome']['white'] = dogPics['pome']['white'] || {}; // 화이트 객체 생성
+dogPics['pome']['brown'] = dogPics['pome']['brown'] || {}; // 🔥 [중요] 브라운 객체도 생성!
 dogPics['pome']['white']['sad'] = loadImage('data/dog/white_pome.png');
 dogPics['pome']['white']['neutral'] = loadImage('data/dog/white_pome.png');
 dogPics['pome']['white']['happy'] = loadImage('data/dog/white_pome.png');
-dogPics['retriever'] ||= {};
-dogPics['retriever']['gold'] ||= {};
+dogPics['pome']['brown']['sad'] = loadImage('data/dog/brown_pome.png');
+dogPics['pome']['brown']['neutral'] = loadImage('data/dog/brown_pome.png');
+dogPics['pome']['brown']['happy'] = loadImage('data/dog/brown_pome.png');
+
+// --- 리트리버 ---
+dogPics['retriever'] = dogPics['retriever'] || {};
+dogPics['retriever']['gold'] = dogPics['retriever']['gold'] || {};
 dogPics['retriever']['gold']['sad'] = loadImage('data/dog/golden_Retriever.png');
 dogPics['retriever']['gold']['neutral'] = loadImage('data/dog/golden_Retriever.png');
 dogPics['retriever']['gold']['happy'] = loadImage('data/dog/golden_Retriever.png');
-dogPics['blackretriever'] ||= {};
-dogPics['blackretriever']['black'] ||= {};
+
+// --- 블랙 리트리버 ---
+dogPics['blackretriever'] = dogPics['blackretriever'] || {};
+dogPics['blackretriever']['black'] = dogPics['blackretriever']['black'] || {};
 dogPics['blackretriever']['black']['sad'] = loadImage('data/dog/black_Retriever.png');
 dogPics['blackretriever']['black']['neutral'] = loadImage('data/dog/black_Retriever.png');
 dogPics['blackretriever']['black']['happy'] = loadImage('data/dog/black_Retriever.png');
-dogPics['bordercollie'] ||= {};
-dogPics['bordercollie']['blackandwhite'] ||= {};
+
+// --- 보더콜리 & 푸들 (같은 방식으로 쭉!) ---
+dogPics['bordercollie'] = dogPics['bordercollie'] || {};
+dogPics['bordercollie']['blackandwhite'] = dogPics['bordercollie']['blackandwhite'] || {};
 dogPics['bordercollie']['blackandwhite']['sad'] = loadImage('data/dog/border.png');
 dogPics['bordercollie']['blackandwhite']['neutral'] = loadImage('data/dog/border.png');
 dogPics['bordercollie']['blackandwhite']['happy'] = loadImage('data/dog/border.png');
-dogPics['poodle'] ||= {};
-dogPics['poodle']['brown'] ||= {};
+
+dogPics['poodle'] = dogPics['poodle'] || {};
+dogPics['poodle']['brown'] = dogPics['poodle']['brown'] || {};
 dogPics['poodle']['brown']['sad'] = loadImage('data/dog/brown_poodle.png');
 dogPics['poodle']['brown']['neutral'] = loadImage('data/dog/brown_poodle.png');
 dogPics['poodle']['brown']['happy'] = loadImage('data/dog/brown_poodle.png');
