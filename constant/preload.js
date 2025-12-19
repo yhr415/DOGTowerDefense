@@ -45,6 +45,7 @@ towerSpriteSheets["love"] = loadImage('data/tower/love.png');
 towerSpriteSheets["block"] = loadImage('data/tower/block.png');
 towerSpriteSheets["factory"] = loadImage('data/tower/gold.png');
 towerSpriteSheets["support"] = loadImage('data/tower/support.png');
+towerSpriteSheets["slow"] = loadImage('data/tower/bath.png');
 
 rescueData = loadJSON('data/daejeon_dog.json');
 
