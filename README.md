@@ -139,8 +139,8 @@ API에서 제공되는 이미지 리소스는 직접 서버를 통해 접근할 
 ![시작화면](images/readme_img7.png)
 ### 튜토리얼
 <p align="center">
-  <img src="images/readme_img8.png" width="700">
-  <img src="images/readme_img9.png" width="700">
+  <img src="images/readme_img8.png" width="320">
+  <img src="images/readme_img9.png" width="320">
 </p>
 
 ### 기본 타워 구성 및 업그레이드, 제거 화면
@@ -157,8 +157,8 @@ API에서 제공되는 이미지 리소스는 직접 서버를 통해 접근할 
 
 ### 플레이 예시 2 : 코드 화면
 <p align="center">
-  <img src="images/readme_img14.png" width="700">
-  <img src="images/readme_img15.png" width="700">
+  <img src="images/readme_img14.png" width="320">
+  <img src="images/readme_img15.png" width="320">
 </p>
 
 ### 구조 실패 엔딩
