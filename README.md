@@ -10,10 +10,12 @@ DogTowerDefense는 뉴스로만 소비되던 유기견 문제를 ‘행동과 �
 </p>
 
 
+
 ## 프로젝트 개요
 ### 타워 디펜스 게임이란?
 ![예시 게임](images/readme_img2.png)
 - 정해진 경로로 이동하는 적을 막기 위해 다양한 공격 타워를 배치하고 업그레이드하는 전략 게임
+
 ### DogTowerDefense의 차별점
 ![게임 구상](images/readme_img3.png)
 - 적 → 버림받고 상처받은 강아지들
@@ -23,6 +25,8 @@ DogTowerDefense는 뉴스로만 소비되던 유기견 문제를 ‘행동과 �
 즉, DogTowerDefense는 " 정해진 경로로 이동하는 버림받고 상처받은 강아지들의 치유와 회복을 위해 다양한 돌봄 타워를 배치하고 업그레이드하는 게임 "이라고 정의할 수 있다.
 
 유기견들이 경로 끝까지 도착하기 전에 유기견의 체력을 회복한 후 구조에 성공하는 것이 게임의 목표로 삼는다.
+
+
 
 ## 코드 구조
 ![코드 구조](images/readme_img4.png)
@@ -37,6 +41,8 @@ UI는 DrawUI, DrawStageInfo, ApiInfo, GameOver 등의 전용 UI 함수와 각 �
 
 이러한 다양한 시스템과 객체들은 mainplay.js를 중심으로 통합된다.
 mainplay.js는 메인 게임 루프를 포함하며, 게임 상태에 따른 조건문을 통해 각 시스템과 객체를 순차적으로 호출·관리하는 중앙 컨트롤러 역할을 수행한다.
+
+
 
 ## main component : Dog
 ![Dog 종류](images/readme_img5.png)
@@ -63,6 +69,7 @@ mainplay.js는 메인 게임 루프를 포함하며, 게임 상태에 따른 조
 - 0에서 시작해 힐을 받을수록 HP 증가
 - maxHP 도달하면 제거
     - 유기견 ‘돌봄’의 컨셉 구현하고자 '공격'을 '치유'로, '제거'를 '구조'로 시스템 설계
+
 
 
 ## main component : Tower
@@ -96,6 +103,7 @@ mainplay.js는 메인 게임 루프를 포함하며, 게임 상태에 따른 조
 - bullet.js 충돌로직 및 이펙트 (관통, 스플래시) 
 - pet.js slow, play 관리
 - shop.js 상점 인터페이스 출력 및 해금타워 관리
+
 
 
 ## main component : 유기동물 정보창
@@ -140,9 +148,11 @@ API에서 제공되는 이미지 리소스는 직접 서버를 통해 접근할 
 아울러, 실제 유기견 입양 절차 및 관련 정보를 확인할 수 있는 QR 코드를 삽입하여, 게임 외부의 행동으로 이어질 수 있는 상호작용을 강화하였다.
 
 
+
 ## 실제 플레이 화면
 ### 시작화면
 ![시작화면](images/readme_img7.png)
+
 ### 튜토리얼
 <p align="center">
   <img src="images/readme_img8.png" width="320">
