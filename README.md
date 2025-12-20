@@ -13,7 +13,7 @@ DogTowerDefense는 뉴스로만 소비되던 유기견 문제를 ‘행동과 �
 
 ## 프로젝트 개요
 ### 타워 디펜스 게임이란?
-![예시 게임](images/readme_img2.png)
+<img src="images/readme_img2.png" width="400">
 - 정해진 경로로 이동하는 적을 막기 위해 다양한 공격 타워를 배치하고 업그레이드하는 전략 게임
 
 ### DogTowerDefense의 차별점
@@ -151,12 +151,12 @@ API에서 제공되는 이미지 리소스는 직접 서버를 통해 접근할 
 
 ## 실제 플레이 화면
 ### 시작화면
-![시작화면](images/readme_img7.png)
+<img src="images/readme_img7.png" width="500">
 
 ### 튜토리얼
 <p align="center">
-  <img src="images/readme_img8.png" width="320">
-  <img src="images/readme_img9.png" width="320">
+  <img src="images/readme_img8.png" width="400">
+  <img src="images/readme_img9.png" width="400">
 </p>
 
 ### 기본 타워 구성 및 업그레이드, 제거 화면
@@ -166,16 +166,16 @@ API에서 제공되는 이미지 리소스는 직접 서버를 통해 접근할 
 ![시작화면](images/readme_img11.png)
 
 ### 플레이 예시 1
-![시작화면](images/readme_img12.png)
+<img src="images/readme_img12.png" width="500">
 
 ### 보스 등장 팝업창
-![시작화면](images/readme_img13.png)
+<img src="images/readme_img13.png" width="500">
 
 ### 플레이 예시 2 : 코드 화면
 <p align="center">
-  <img src="images/readme_img14.png" width="320">
-  <img src="images/readme_img15.png" width="320">
+  <img src="images/readme_img14.png" width="400">
+  <img src="images/readme_img15.png" width="400">
 </p>
 
 ### 구조 실패 엔딩
-![시작화면](images/readme_img16.png)
+<img src="images/readme_img16.png" width="500">
