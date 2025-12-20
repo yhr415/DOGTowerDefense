@@ -1,111 +1,165 @@
-## 유기견 타워 디펜스
-![설명](images/readme_img1.png)
-길 위의 강아지를 손끝으로 만나 기억할 수 있도록
+## 유기견 타워 디펜스 : DogTowerDefense
+![인트로](images/readme_img1.png)
+<p align="center">
+"길 위의 강아지를 손끝으로 만나 기억할 수 있도록"
+<p align="center">
 매년 수만 마리의 유기견들이 보호소에서 안락사를 기다리거나, 거리에서 보이지 않는 죽음을 맞이합니다.
-우리는 이 이야기가 뉴스 속 짧은 소비로 끝나지 않기를 바랐습니다.  유기견의 생명을 구하는 경험을 통해, 플레이어가 이 문제에 직접 개입하고 기억하도록 하는 게임을 기획했습니다.
+우리는 이 이야기가 뉴스 속 짧은 소비로 끝나지 않기를 바랐습니다.  
+유기견의 생명을 구하는 경험을 통해, 플레이어가 이 문제에 직접 개입하고 기억하도록 하는 게임을 기획했습니다.
 DogTowerDefense는 뉴스로만 소비되던 유기견 문제를 ‘행동과 돌봄’의 이야기로 바꾸고자 합니다.
+</p>
 
 
-## 1️⃣ Cursor 설치
-### Cursor 설치 (필수)
+## 프로젝트 개요
+### 타워 디펜스 게임이란?
+![예시 게임](images/readme_img2.png)
+- 정해진 경로로 이동하는 적을 막기 위해 다양한 공격 타워를 배치하고 업그레이드하는 전략 게임
+### DogTowerDefense의 차별점
+![게임 구상](images/readme_img3.png)
+- 적 → 버림받고 상처받은 강아지들
+- 막기 위해 → 치유와 회복을 위해
+- 다양한 공격 타워 → 다양한 돌봄 타워
 
-https://cursor.com/ 여기 들어가서 Download 버튼 누르고 설치해주세요.
+즉, DogTowerDefense는 " 정해진 경로로 이동하는 버림받고 상처받은 강아지들의 치유와 회복을 위해 다양한 돌봄 타워를 배치하고 업그레이드하는 게임 "이라고 정의할 수 있다.
 
-(VS Code랑 똑같은데 AI 기능이 내장된 엄청 좋은 툴)
-(VS Code가 깔려있고, 더 익숙하다면 VS Code 사용해도 됨)
+유기견들이 경로 끝까지 도착하기 전에 유기견의 체력을 회복한 후 구조에 성공하는 것이 게임의 목표로 삼는다.
 
-### Git 설치 (필수)
+## 코드 구조
+![코드 구조](images/readme_img4.png)
+이미지, 사운드 등의 asset 파일과 게임에 사용되는 각종 데이터 및 상수 값은 preload 단계에서 외부로부터 미리 로드된다. 이를 통해 게임 실행 중 발생할 수 있는 로딩 지연을 최소화하고, 안정적인 게임 루프를 유지한다.
 
-Cursor만 깔면 안 되고, 'Git'도 같이 깔아야함
+게임의 핵심 로직은 화면에 직접 드러나지 않는 Management System에서 담당한다.
+StageManager, HexGridManager, Shop System은 각각 웨이브 진행 관리, 맵 및 타워 배치 제어, 경제 시스템 및 설치 로직을 담당하며, 백엔드처럼 뒤에서 게임의 전체 흐름과 상태를 제어하는 역할을 수행한다.
 
-### 윈도우: https://git-scm.com/download/win (그냥 계속 Next 눌러서 설치)
+실제 게임 내에서 동작하는 객체들은 Tower, Dog, Pet, Bullet, Effect와 같은 Game Object 클래스로 구성되어 있다. 이 객체들은 Management System에 의해 생성·관리되며, 공격, 피해 처리, 소멸 등의 상호작용 로직을 내부적으로 포함한다.
 
-### 맥(Mac): 터미널 열고 git 이라고 치면 설치하라고 뜸 (혹은 이미 깔려있음)
+UI는 DrawUI, DrawStageInfo, ApiInfo, GameOver 등의 전용 UI 함수와 각 게임 객체의 show() 메서드를 통해 구현된다. 이를 통해 게임 로직과 화면 렌더링 로직을 분리하여 가독성과 유지보수성을 높였다.
 
-## 2️⃣ Cursor랑 깃허브 연결하기
-Cursor한테 "나 깃허브 아이디 있어!" 라고 알려주는 과정
+이러한 다양한 시스템과 객체들은 mainplay.js를 중심으로 통합된다.
+mainplay.js는 메인 게임 루프를 포함하며, 게임 상태에 따른 조건문을 통해 각 시스템과 객체를 순차적으로 호출·관리하는 중앙 컨트롤러 역할을 수행한다.
 
-Cursor 실행
+## main component : Dog
+![Dog 종류](images/readme_img5.png)
 
-화면 오른쪽 상단에 있는 톱니바퀴 아이콘(⚙️ Settings) 클릭.
+### Dog : 경로를 이동하며 치유되는 메인 캐릭터 
+- Boss: 1마리, 높은 HP, 늦은 속도, 큰 보상
+- Pet: 다수 등장, 낮은 HP, 빠른 속도
+- 효과 표시 (❄️, ⚡), 상태별 이미지 (sad, happy)
+- 공유하는 로직은 있지만, boss/pet 다른 클래스로 분리해서 관리
+- Stagemanager.js에서 스테이지 마다 pet/boss count 다르게 설정 및 처리
+- Boss 종류
+<p align="center">
+  <img src="data/dog/white_pome.png" width="250">
+  <img src="data/dog/brown_pome.png" width="250">
+  <img src="data/dog/golden_Retriever.png" width="250">
+</p>
+<p align="center">
+  <img src="data/dog/black_Retriever.png" width="250">
+  <img src="data/dog/border.png" width="250">
+  <img src="data/dog/brown_poodle.png" width="250">
+</p>
 
-General 혹은 Account 탭에서 Sign in 버튼 클릭.
+### HP
+- 0에서 시작해 힐을 받을수록 HP 증가
+- maxHP 도달하면 제거
+    - 유기견 ‘돌봄’의 컨셉 구현하고자 '공격'을 '치유'로, '제거'를 '구조'로 시스템 설계
 
-GitHub로 로그인하면 연결 끝
 
-## 3️⃣ 프로젝트 가져오기 (Clone)
-이제 우리 팀의 코드를 내 컴퓨터로 다운로드
+## main component : Tower
+### Tower : 강아지들을 감지하고 힐을 발사하는 치유 장치
+- 안정, 집중케어, 강아지를 찾습니다, 놀이터, 푸들 요정의 가호, 황금 뼈다귀 사원  등 스토리라인에 맞는 9종 구성
+- 슬로우, 재화, 버프 타워 등 기존 타워 디펜스 게임 레퍼런스 참고
+- 스테이지 별 오픈 가능한 타워 제한
+- 사거리 내 가장 가까운 dog 1마리 타겟
+- 레벨 기반 성장 (사거리, 속도, 힐의 양 증가)
+- 경로 내 설치 가능 타워와 경로 밖 설치 가능 타워 구분
+- 클릭 시 업그레이드 / 삭제 결정 가능
+- Tower 종류
+<p align="center">
+  <img src="data/tower/anti.png" width="250">
+  <img src="data/tower/bath.png" width="250">
+  <img src="data/tower/block.png" width="250">
+</p>
+<p align="center">
+  <img src="data/tower/gold.png" width="250">
+  <img src="data/tower/heal.png" width="250">
+  <img src="data/tower/love.png" width="250">
+</p>
+<p align="center">
+  <img src="data/tower/playground.png" width="250">
+  <img src="data/tower/snack.png" width="250">
+  <img src="data/tower/support.png" width="250">
+</p>
 
-Cursor에서 키보드로 Ctrl + Shift + P (맥은 Cmd + Shift + P) 를 누르면 됨
+### 관련 Class
+- tower.js 속성결정 (속도, 데미지 계산)
+- bullet.js 충돌로직 및 이펙트 (관통, 스플래시) 
+- pet.js slow, play 관리
+- shop.js 상점 인터페이스 출력 및 해금타워 관리
 
-검색창에 Git: Clone 이라고 치고 엔터!
 
-입력창에 아래 주소를 복사해서 붙여넣고 엔터!
+## main component : 유기동물 정보창
 
-👉 주소: [https://github.com/yhr415/DOGTowerDefense.git]
+### 유기동물 정보창
+- 현실에서 도움을 필요로 하는 유기견 정보 제공
 
-저장할 폴더를 선택하면 다운로드가 시작
+### API 정보
+![유기동물 api](images/readme_img6.png)
+- 대전 유기동물공고 오픈 API 연결
+- 스테이지 엔딩 이후 이미지, 종, 나이, 성별 등의 구체적인 데이터를 카드형 정보 화면으로 시각화
+- 실제 구조된 동물 정보를 유저들에게 제공 → 게임을 넘어 ‘현실’의 문제를 인지하게 유도, 실제로도 도움을 제공할 수 있다는 효능감 전달
 
-다운 다 되면 오른쪽 아래에 뜨는 Open 버튼 클릭!
+1. Image Data Handling Strategy
 
-## 3️⃣-1️⃣ [필수] 작업 시작 전 업데이트 (Pull) ★★★
+API에서 제공되는 이미지 리소스는 직접 서버를 통해 접근할 수 없는 구조였기 때문에, 초기 구현 단계에서는 API로부터 전달받은 메타데이터를 기반으로 개별 이미지를 자동으로 로컬에 다운로드하는 스크립트를 작성하였다. 이를 통해 게임 내에서 필요한 이미지들을 안정적으로 불러올 수 있었다.
 
-"작업 시작하기 전에 무조건 업데이트부터 받자!" (이거 안 하면 나중에 코드 다 꼬임!) 
-다른 팀원이 깃허브에 올려둔 최신 코드를 내 컴퓨터로 가져오는 과정.
+그러나 이 방식은 프로젝트가 확장될수록 프로그램 전체 용량이 과도하게 증가하는 문제를 야기하였다.
+이에 대한 개선 방향으로, p5.js 환경에서 접근 가능한 클라우드 형태의 이미지 서버에 리소스를 저장하고, 실행 시점에 필요한 이미지를 동적으로 불러오는 구조로 리팩토링을 계획하였다. 해당 방식은 현재 설계 단계에 있으며, 추후 구현을 통해 프로젝트에 적용할 예정이다.
 
-왼쪽 아래 확인: 커서 화면 왼쪽 맨 아래에 🔄 (화살표가 도는 모양) 아이콘 확인 (또는 Sync 글자)
+2. Character Design & API Data Mapping
 
-클릭: 그걸 누르면 "This action will pull and push commits..." 라고 뜨는데 OK 누르면 됨
+본 프로젝트는 스테이지별로 등장하는 유기견 캐릭터의 외형과, 팝업을 통해 제공되는 실제 유기견 정보 간의 연결성을 강조하고자 하였다.
+이를 위해 각 스테이지에 등장하는 캐릭터 외형에 시각적 특징을 태그 형태로 정의하고, API의 item별 데이터에 해당 외형 묘사가 포함되어 있을 경우, 그와 가장 유사한 실제 유기견 정보를 매칭하여 출력하도록 설계하였다.
 
-또는: Ctrl + Shift + P 누르고 Git: Pull 입력해서 엔터!
+다만, API 내부의 외형 묘사 텍스트가 일관된 형식을 갖추고 있지 않아, 이를 파싱하기 위한 태그 기준을 설정하는 과정에서 많은 시행착오가 있었다. 이 과정에서 태그의 범위와 우선순위를 조정하며, 최대한 안정적인 매칭 결과를 도출하고자 하였다.
 
-확인: 에러 없이 잠잠하면 업데이트 완료! 이제 작업 시작해도 됨.
+3. Information Delivery & Narrative Design
 
-## 4️⃣ 나만의 작업 공간 만들기 (Branch) ★중요★
-절대로 main에서 바로 작업하면 안됨. 서로 코드가 꼬일 수 있어. 반드시 '내 전용 연습실(브랜치)'을 만들어서 작업해야 함.
+‘게임’이라는 매체의 특성상, 이용자가 스테이지 진행에 집중한 나머지 API를 통해 제공되는 실제 유기견 정보를 충분히 인지하지 못할 가능성에 대한 우려가 있었다. 실제 플레이 테스트 과정에서도,
+“스테이지 클리어와 실제 유기견 정보를 제공하는 팝업 간의 관계가 명확하지 않다”는 피드백이 확인되었다.
 
-Cursor 화면 왼쪽 맨 아래 구석 main (또는 master)이라고 적힌 작은 글씨 클릭.
+이를 개선하기 위해, 스테이지 클리어 정보와 실제 유기견 정보를 제공하는 팝업을 시간적으로 분리하여 각각 독립적인 흐름으로 제시하였다. 이를 통해 이용자가 API 기반 정보가 제공되는 상황임을 명확히 인식하도록 유도하고자 했다.
 
-메뉴 맨 위에 Create new branch... 클릭.
+또한, 단순히 API에서 제공되는 label과 value를 그대로 출력하는 방식에서 벗어나, 추가적인 설명과 서사를 덧붙여 게임이 의도하는 메시지가 자연스럽게 전달되도록 구성하였다.
+아울러, 실제 유기견 입양 절차 및 관련 정보를 확인할 수 있는 QR 코드를 삽입하여, 게임 외부의 행동으로 이어질 수 있는 상호작용을 강화하였다.
 
-브랜치 이름을 적고 엔터.
 
-규칙: feat/작업내용 (예: feat/dog-feature-fix, feat/tower-attack)
+## 실제 플레이 화면
+### 시작화면
+![시작화면](images/readme_img7.png)
+### 튜토리얼
+<p align="center">
+  <img src="images/readme_img8.png" width="700">
+  <img src="images/readme_img9.png" width="700">
+</p>
 
-왼쪽 아래 글씨가 내가 만든 이름으로 바뀌었으면 성공!
+### 기본 타워 구성 및 업그레이드, 제거 화면
+![시작화면](images/readme_img10.png)
 
-## 5️⃣ 작업하고 저장하고 올리기 (Push)
-코드를 수정하고 깃허브에 올리는 3단계 루틴.
+### 타워 해금 예시
+![시작화면](images/readme_img11.png)
 
-### 1. 코드 수정 (Work)
+### 플레이 예시 1
+![시작화면](images/readme_img12.png)
 
-열심히 코드를 짠다. Ctrl + S로 저장한다.
+### 보스 등장 팝업창
+![시작화면](images/readme_img13.png)
 
-### 2. 커밋 (Commit) - 일기 쓰기
+### 플레이 예시 2 : 코드 화면
+<p align="center">
+  <img src="images/readme_img14.png" width="700">
+  <img src="images/readme_img15.png" width="700">
+</p>
 
-왼쪽 메뉴바에서 'Y'자 모양 아이콘 (Source Control) 클릭.
-
-변경된 파일 확인.
-
-꿀팁: 메시지 적는 칸 옆에 반짝이 아이콘(✨) 누르면 AI가 알아서 영어로 멋지게 설명 써줌!
-
-파란색 Commit 버튼 클릭.
-
-### 3. 푸시 (Push) - 업로드
-
-커밋을 하고 나면 버튼이 Publish Branch (또는 Sync Changes)로 바뀜.
-
-그거 누르면 깃허브에 업로드 완료!
-
-💡 혹시 에러가 난다면?
-"Permission denied (403)": 초대 수락 안됨 -> 다시 초대장 발송 요청
-
-"User name/email 설정해라": 터미널 열고 아래 두 줄 입력.
-
-git config --global user.name "내영어이름"
-
-git config --global user.email "내이메일주소"
-
-## 파일 실행하는 법
-터미널에 npx vite 입력 -> 주소창에 local:5173 입력해서 확인
-
+### 구조 실패 엔딩
+![시작화면](images/readme_img16.png)
