@@ -10,10 +10,12 @@ DogTowerDefense는 뉴스로만 소비되던 유기견 문제를 ‘행동과 �
 </p>
 
 
+
 ## 프로젝트 개요
 ### 타워 디펜스 게임이란?
-![예시 게임](images/readme_img2.png)
+<img src="images/readme_img2.png" width="400">
 - 정해진 경로로 이동하는 적을 막기 위해 다양한 공격 타워를 배치하고 업그레이드하는 전략 게임
+
 ### DogTowerDefense의 차별점
 ![게임 구상](images/readme_img3.png)
 - 적 → 버림받고 상처받은 강아지들
@@ -23,6 +25,8 @@ DogTowerDefense는 뉴스로만 소비되던 유기견 문제를 ‘행동과 �
 즉, DogTowerDefense는 " 정해진 경로로 이동하는 버림받고 상처받은 강아지들의 치유와 회복을 위해 다양한 돌봄 타워를 배치하고 업그레이드하는 게임 "이라고 정의할 수 있다.
 
 유기견들이 경로 끝까지 도착하기 전에 유기견의 체력을 회복한 후 구조에 성공하는 것이 게임의 목표로 삼는다.
+
+
 
 ## 코드 구조
 ![코드 구조](images/readme_img4.png)
@@ -37,6 +41,8 @@ UI는 DrawUI, DrawStageInfo, ApiInfo, GameOver 등의 전용 UI 함수와 각 �
 
 이러한 다양한 시스템과 객체들은 mainplay.js를 중심으로 통합된다.
 mainplay.js는 메인 게임 루프를 포함하며, 게임 상태에 따른 조건문을 통해 각 시스템과 객체를 순차적으로 호출·관리하는 중앙 컨트롤러 역할을 수행한다.
+
+
 
 ## main component : Dog
 ![Dog 종류](images/readme_img5.png)
@@ -63,6 +69,7 @@ mainplay.js는 메인 게임 루프를 포함하며, 게임 상태에 따른 조
 - 0에서 시작해 힐을 받을수록 HP 증가
 - maxHP 도달하면 제거
     - 유기견 ‘돌봄’의 컨셉 구현하고자 '공격'을 '치유'로, '제거'를 '구조'로 시스템 설계
+
 
 
 ## main component : Tower
@@ -98,6 +105,7 @@ mainplay.js는 메인 게임 루프를 포함하며, 게임 상태에 따른 조
 - shop.js 상점 인터페이스 출력 및 해금타워 관리
 
 
+
 ## main component : 유기동물 정보창
 
 ### 유기동물 정보창
@@ -109,21 +117,27 @@ mainplay.js는 메인 게임 루프를 포함하며, 게임 상태에 따른 조
 - 스테이지 엔딩 이후 이미지, 종, 나이, 성별 등의 구체적인 데이터를 카드형 정보 화면으로 시각화
 - 실제 구조된 동물 정보를 유저들에게 제공 → 게임을 넘어 ‘현실’의 문제를 인지하게 유도, 실제로도 도움을 제공할 수 있다는 효능감 전달
 
-1. Image Data Handling Strategy
+<sub>
+  <b>1. Image Data Handling Strategy</b>
+</sub>
 
 API에서 제공되는 이미지 리소스는 직접 서버를 통해 접근할 수 없는 구조였기 때문에, 초기 구현 단계에서는 API로부터 전달받은 메타데이터를 기반으로 개별 이미지를 자동으로 로컬에 다운로드하는 스크립트를 작성하였다. 이를 통해 게임 내에서 필요한 이미지들을 안정적으로 불러올 수 있었다.
 
 그러나 이 방식은 프로젝트가 확장될수록 프로그램 전체 용량이 과도하게 증가하는 문제를 야기하였다.
 이에 대한 개선 방향으로, p5.js 환경에서 접근 가능한 클라우드 형태의 이미지 서버에 리소스를 저장하고, 실행 시점에 필요한 이미지를 동적으로 불러오는 구조로 리팩토링을 계획하였다. 해당 방식은 현재 설계 단계에 있으며, 추후 구현을 통해 프로젝트에 적용할 예정이다.
 
-2. Character Design & API Data Mapping
+  <sub>
+    <b>2. Character Design & API Data Mapping</b>
+  </sub>
 
 본 프로젝트는 스테이지별로 등장하는 유기견 캐릭터의 외형과, 팝업을 통해 제공되는 실제 유기견 정보 간의 연결성을 강조하고자 하였다.
 이를 위해 각 스테이지에 등장하는 캐릭터 외형에 시각적 특징을 태그 형태로 정의하고, API의 item별 데이터에 해당 외형 묘사가 포함되어 있을 경우, 그와 가장 유사한 실제 유기견 정보를 매칭하여 출력하도록 설계하였다.
 
 다만, API 내부의 외형 묘사 텍스트가 일관된 형식을 갖추고 있지 않아, 이를 파싱하기 위한 태그 기준을 설정하는 과정에서 많은 시행착오가 있었다. 이 과정에서 태그의 범위와 우선순위를 조정하며, 최대한 안정적인 매칭 결과를 도출하고자 하였다.
 
-3. Information Delivery & Narrative Design
+  <sub>
+    <b>3. Information Delivery & Narrative Design</b>
+  </sub>
 
 ‘게임’이라는 매체의 특성상, 이용자가 스테이지 진행에 집중한 나머지 API를 통해 제공되는 실제 유기견 정보를 충분히 인지하지 못할 가능성에 대한 우려가 있었다. 실제 플레이 테스트 과정에서도,
 “스테이지 클리어와 실제 유기견 정보를 제공하는 팝업 간의 관계가 명확하지 않다”는 피드백이 확인되었다.
@@ -134,13 +148,15 @@ API에서 제공되는 이미지 리소스는 직접 서버를 통해 접근할 
 아울러, 실제 유기견 입양 절차 및 관련 정보를 확인할 수 있는 QR 코드를 삽입하여, 게임 외부의 행동으로 이어질 수 있는 상호작용을 강화하였다.
 
 
+
 ## 실제 플레이 화면
 ### 시작화면
-![시작화면](images/readme_img7.png)
+<img src="images/readme_img7.png" width="500">
+
 ### 튜토리얼
 <p align="center">
-  <img src="images/readme_img8.png" width="320">
-  <img src="images/readme_img9.png" width="320">
+  <img src="images/readme_img8.png" width="400">
+  <img src="images/readme_img9.png" width="400">
 </p>
 
 ### 기본 타워 구성 및 업그레이드, 제거 화면
@@ -150,16 +166,16 @@ API에서 제공되는 이미지 리소스는 직접 서버를 통해 접근할 
 ![시작화면](images/readme_img11.png)
 
 ### 플레이 예시 1
-![시작화면](images/readme_img12.png)
+<img src="images/readme_img12.png" width="500">
 
 ### 보스 등장 팝업창
-![시작화면](images/readme_img13.png)
+<img src="images/readme_img13.png" width="500">
 
 ### 플레이 예시 2 : 코드 화면
 <p align="center">
-  <img src="images/readme_img14.png" width="320">
-  <img src="images/readme_img15.png" width="320">
+  <img src="images/readme_img14.png" width="400">
+  <img src="images/readme_img15.png" width="400">
 </p>
 
 ### 구조 실패 엔딩
-![시작화면](images/readme_img16.png)
+<img src="images/readme_img16.png" width="500">
