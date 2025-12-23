@@ -4,6 +4,7 @@ function preload() {
 //const/preload.js/loadeverything
 
 function setup() {
+  AudioContext.createDynamics
   if (bgm && bgm.isLoaded()) {
     bgm.setVolume(0.4);
   }
@@ -124,7 +125,7 @@ function draw() {
 }
 
 function mousePressed() {
-  fxsounds['click']?.play(); // 공통 클릭음
+  playSfx('click', { interval: 150, maxStack: 1, decayMs: 250 }); // 공통 클릭음
 
   switch (gameState) {
     case "INTRO":
@@ -340,7 +341,7 @@ function handleTowerSelectionUI() {
       money >= levelUpCost[selectedTower.type][selectedTower.level]) {
       money -= levelUpCost[selectedTower.type][selectedTower.level];
       selectedTower.levelUp();
-      fxsounds['money'].play();
+      playSfx('money', { interval: 150, maxStack: 2, decayMs: 350 });
       return true;
     }
   }
@@ -364,7 +365,7 @@ function handleTowerSelectionUI() {
     if (towerItem) {
       const refundAmount = Math.floor(towerItem.cost / 2);
       money += refundAmount;
-      fxsounds['money'].play();
+      playSfx('money', { interval: 150, maxStack: 2, decayMs: 350 });
     }
 
     // 타워 제거 전에 타일 정보 저장

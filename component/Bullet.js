@@ -98,6 +98,9 @@ class Bullet {
           }
         }
         if (!hitted){
+          if (this.target.isDead()){
+            return true
+          }
           return false
         }
 
@@ -245,8 +248,5 @@ function drawBullet(type, exploding, x, y, color) {
 }
 
 function playHitSound() {
-  if (millis() - lastHitSoundTime > 100) { 
-    fxsounds['hit'].play();
-    lastHitSoundTime = millis(); // 시간 갱신
-  }
+  playSfx('hit', {interval: 480, maxStack: 1, decayMs: 500})
 }

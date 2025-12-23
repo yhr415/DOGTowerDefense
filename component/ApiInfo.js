@@ -178,7 +178,7 @@ function clickCloseApiInfo() {
   if (mouseX > btnX && mouseX < btnX + btnW && mouseY > btnY && mouseY < btnY + btnH) {
     showApiInfoScreen = false;
 
-    fxsounds['click'].play();
+    playSfx('click', { interval: 150, maxStack: 1, decayMs: 250 });
   }
   return;
 }

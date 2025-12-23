@@ -86,4 +86,12 @@ fxsounds["click"] = loadSound('data/sound/click.wav');
 fxsounds["hit"] = loadSound('data/sound/뿅뿅.wav');
 fxsounds["money"] = loadSound('data/sound/돈소리.wav');
 fxsounds["eat"] = loadSound('data/sound/eat.wav');
+
+// 효과음이 겹칠 때마다 새로운 AudioBufferSource를 무한 생성하는 것을 방지
+// (p5.sound play() 기본동작이 중첩 재생이라 노드 폭증 -> 끊김/멈춤 발생)
+["click", "hit", "money", "eat"].forEach((key) => {
+  if (fxsounds[key]?.playMode) {
+    fxsounds[key].playMode("restart"); // 동일 소스 재사용
+  }
+});
 }
