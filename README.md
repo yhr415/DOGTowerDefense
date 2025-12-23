@@ -15,7 +15,7 @@
 ### 타워 디펜스 게임이란?
 <img src="images/readme_img_2_2.png" width="500">
 
-<사진 출처 : Ninja Kiwi, Bloons TD 6, 2018, https://store.steampowered.com/app/960090/Bloons_TD_6/?curator_clanid=4218320>
+[사진 출처 : Ninja Kiwi. (2018). Bloons TD 6 [Video game]. https://store.steampowered.com/app/960090/Bloons_TD_6/?curator_clanid=4218320]
 - 정해진 경로로 이동하는 적을 막기 위해 다양한 공격 타워를 배치하고 업그레이드하는 전략 게임
 
 ### 유기견 타워 디펜스의 차별점
