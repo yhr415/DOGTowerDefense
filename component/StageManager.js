@@ -173,12 +173,12 @@ function startNewStage(){
   selectedTile = null;
 
   // 🔊 전투 시작 소리 & 배경음악 재생
-  fxsounds['click'].play();
+  playSfx('click', { interval: 150, maxStack: 1, decayMs: 250 });
 
-  // BGM이 꺼져있다면 켜기 (중복 재생 방지)
-  if (!bgm.isPlaying()) {
-    bgm.loop();
-  }
+  // 실패/클리어 BGM이 남아 있으면 정지하고 메인 BGM만 유지
+  if (bgmFail?.isPlaying?.()) bgmFail.stop();
+  if (bgmClear?.isPlaying?.()) bgmClear.stop();
+  if (!bgm.isPlaying()) bgm.loop();
 
   return;
 }

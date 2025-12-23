@@ -51,11 +51,13 @@ class Tower {
       this.printStartTime = 0
     }
     else if (this.type === "antiTanker") {
-      this.growLevel = 1
+      this.growLevel = this.growLevel ?? 1
       this.maxGrowLevel = stats.maxGrowLevel
       this.toGrowCnt = stats.toGrowCnt
-      this.cnt = 0
-      this.beforeTarget = null
+      this.cnt = this.cnt ?? 0
+      this.beforeTarget = this.beforeTarget ?? null
+
+      this.fireRate /= Math.pow(2, this.growLevel - 1);
     }
   }
 
@@ -111,6 +113,8 @@ class Tower {
 
   grow(toShoot){
     if (!toShoot || this.beforeTarget != toShoot){
+      this.growLevel = 1
+      this.cnt = 0
       this.generate()
     }
     else{

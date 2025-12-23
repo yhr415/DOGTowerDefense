@@ -27,6 +27,9 @@ let currentStage = 0, stageManager, isStageActive = false;
 //sound 변수 선언
 let bgm;
 let fxsounds = {};
+// 효과음 재생 제어용 상태
+let sfxLastPlayTime = {};
+let sfxActiveCount = {};
 
 // 이미지 변수 선언
 let jindoImg;
@@ -64,3 +67,26 @@ let gameState = "INTRO";
 let manualPage=0;
 
 let lastHitSoundTime = 0;
+
+// 공용 SFX 재생 헬퍼: 과도한 중첩을 막기 위해 최소 간격과 동시 재생 수를 제한
+function playSfx(key, { interval = 120, maxStack = 2, decayMs = 400 } = {}) {
+  const s = fxsounds[key];
+  if (!s || typeof s.play !== "function") return;
+
+  const now = (typeof millis === "function") ? millis() : Date.now();
+  const last = sfxLastPlayTime[key] ?? 0;
+  if (now - last < interval) return;
+
+  const active = sfxActiveCount[key] ?? 0;
+  if (active >= maxStack) return;
+
+  sfxLastPlayTime[key] = now;
+  sfxActiveCount[key] = active + 1;
+
+  s.play();
+
+  // 일정 시간이 지나면 active 카운트 감소 (간단한 풀링 효과)
+  setTimeout(() => {
+    sfxActiveCount[key] = Math.max(0, (sfxActiveCount[key] ?? 1) - 1);
+  }, decayMs);
+}

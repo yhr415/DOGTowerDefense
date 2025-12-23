@@ -73,6 +73,14 @@ function resetGame() {
   stageManager = new StageManager(stageDesign, pathWaypoints);
 
   shop.updateAvailableItems(0)
+
+  // 오작동 중인 실패/클리어 BGM 정지 후 메인 BGM으로 복귀
+  if (bgmFail?.isPlaying?.()) bgmFail.stop();
+  if (bgmClear?.isPlaying?.()) bgmClear.stop();
+  if (bgm?.isLoaded?.()) {
+    bgm.stop();
+    bgm.loop();
+  }
 }
 
 function gameOverReset() {
