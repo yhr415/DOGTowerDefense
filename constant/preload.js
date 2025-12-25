@@ -44,6 +44,7 @@ dogPics['poodle']['brown']['sad'] = loadImage('data/dog/brown_poodle.png');
 dogPics['poodle']['brown']['neutral'] = loadImage('data/dog/brown_poodle.png');
 dogPics['poodle']['brown']['happy'] = loadImage('data/dog/brown_poodle.png');
 
+floorImg=loadImage('data/floor.png');
 
 shibaImg = loadImage('data/jindo.png');
 PomeImg = loadImage('data/jindo.png');
