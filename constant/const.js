@@ -38,6 +38,7 @@ let PomeImg;
 let BeagleImg;
 let DobermanImg;
 let backgrnd;
+let floorImg;
 
 //effect를 담는 List
 let effects = [];
