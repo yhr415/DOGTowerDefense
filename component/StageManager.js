@@ -185,16 +185,18 @@ function startNewStage(){
 
 
 function handleStageClear() {
+  if (!isStageActive) return;
   isStageActive = false;
   money += stageDesign[currentStage].stageReward;
 
-  // API 화면 띄우기
-  if (rescueData?.items?.length > 0) {
-    const rndIndex = floor(random(rescueData.items.length));
-    startApiInfoScreen(rescueData.items[rndIndex]);
-    gameState = "API"; // 상태 전환!
+  const clearedStage = currentStage; 
+  currentStage++;
+
+  if (clearedStage >= stageDesign.length) {
+    triggerGameClear();
+    return;
   }
 
-  currentStage++;
-  if (currentStage >= stageDesign.length) triggerGameClear();
+  enterApiInfoStage(clearedStage);
+  gameState = "API";
 }
